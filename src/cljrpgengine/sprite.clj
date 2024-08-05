@@ -16,7 +16,7 @@
 (defn draw
   [{:keys [width height image animations current-animation]}]
   (apply q/background [160 20 60])
-  (let [animation (get animations current-animation)
+  (let [animation (current-animation animations)
         frame (:frame animation 0)
         x (* frame width)
         y (* height (:y-offset animation))
