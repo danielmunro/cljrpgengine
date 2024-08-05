@@ -26,33 +26,8 @@
         x (* frame width)
         y (* height (:y-offset animation))
         g (create-graphics width height)]
-    ;(println (- x) ", " (- y) ", " frame)
-    ;(q/background 255 255 255)
-    ;(q/clip x y width height)
-    ;(q/image image (- x) (- y))
     (q/with-graphics g
                      (.clear g)
                      (q/image image (- x) (- y)))
-    (q/image g 0 0)
+    (q/image g 0 0 (* 2 width) (* 2 height))
     ))
-
-;(defn offset-pos
-;  [[x y] w h]
-;  [(- x (/ w 2))
-;   (- y (/ h 2))])
-
-;(defn draw
-;  [{:keys [width height image]}]
-;  (let [[x y] (offset-pos [0 0] width height)]
-;    (q/image image x y)))
-
-;(defn draw
-;  [sprite]
-;  (let [w (:width sprite)
-;        h (:height sprite)
-;        g (graphics w h)]
-;    (println w ", " h)
-;    (q/with-graphics g
-;                     (.clear g)
-;                     (q/image (:image sprite) 0 0)
-;                     (.dispose g))))
