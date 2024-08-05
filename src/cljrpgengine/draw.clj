@@ -67,12 +67,19 @@
   ;(System/exit 0)
   ;(println (get-in @fireas [:animations (:current-animation @fireas) :delay]))
   ;(println (mod (q/frame-count) (get-in @fireas [:animations (:current-animation @fireas) :frames])))
-  (dosync
-    (alter
-      fireas
-      update-in
-      [:animations (:current-animation @fireas) :frame]
-      (fn [_] (mod (q/frame-count) (get-in @fireas [:animations (:current-animation @fireas) :frames])))))
+
+  ;(fn [_] (mod (q/frame-count) (get-in @fireas [:animations (:current-animation @fireas) :frames])))
+  (if (= 0 (mod (q/frame-count) (get-in @fireas [:animations (:current-animation @fireas) :delay])))
+    (dosync
+      (alter
+        fireas
+        update-in
+        [:animations (:current-animation @fireas) :frame]
+        inc)))
+  (if (>= (get-in @fireas [:animations (:current-animation @fireas) :frame]) (get-in @fireas [:animations (:current-animation @fireas) :frames]))
+    (dosync
+      (alter fireas update-in [:animations (:current-animation @fireas) :frame] (fn [_] 0))))
+
 
   ;(println "b " ((:current-animation @fireas) (:animations @fireas)))
   ;(System/exit 1)
