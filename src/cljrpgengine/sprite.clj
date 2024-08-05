@@ -3,12 +3,6 @@
 
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
-;(defn add-frame
-;  [animations]
-;  (println "args: " animations)
-;  (println (keys animations))
-;  (reduce (fn [animation k] (println animation " :: " k)) animations))
-
 (defn create
   [name filename width height animations current-animation]
   {:name name
@@ -21,6 +15,7 @@
 
 (defn draw
   [{:keys [width height image animations current-animation]}]
+  (apply q/background [160 20 60])
   (let [animation (get animations current-animation)
         frame (:frame animation 0)
         x (* frame width)
@@ -29,5 +24,4 @@
     (q/with-graphics g
                      (.clear g)
                      (q/image image (- x) (- y)))
-    (q/image g 0 0 (* 2 width) (* 2 height))
-    ))
+    (q/image g 0 0 (* 2 width) (* 2 height))))

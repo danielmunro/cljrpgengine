@@ -38,6 +38,12 @@
                                 :frame 0}}
                        :down))))
 
+(defn update-frame
+  [current-frame total-frames]
+  (if (< current-frame (- total-frames 1))
+    (inc current-frame)
+    0))
+
 (defn draw []
   (let [animation (get-in @fireas [:animations (:current-animation @fireas)])]
     (if (= 0 (mod (q/frame-count) (:delay animation)))
@@ -46,9 +52,6 @@
           fireas
           update-in
           [:animations (:current-animation @fireas) :frame]
-          inc)))
-    (if (>= (:frame animation) (:frames animation))
-      (dosync
-        (alter fireas update-in [:animations (:current-animation @fireas) :frame] (fn [_] 0)))))
+          (fn [current-frame] (update-frame current-frame (:frames animation)))))))
 
   (sprite/draw @fireas))
