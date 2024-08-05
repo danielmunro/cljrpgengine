@@ -9,5 +9,4 @@
   (q/defsketch hello
                :setup draw/setup
                :size [300 300]
-               :update draw/update
                :draw draw/draw))
