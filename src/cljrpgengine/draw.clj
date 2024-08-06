@@ -2,4 +2,4 @@
   (:require [cljrpgengine.sprite :as sprite]))
 
 (defn draw [state]
-  (sprite/draw @(:player state)))
+  (sprite/draw (get-in @state [:player :sprite])))
