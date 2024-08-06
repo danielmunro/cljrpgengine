@@ -8,7 +8,8 @@
 (defn setup []
   (q/frame-rate 60)
   (q/background 0)
-  (ref {:player {:sprite (sprite/create
+  (ref {:player {:status :idle
+                 :sprite (sprite/create
                           :fireas
                           "fireas.png"
                           16
@@ -55,18 +56,40 @@
           [:player :sprite :animations current-animation :frame]
           (fn [current-frame] (get-next-frame current-frame (:frames animation))))))))
 
+(defn start-moving
+  [state direction]
+  (println "start-moving")
+  (dosync (alter state update-in [:player :status] (fn [_] :moving))
+          (alter state update-in [:player :sprite :current-animation] (fn [_] direction))))
+
+(defn try-moving
+  [state direction]
+  (if (= :idle (get-in @state [:player :status]))
+    (start-moving state direction)))
+
+(defn reset-moving
+  [state]
+  (dosync (alter state update-in [:player :status] (fn [_] :idle))))
+
+(defn check-key-press
+  [state]
+  (let [key (q/key-as-keyword)]
+    (dosync (alter state assoc :key key))
+    (cond
+      (= key :up)
+      (try-moving state :up)
+      (= key :down)
+      (try-moving state :down)
+      (= key :left)
+      (try-moving state :left)
+      (= key :right)
+      (try-moving state :right))))
+
 (defn update-state
   [state]
-  (dosync (alter state assoc :key-code (q/key-code)))
-  (cond
-    (= (KeyEvent/VK_UP) (q/key-code))
-    (set-current-animation state :up)
-    (= (KeyEvent/VK_DOWN) (q/key-code))
-    (set-current-animation state :down)
-    (= (KeyEvent/VK_LEFT) (q/key-code))
-    (set-current-animation state :left)
-    (= (KeyEvent/VK_RIGHT) (q/key-code))
-    (set-current-animation state :right))
+  (if (q/key-pressed?)
+    (check-key-press state)
+    (reset-moving state))
   (update-animation-frame state)
   state)
 
