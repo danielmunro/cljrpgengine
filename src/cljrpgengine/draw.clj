@@ -1,7 +1,6 @@
 (ns cljrpgengine.draw
   (:require [quil.core :as q])
-  (:require [cljrpgengine.sprite :as sprite])
-  (:import (java.time Instant)))
+  (:require [cljrpgengine.sprite :as sprite]))
 
 (def img (ref nil))
 (def fireas (ref nil))
@@ -18,24 +17,19 @@
                        24
                        {:down {:frames 4
                                :delay 8
-                               :y-offset 0
-                               :frame 0}
+                               :y-offset 0}
                         :left {:frames 4
                                :delay 8
-                               :y-offset 1
-                               :frame 0}
+                               :y-offset 1}
                         :right {:frames 4
                                 :delay 8
-                                :y-offset 2
-                                :frame 0}
+                                :y-offset 2}
                         :up {:frames 4
                              :delay 8
-                             :y-offset 3
-                             :frame 0}
+                             :y-offset 3}
                         :sleep {:frames 1
                                 :delay 0
-                                :y-offset 4
-                                :frame 0}}
+                                :y-offset 4}}
                        :down))))
 
 (defn update-frame
