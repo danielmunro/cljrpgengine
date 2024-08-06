@@ -30,7 +30,8 @@
                         :sleep {:frames 1
                                 :delay 0
                                 :y-offset 4}}
-                       :down))))
+                       :down))
+    {:player fireas}))
 
 (defn update-frame
   [current-frame total-frames]
@@ -39,7 +40,7 @@
       next-frame
       0)))
 
-(defn draw []
+(defn draw [state]
   (let [current-animation (:current-animation @fireas)
         animation (get-in @fireas [:animations current-animation])]
     (if (= 0 (mod (q/frame-count) (:delay animation)))
