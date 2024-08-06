@@ -5,13 +5,9 @@
             [quil.middleware :as m])
   (:import (java.awt.event KeyEvent)))
 
-;(def img (ref nil))
-;(def fireas (ref nil))
-
 (defn setup []
   (q/frame-rate 60)
   (q/background 0)
-  ;(ref-set img (q/load-image "tinytown.png"))
   (ref {:player {:sprite (sprite/create
                           :fireas
                           "fireas.png"
