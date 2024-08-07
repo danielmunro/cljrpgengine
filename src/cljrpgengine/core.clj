@@ -1,35 +1,14 @@
 (ns cljrpgengine.core
   (:require [quil.core :as q]
             [quil.middleware :as m]
-            [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.player :as player]
             [cljrpgengine.input :as input]
             [cljrpgengine.draw :as draw]))
 
 (defn setup []
   (q/frame-rate 60)
   (q/background 0)
-  (ref {:player {:keys #{}
-                 :facing :down
-                 :sprite (sprite/create
-                          :fireas
-                          "fireas.png"
-                          16
-                          24
-                          {:down {:frames 4
-                                  :delay 8
-                                  :y-offset 0}
-                           :left {:frames 4
-                                  :delay 8
-                                  :y-offset 1}
-                           :right {:frames 4
-                                   :delay 8
-                                   :y-offset 2}
-                           :up {:frames 4
-                                :delay 8
-                                :y-offset 3}
-                           :sleep {:frames 1
-                                   :delay 0
-                                   :y-offset 4}})}}))
+  (ref (player/create-player)))
 
 (defn get-next-frame
   [current-frame total-frames]
@@ -40,7 +19,7 @@
 
 (defn update-animation-frame
   [state]
-  (let [player (:player @state)
+  (let [player @state
         current-animation (:facing player)
         animation (get-in player [:sprite :animations current-animation])
         is-playing (:is-playing animation)]
@@ -51,7 +30,7 @@
         (alter
           state
           update-in
-          [:player :sprite :animations current-animation :frame]
+          [:sprite :animations current-animation :frame]
           (fn [current-frame] (get-next-frame current-frame (:frames animation))))))))
 
 (defn update-state

@@ -1,5 +1,5 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.mob :as mob]))
+  (:require [cljrpgengine.player :as mob]))
 
 (defn check-key-released
   [state {:keys [key]}]
@@ -8,7 +8,7 @@
 
 (defn check-key-press
   [state {:keys [key]}]
-  (if (not (contains? (get-in @state [:player :keys]) key))
+  (if (not (contains? (get-in @state [:keys]) key))
     (cond
       (= key :up)
       (mob/start-moving state :up)
