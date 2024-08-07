@@ -56,14 +56,14 @@
 (defn start-moving
   [state key]
   (dosync (alter state update-in [:player :keys] conj key)
-          (alter state update-in [:player :sprite :current-animation] (fn [_] key))
-          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (fn [_] true))))
+          (alter state update-in [:player :sprite :current-animation] (constantly key))
+          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))))
 
 (defn reset-moving
   [state {:keys [key]}]
   (dosync
     (alter state update-in [:player :keys] disj key)
-    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (fn [_] false)))
+    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false)))
   state)
 
 (defn check-key-press
