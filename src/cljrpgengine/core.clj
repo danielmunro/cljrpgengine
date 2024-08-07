@@ -7,7 +7,7 @@
 (defn setup []
   (q/frame-rate 60)
   (q/background 0)
-  (ref {:player {:status :idle
+  (ref {:player {:keys #{}
                  :sprite (sprite/create
                           :fireas
                           "fireas.png"
@@ -54,37 +54,37 @@
           (fn [current-frame] (get-next-frame current-frame (:frames animation))))))))
 
 (defn start-moving
-  [state direction]
-  (dosync (alter state update-in [:player :status] (fn [_] :moving))
-          (alter state update-in [:player :sprite :current-animation] (fn [_] direction))
-          (alter state update-in [:player :sprite :animations (keyword direction) :is-playing] (fn [_] true))))
+  [state key]
+  (dosync (alter state update-in [:player :keys] conj key)
+          (alter state update-in [:player :sprite :current-animation] (fn [_] key))
+          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (fn [_] true))))
 
 (defn reset-moving
-  [state]
-  (let [current-animation (get-in @state [:player :sprite :current-animation])]
-    (dosync
-      (alter state update-in [:player :status] (fn [_] :idle))
-      (alter state update-in [:player :sprite :animations current-animation :is-playing] (fn [_] false)))))
+  [state {:keys [key]}]
+  (println "key released: " key)
+  (dosync
+    (alter state update-in [:player :keys] disj key)
+    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (fn [_] false)))
+  state)
 
 (defn check-key-press
-  [state]
-  (let [key (q/key-as-keyword)]
-    (dosync (alter state assoc :key key))
-    (cond
-      (= key :up)
-      (start-moving state :up)
-      (= key :down)
-      (start-moving state :down)
-      (= key :left)
-      (start-moving state :left)
-      (= key :right)
-      (start-moving state :right))))
+  [state {:keys [key]}]
+  (println "key pressed: " key)
+  (cond
+    (= key :up)
+    (start-moving state :up)
+    (= key :down)
+    (start-moving state :down)
+    (= key :left)
+    (start-moving state :left)
+    (= key :right)
+    (start-moving state :right))
+  (println "new keys: " (get-in @state [:player :keys]))
+  state)
 
 (defn update-state
   [state]
-  (if (q/key-pressed?)
-    (check-key-press state)
-    (reset-moving state))
+  (println " keys: " (get-in @state [:player :keys]) ", current-anim: " (get-in @state [:player :sprite :current-animation]))
   (update-animation-frame state)
   state)
 
@@ -97,4 +97,6 @@
                :size [300 300]
                :update update-state
                :draw draw/draw
+               :key-pressed check-key-press
+               :key-released reset-moving
                :middleware [m/fun-mode]))
