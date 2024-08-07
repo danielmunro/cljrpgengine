@@ -3,9 +3,12 @@
 
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
-(defn add-frame
+(defn add-default-props
   [animations]
-  (into {} (map (fn[animation] {animation (assoc (animation animations) :frame 0)}) (keys animations))))
+  (into {}
+        (map
+          (fn[animation] {animation (assoc (animation animations) :frame 0 :is-playing false)})
+          (keys animations))))
 
 (defn create
   [name filename width height animations current-animation]
@@ -14,7 +17,7 @@
    :image (q/load-image filename)
    :width width
    :height height
-   :animations (add-frame animations)
+   :animations (add-default-props animations)
    :current-animation current-animation})
 
 (defn draw

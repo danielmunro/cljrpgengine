@@ -2,8 +2,7 @@
   (:require [quil.core :as q])
   (:require [cljrpgengine.draw :as draw])
   (:require [cljrpgengine.sprite :as sprite]
-            [quil.middleware :as m])
-  (:import (java.awt.event KeyEvent)))
+            [quil.middleware :as m]))
 
 (defn setup []
   (q/frame-rate 60)
@@ -31,11 +30,6 @@
                                    :y-offset 4}}
                           :down)}}))
 
-
-(defn set-current-animation
-  [state animation]
-  (dosync (alter state update-in [:player :sprite :current-animation] (fn [_] animation))))
-
 (defn get-next-frame
   [current-frame total-frames]
   (let [next-frame (inc current-frame)]
@@ -47,8 +41,11 @@
   [state]
   (let [player (:player @state)
         current-animation (get-in player [:sprite :current-animation])
-        animation (get-in player [:sprite :animations current-animation])]
-    (if (= 0 (mod (q/frame-count) (:delay animation)))
+        animation (get-in player [:sprite :animations current-animation])
+        is-playing (:is-playing animation)]
+    (if (and
+          (= 0 (mod (q/frame-count) (:delay animation)))
+          (= true is-playing))
       (dosync
         (alter
           state
@@ -58,9 +55,9 @@
 
 (defn start-moving
   [state direction]
-  (println "start-moving")
   (dosync (alter state update-in [:player :status] (fn [_] :moving))
-          (alter state update-in [:player :sprite :current-animation] (fn [_] direction))))
+          (alter state update-in [:player :sprite :current-animation] (fn [_] direction))
+          (alter state update-in [:player :sprite :animations (keyword direction) :is-playing] (fn [_] true))))
 
 (defn try-moving
   [state direction]
@@ -69,7 +66,10 @@
 
 (defn reset-moving
   [state]
-  (dosync (alter state update-in [:player :status] (fn [_] :idle))))
+  (let [current-animation (get-in @state [:player :sprite :current-animation])]
+    (dosync
+      (alter state update-in [:player :status] (fn [_] :idle))
+      (alter state update-in [:player :sprite :animations current-animation :is-playing] (fn [_] false)))))
 
 (defn check-key-press
   [state]
