@@ -1,10 +1,9 @@
 (ns cljrpgengine.core
-  (:require [quil.core :as q])
-  (:require [cljrpgengine.draw :as draw])
-  (:require [cljrpgengine.sprite :as sprite]
-            [quil.middleware :as m]))
-
-(def move-keys {:up :down :left :right})
+  (:require [quil.core :as q]
+            [quil.middleware :as m]
+            [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.input :as input]
+            [cljrpgengine.draw :as draw]))
 
 (defn setup []
   (q/frame-rate 60)
@@ -55,42 +54,6 @@
           [:player :sprite :animations current-animation :frame]
           (fn [current-frame] (get-next-frame current-frame (:frames animation))))))))
 
-(defn start-moving
-  [state key]
-  (dosync (alter state update-in [:player :keys] conj key)
-          (alter state update-in [:player :facing] (constantly key))
-          (alter state update-in [:player :sprite :current-animation] (constantly key))
-          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))))
-
-(defn reset-moving
-  [state key]
-  (dosync
-    (alter state update-in [:player :keys] disj key)
-    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false))
-    (let [keys (get-in @state [:player :keys])]
-      (if (not (empty? keys))
-        (alter state update-in [:player :facing] (constantly (last keys))))))
-  state)
-
-(defn check-key-released
-  [state {:keys [key]}]
-  (reset-moving state key)
-  state)
-
-(defn check-key-press
-  [state {:keys [key]}]
-  (if (not (contains? (get-in @state [:player :keys]) key))
-    (cond
-      (= key :up)
-      (start-moving state :up)
-      (= key :down)
-      (start-moving state :down)
-      (= key :left)
-      (start-moving state :left)
-      (= key :right)
-      (start-moving state :right)))
-  state)
-
 (defn update-state
   [state]
   (update-animation-frame state)
@@ -105,6 +68,6 @@
                :size [300 300]
                :update update-state
                :draw draw/draw
-               :key-pressed check-key-press
-               :key-released check-key-released
+               :key-pressed input/check-key-press
+               :key-released input/check-key-released
                :middleware [m/fun-mode]))
