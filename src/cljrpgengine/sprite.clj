@@ -11,19 +11,18 @@
           (keys animations))))
 
 (defn create
-  [name filename width height animations current-animation]
+  [name filename width height animations]
   {:name name
    :filename filename
    :image (q/load-image filename)
    :width width
    :height height
-   :animations (add-default-props animations)
-   :current-animation current-animation})
+   :animations (add-default-props animations)})
 
 (defn draw
-  [{:keys [width height image animations current-animation]}]
+  [{:keys [width height image animations]} facing]
   (apply q/background [0])
-  (let [animation (current-animation animations)
+  (let [animation (facing animations)
         frame (:frame animation 0)
         x (* frame width)
         y (* height (:y-offset animation))

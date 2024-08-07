@@ -4,10 +4,13 @@
   (:require [cljrpgengine.sprite :as sprite]
             [quil.middleware :as m]))
 
+(def move-keys {:up :down :left :right})
+
 (defn setup []
   (q/frame-rate 60)
   (q/background 0)
   (ref {:player {:keys #{}
+                 :facing :down
                  :sprite (sprite/create
                           :fireas
                           "fireas.png"
@@ -27,8 +30,7 @@
                                 :y-offset 3}
                            :sleep {:frames 1
                                    :delay 0
-                                   :y-offset 4}}
-                          :down)}}))
+                                   :y-offset 4}})}}))
 
 (defn get-next-frame
   [current-frame total-frames]
@@ -40,7 +42,7 @@
 (defn update-animation-frame
   [state]
   (let [player (:player @state)
-        current-animation (get-in player [:sprite :current-animation])
+        current-animation (:facing player)
         animation (get-in player [:sprite :animations current-animation])
         is-playing (:is-playing animation)]
     (if (and
@@ -56,27 +58,37 @@
 (defn start-moving
   [state key]
   (dosync (alter state update-in [:player :keys] conj key)
+          (alter state update-in [:player :facing] (constantly key))
           (alter state update-in [:player :sprite :current-animation] (constantly key))
           (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))))
 
 (defn reset-moving
-  [state {:keys [key]}]
+  [state key]
   (dosync
     (alter state update-in [:player :keys] disj key)
-    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false)))
+    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false))
+    (let [keys (get-in @state [:player :keys])]
+      (if (not (empty? keys))
+        (alter state update-in [:player :facing] (constantly (last keys))))))
+  state)
+
+(defn check-key-released
+  [state {:keys [key]}]
+  (reset-moving state key)
   state)
 
 (defn check-key-press
   [state {:keys [key]}]
-  (cond
-    (= key :up)
-    (start-moving state :up)
-    (= key :down)
-    (start-moving state :down)
-    (= key :left)
-    (start-moving state :left)
-    (= key :right)
-    (start-moving state :right))
+  (if (not (contains? (get-in @state [:player :keys]) key))
+    (cond
+      (= key :up)
+      (start-moving state :up)
+      (= key :down)
+      (start-moving state :down)
+      (= key :left)
+      (start-moving state :left)
+      (= key :right)
+      (start-moving state :right)))
   state)
 
 (defn update-state
@@ -94,5 +106,5 @@
                :update update-state
                :draw draw/draw
                :key-pressed check-key-press
-               :key-released reset-moving
+               :key-released check-key-released
                :middleware [m/fun-mode]))
