@@ -61,7 +61,6 @@
 
 (defn reset-moving
   [state {:keys [key]}]
-  (println "key released: " key)
   (dosync
     (alter state update-in [:player :keys] disj key)
     (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (fn [_] false)))
@@ -69,7 +68,6 @@
 
 (defn check-key-press
   [state {:keys [key]}]
-  (println "key pressed: " key)
   (cond
     (= key :up)
     (start-moving state :up)
@@ -79,7 +77,6 @@
     (start-moving state :left)
     (= key :right)
     (start-moving state :right))
-  (println "new keys: " (get-in @state [:player :keys]))
   state)
 
 (defn update-state
