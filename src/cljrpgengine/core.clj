@@ -81,7 +81,6 @@
 
 (defn update-state
   [state]
-  (println " keys: " (get-in @state [:player :keys]) ", current-anim: " (get-in @state [:player :sprite :current-animation]))
   (update-animation-frame state)
   state)
 
