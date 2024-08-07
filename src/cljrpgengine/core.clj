@@ -59,11 +59,6 @@
           (alter state update-in [:player :sprite :current-animation] (fn [_] direction))
           (alter state update-in [:player :sprite :animations (keyword direction) :is-playing] (fn [_] true))))
 
-(defn try-moving
-  [state direction]
-  (if (= :idle (get-in @state [:player :status]))
-    (start-moving state direction)))
-
 (defn reset-moving
   [state]
   (let [current-animation (get-in @state [:player :sprite :current-animation])]
@@ -77,13 +72,13 @@
     (dosync (alter state assoc :key key))
     (cond
       (= key :up)
-      (try-moving state :up)
+      (start-moving state :up)
       (= key :down)
-      (try-moving state :down)
+      (start-moving state :down)
       (= key :left)
-      (try-moving state :left)
+      (start-moving state :left)
       (= key :right)
-      (try-moving state :right))))
+      (start-moving state :right))))
 
 (defn update-state
   [state]
