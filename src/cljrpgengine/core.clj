@@ -2,11 +2,12 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]
             [cljrpgengine.player :as player]
+            [cljrpgengine.constants :as constants]
             [cljrpgengine.input :as input]
             [cljrpgengine.draw :as draw]))
 
 (defn setup []
-  (q/frame-rate 60)
+  (q/frame-rate constants/target-fps)
   (q/background 0)
   (ref (player/create-player)))
 
@@ -44,7 +45,7 @@
   (println "starting game...")
   (q/defsketch hello
                :setup setup
-               :size [300 300]
+               :size constants/window
                :update update-state
                :draw draw/draw
                :key-pressed input/check-key-press
