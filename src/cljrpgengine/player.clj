@@ -28,17 +28,17 @@
 
 (defn start-moving
   [state key]
-  (dosync (alter state update-in [:keys] conj key)
-          (alter state update-in [:facing] (constantly key))
+  (dosync (alter state update :keys conj key)
+          (alter state update :facing (constantly key))
           (alter state update-in [:sprite :current-animation] (constantly key))
           (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly true))))
 
 (defn reset-moving
   [state key]
   (dosync
-    (alter state update-in [:keys] disj key)
+    (alter state update :keys disj key)
     (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly false))
-    (let [keys (get-in @state [:keys])]
+    (let [keys (:keys @state)]
       (if (not (empty? keys))
-        (alter state update-in [:facing] (constantly (last keys))))))
+        (alter state update :facing (constantly (last keys))))))
   state)
