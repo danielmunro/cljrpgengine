@@ -2,14 +2,15 @@
   (:require [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
-            [cljrpgengine.player :as player]
+            [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.input :as input]))
 
-(defn setup []
+(defn setup
+  []
   (q/frame-rate constants/target-fps)
   (q/background 0)
-  (ref (player/create-player)))
+  (state/create-state))
 
 (defn get-next-frame
   [current-frame total-frames]
@@ -20,9 +21,8 @@
 
 (defn update-animation-frame
   [state]
-  (let [player @state
-        current-animation (get-in player [:sprite :current-animation])
-        animation (get-in player [:sprite :animations current-animation])
+  (let [current-animation (get-in @state [:player :sprite :current-animation])
+        animation (get-in @state [:player :sprite :animations current-animation])
         is-playing (:is-playing animation)]
     (if (and
           (= 0 (mod (q/frame-count) (:delay animation)))
@@ -31,7 +31,7 @@
         (alter
           state
           update-in
-          [:sprite :animations current-animation :frame]
+          [:player :sprite :animations current-animation :frame]
           (fn [current-frame] (get-next-frame current-frame (:frames animation)))))))
   state)
 
@@ -39,9 +39,9 @@
   [state]
   (update-animation-frame state))
 
-(defn draw [state]
-  (sprite/draw (:sprite @state) (get-in @state [:sprite :current-animation])))
-
+(defn draw
+  [state]
+  (sprite/draw (get-in @state [:player :sprite])))
 
 (defn -main
   "I don't do a whole lot ... yet."

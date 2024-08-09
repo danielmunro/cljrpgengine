@@ -1,5 +1,6 @@
 (ns cljrpgengine.player-test
   (:require [cljrpgengine.player :as player]
+            [cljrpgengine.state :as state]
             [clojure.test :refer :all]
             [quil.core :as q]))
 
@@ -8,10 +9,10 @@
     (let [lock (promise)]
       (q/defsketch start-moving
                    :draw (fn []
-                           (let [player (ref (player/create-player))]
-                             (player/start-moving player :left)
-                             (is (contains? (:keys @player) :left))
-                             (is (= (:facing @player) :left)))
+                           (let [state (state/create-state)]
+                             (player/start-moving state :left)
+                             (is (contains? (:keys @state) :left))
+                             (is (= (get-in @state [:player :sprite :current-animation]) :left)))
                            (q/exit))
                    :on-close #(deliver lock true))
       @lock))
@@ -19,11 +20,12 @@
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
-                           (let [player (ref (player/create-player))]
-                             (player/start-moving player :right)
-                             (player/reset-moving player :right)
-                             (is (empty? (:keys @player)))
-                             (is (= (:facing @player) :right)))
+                           (let [state (state/create-state)]
+                             (player/start-moving state :right)
+                             (player/reset-moving state :right)
+                             (is (empty? (:keys @state)))
+                             (is (= (get-in @state [:player :sprite :current-animation]) :right)))
                            (q/exit))
                    :on-close #(deliver lock true))
-      @lock)))
+      @lock))
+  )

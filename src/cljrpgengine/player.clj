@@ -3,9 +3,7 @@
 
 (defn create-player
   []
-  {:keys #{}
-   :facing :down
-   :sprite (sprite/create
+  {:sprite (sprite/create
              :fireas
              "fireas.png"
              16
@@ -30,15 +28,15 @@
 (defn start-moving
   [state key]
   (dosync (alter state update :keys conj key)
-          (alter state update-in [:sprite :current-animation] (constantly key))
-          (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly true))))
+          (alter state update-in [:player :sprite :current-animation] (constantly key))
+          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))))
 
 (defn reset-moving
   [state key]
   (dosync
     (alter state update :keys disj key)
-    (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly false))
+    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false))
     (let [keys (:keys @state)]
       (if (not (empty? keys))
-        (alter state update-in [:sprite :current-animation] (constantly (last keys))))))
+        (alter state update-in [:player :sprite :current-animation] (constantly (last keys))))))
   state)

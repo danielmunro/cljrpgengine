@@ -21,7 +21,7 @@
    :animations (add-default-props animations)})
 
 (defn draw
-  [{:keys [width height image animations]} current-animation]
+  [{:keys [width height image animations current-animation]}]
   (apply q/background [0])
   (let [animation (current-animation animations)
         frame (:frame animation 0)
