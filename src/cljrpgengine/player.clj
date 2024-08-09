@@ -10,6 +10,7 @@
              "fireas.png"
              16
              24
+             :down
              {:down  {:frames   4
                       :delay    8
                       :y-offset 0}
@@ -29,7 +30,6 @@
 (defn start-moving
   [state key]
   (dosync (alter state update :keys conj key)
-          (alter state update :facing (constantly key))
           (alter state update-in [:sprite :current-animation] (constantly key))
           (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly true))))
 
@@ -40,5 +40,5 @@
     (alter state update-in [:sprite :animations (keyword key) :is-playing] (constantly false))
     (let [keys (:keys @state)]
       (if (not (empty? keys))
-        (alter state update :facing (constantly (last keys))))))
+        (alter state update-in [:sprite :current-animation] (constantly (last keys))))))
   state)

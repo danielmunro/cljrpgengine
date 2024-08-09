@@ -21,7 +21,7 @@
 (defn update-animation-frame
   [state]
   (let [player @state
-        current-animation (:facing player)
+        current-animation (get-in player [:sprite :current-animation])
         animation (get-in player [:sprite :animations current-animation])
         is-playing (:is-playing animation)]
     (if (and
