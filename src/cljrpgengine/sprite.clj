@@ -27,6 +27,17 @@
       next-frame
       0)))
 
+(defn get-sprite-frame
+  [sprite frame]
+  (let [current-animation (:current-animation sprite)
+        animation (get-in sprite [:animations current-animation])
+        is-playing (:is-playing animation)]
+    (if (and
+          (= 0 (mod (q/frame-count) (:delay animation)))
+          (= true is-playing))
+      (get-next-frame frame (:frames animation))
+      frame)))
+
 (defn draw
   [{:keys [width height image animations current-animation]}]
   (apply q/background [0])

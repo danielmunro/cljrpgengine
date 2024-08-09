@@ -1,5 +1,6 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.sprite :as sprite]
+  (:require [cljrpgengine.player :as player]
+            [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
             [cljrpgengine.state :as state]
@@ -12,25 +13,16 @@
   (q/background 0)
   (state/create-state))
 
-(defn update-animation-frame
+(defn update-animations
   [state]
-  (let [current-animation (get-in @state [:player :sprite :current-animation])
-        animation (get-in @state [:player :sprite :animations current-animation])
-        is-playing (:is-playing animation)]
-    (if (and
-          (= 0 (mod (q/frame-count) (:delay animation)))
-          (= true is-playing))
-      (dosync
-        (alter
-          state
-          update-in
-          [:player :sprite :animations current-animation :frame]
-          (fn [current-frame] (sprite/get-next-frame current-frame (:frames animation)))))))
+  (player/update-player-sprite state)
   state)
 
 (defn update-state
+  "Main loop, starting with updating animations.  Eventually, this will include
+  checking for game events."
   [state]
-  (update-animation-frame state))
+  (update-animations state))
 
 (defn draw
   [state]

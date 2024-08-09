@@ -40,3 +40,14 @@
       (if (not (empty? keys))
         (alter state update-in [:player :sprite :current-animation] (constantly (last keys))))))
   state)
+
+(defn update-player-sprite
+  [state]
+  (let [sprite (get-in @state [:player :sprite])
+        current-animation (:current-animation sprite)]
+    (dosync
+      (alter
+        state
+        update-in
+        [:player :sprite :animations current-animation :frame]
+        (fn [frame] (sprite/get-sprite-frame sprite frame))))))
