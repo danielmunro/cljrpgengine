@@ -32,12 +32,12 @@
           state
           update-in
           [:sprite :animations current-animation :frame]
-          (fn [current-frame] (get-next-frame current-frame (:frames animation))))))))
+          (fn [current-frame] (get-next-frame current-frame (:frames animation)))))))
+  state)
 
 (defn update-state
   [state]
-  (update-animation-frame state)
-  state)
+  (update-animation-frame state))
 
 (defn -main
   "I don't do a whole lot ... yet."
