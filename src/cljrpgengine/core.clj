@@ -1,10 +1,10 @@
 (ns cljrpgengine.core
-  (:require [quil.core :as q]
+  (:require [cljrpgengine.sprite :as sprite]
+            [quil.core :as q]
             [quil.middleware :as m]
             [cljrpgengine.player :as player]
             [cljrpgengine.constants :as constants]
-            [cljrpgengine.input :as input]
-            [cljrpgengine.draw :as draw]))
+            [cljrpgengine.input :as input]))
 
 (defn setup []
   (q/frame-rate constants/target-fps)
@@ -39,6 +39,10 @@
   [state]
   (update-animation-frame state))
 
+(defn draw [state]
+  (sprite/draw (:sprite @state) (get-in @state [:sprite :current-animation])))
+
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -47,7 +51,7 @@
                :setup setup
                :size constants/window
                :update update-state
-               :draw draw/draw
+               :draw draw
                :key-pressed input/check-key-press
                :key-released input/check-key-released
                :middleware [m/fun-mode]))
