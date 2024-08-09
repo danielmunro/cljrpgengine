@@ -12,13 +12,6 @@
   (q/background 0)
   (state/create-state))
 
-(defn get-next-frame
-  [current-frame total-frames]
-  (let [next-frame (inc current-frame)]
-    (if (< next-frame total-frames)
-      next-frame
-      0)))
-
 (defn update-animation-frame
   [state]
   (let [current-animation (get-in @state [:player :sprite :current-animation])
@@ -32,7 +25,7 @@
           state
           update-in
           [:player :sprite :animations current-animation :frame]
-          (fn [current-frame] (get-next-frame current-frame (:frames animation)))))))
+          (fn [current-frame] (sprite/get-next-frame current-frame (:frames animation)))))))
   state)
 
 (defn update-state

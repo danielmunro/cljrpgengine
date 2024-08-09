@@ -20,6 +20,13 @@
    :current-animation current-animation
    :animations (add-default-props animations)})
 
+(defn get-next-frame
+  [current-frame total-frames]
+  (let [next-frame (inc current-frame)]
+    (if (< next-frame total-frames)
+      next-frame
+      0)))
+
 (defn draw
   [{:keys [width height image animations current-animation]}]
   (apply q/background [0])
