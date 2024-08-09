@@ -15,14 +15,14 @@
 
 (defn update-animations
   [state]
-  (player/update-player-sprite state)
-  state)
+  (player/update-player-sprite state))
 
 (defn update-state
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state]
-  (update-animations state))
+  (update-animations state)
+  state)
 
 (defn draw
   [state]
