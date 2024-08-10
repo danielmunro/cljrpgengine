@@ -28,9 +28,8 @@
       0)))
 
 (defn get-sprite-frame
-  [sprite frame]
-  (let [current-animation (:current-animation sprite)
-        animation (get-in sprite [:animations current-animation])
+  [{:keys [current-animation animations]} frame]
+  (let [animation (current-animation animations)
         is-playing (:is-playing animation)]
     (if (and
           (= 0 (mod (q/frame-count) (:delay animation)))
