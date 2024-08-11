@@ -62,23 +62,24 @@
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
 (defn draw-layer
-  [layer image w h mapw maph iw g]
-  (loop [x 0 y 0]
-    (when (< y maph)
-      (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
-        (if (>= tile 0)
-          (do
-            (q/with-graphics g
-                             (.clear g)
-                             (q/image image (- (mod (* tile w) iw)) (- (* (int (Math/floor (/ (* tile w) iw))) w))))
-            (q/image g (* x w) (* y h) w h)))
-        (recur
-          (if (< (inc x) mapw)
-            (inc x)
-            0)
-          (if (>= (inc x) mapw)
-            (inc y)
-            y))))))
+  [layer image w h mapw maph iw]
+  (let [g (create-graphics w h)]
+    (loop [x 0 y 0]
+      (when (< y maph)
+        (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
+          (if (>= tile 0)
+            (do
+              (q/with-graphics g
+                               (.clear g)
+                               (q/image image (- (mod (* tile w) iw)) (- (* (int (Math/floor (/ (* tile w) iw))) w))))
+              (q/image g (* x w) (* y h) w h)))
+          (recur
+            (if (< (inc x) mapw)
+              (inc x)
+              0)
+            (if (>= (inc x) mapw)
+              (inc y)
+              y)))))))
 
 (defn draw
   [map]
@@ -87,9 +88,8 @@
         mapw (get-in map [:tilemap :width])
         maph (get-in map [:tilemap :height])
         iw (get-in map [:tileset :imagewidth])
-        g (create-graphics w h)
         image (:image map)]
-    (draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw g)
-    (draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw g)
-    (draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw g)
+    (draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw)
+    (draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw)
+    (draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw)
     ))
