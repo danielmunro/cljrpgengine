@@ -39,7 +39,6 @@
 
 (defn draw
   [{:keys [width height image animations current-animation]}]
-  (apply q/background [0])
   (let [animation (current-animation animations)
         frame (:frame animation 0)
         x (* frame width)
@@ -48,4 +47,4 @@
     (q/with-graphics g
                      (.clear g)
                      (q/image image (- x) (- y)))
-    (q/image g 0 0 (* 2 width) (* 2 height))))
+    (q/image g 0 0 width height)))

@@ -1,5 +1,6 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.map :as map]
+            [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
@@ -11,7 +12,7 @@
   []
   (q/frame-rate constants/target-fps)
   (q/background 0)
-  (state/create-state))
+  (state/create-state "tinytown"))
 
 (defn update-animations
   [state]
@@ -26,7 +27,9 @@
 
 (defn draw
   [state]
-  (sprite/draw (get-in @state [:player :sprite])))
+  (map/draw (:map @state))
+  (sprite/draw (get-in @state [:player :sprite]))
+  )
 
 (defn -main
   "I don't do a whole lot ... yet."
