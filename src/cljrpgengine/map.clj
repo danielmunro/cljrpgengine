@@ -3,7 +3,8 @@
             [quil.core :as q])
   (:import (java.awt.image BufferedImage)
            (java.io File)
-           (javax.imageio ImageIO)))
+           (javax.imageio ImageIO)
+           (processing.core PImage)))
 
 (def cnt (atom 0))
 (def x (atom 0))
@@ -57,7 +58,7 @@
      :objects (into {} (map (fn [o] (transform-objects o)) (filter (fn [o] (= "objectgroup" (o "type"))) (data "layers"))))}))
 
 (defn draw-layer
-  [layer layer-name image w h mapw maph iw]
+  [layer image w h mapw maph iw]
   (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
         g (.createGraphics buf)]
     (loop [x 0 y 0]
@@ -81,28 +82,28 @@
             (if (>= (inc x) mapw)
               (inc y)
               y)))))
-    (ImageIO/write buf "png" (File. (str (name layer-name) ".png")))
-    ))
+    (PImage. buf)))
 
 (defn load-map
   [area-name]
   (let [tilemap (load-tilemap area-name)
-        tileset (load-tileset area-name)]
+        tileset (load-tileset area-name)
+        image (ImageIO/read (File. (str "resources/" area-name "/" area-name ".png")))
+        w (:tilewidth tileset)
+        h (:tileheight tileset)
+        mapw (:width tilemap)
+        maph (:height tilemap)
+        iw (:imagewidth tileset)]
     {:tilemap tilemap
      :tileset tileset
-     :image (ImageIO/read (File. (str "resources/" area-name "/" area-name ".png")))
-     }))
+     :image image
+     :background (draw-layer (get-in tilemap [:layers :background]) image w h mapw maph iw)
+     :midground (draw-layer (get-in tilemap [:layers :midground]) image w h mapw maph iw)
+     :foreground (draw-layer (get-in tilemap [:layers :foreground]) image w h mapw maph iw)}))
 
 (defn draw
   [map]
-  (let [w (get-in map [:tileset :tilewidth])
-        h (get-in map [:tileset :tileheight])
-        mapw (get-in map [:tilemap :width])
-        maph (get-in map [:tilemap :height])
-        iw (get-in map [:tileset :imagewidth])
-        image (:image map)]
-    (draw-layer (get-in map [:tilemap :layers :background]) :background image w h mapw maph iw)
-    (draw-layer (get-in map [:tilemap :layers :midground]) :midground image w h mapw maph iw)
-    (draw-layer (get-in map [:tilemap :layers :foreground]) :foreground image w h mapw maph iw)
-    (System/exit 1)
-    ))
+  (q/image (:background map) 0 0)
+  (q/image (:midground map) 0 0)
+  (q/image (:foreground map) 0 0)
+  )
