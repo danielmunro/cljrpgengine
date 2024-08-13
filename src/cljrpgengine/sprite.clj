@@ -38,7 +38,7 @@
       frame)))
 
 (defn draw
-  [{:keys [width height image animations current-animation]}]
+  [player-x player-y {:keys [width height image animations current-animation]}]
   (let [animation (current-animation animations)
         frame (:frame animation 0)
         x (* frame width)
@@ -47,4 +47,4 @@
     (q/with-graphics g
                      (.clear g)
                      (q/image image (- x) (- y)))
-    (q/image g 0 0 width height)))
+    (q/image g player-x player-y width height)))

@@ -28,7 +28,10 @@
 (defn draw
   [state]
   (map/draw (:map @state))
-  (sprite/draw (get-in @state [:player :sprite]))
+  (sprite/draw
+    (* (get-in @state [:player :x]) (get-in @state [:map :tileset :tilewidth]))
+    (* (get-in @state [:player :y]) (get-in @state [:map :tileset :tileheight]))
+    (get-in @state [:player :sprite]))
   )
 
 (defn -main

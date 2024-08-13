@@ -8,14 +8,15 @@
 
 (defn check-key-press
   [state {:keys [key]}]
-  (if (not (contains? (:keys @state) key))
-    (cond
-      (= key :up)
-      (player/start-moving state :up)
-      (= key :down)
-      (player/start-moving state :down)
-      (= key :left)
-      (player/start-moving state :left)
-      (= key :right)
-      (player/start-moving state :right)))
-  state)
+  (let [player (:player @state)]
+    (if (= 0 (:move-amount player))
+          (cond
+            (= key :up)
+            (player/start-moving state :up (:x player) (dec (:y player)))
+            (= key :down)
+            (player/start-moving state :down (:x player) (inc (:y player)))
+            (= key :left)
+            (player/start-moving state :left (dec (:x player)) (:y player))
+            (= key :right)
+            (player/start-moving state :right (inc (:x player)) (:y player))))
+      state))
