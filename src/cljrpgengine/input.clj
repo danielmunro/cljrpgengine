@@ -9,7 +9,9 @@
 (defn check-key-press
   [state {:keys [key]}]
   (let [player (:player @state)]
-    (if (= 0 (:move-amount player))
+    (if (and
+          (= 0 (:x-offset player))
+          (= 0 (:y-offset player)))
           (cond
             (= key :up)
             (player/start-moving state :up (:x player) (dec (:y player)))
