@@ -71,7 +71,17 @@
             (do
               (q/with-graphics g
                                (.clear g)
-                               (q/image image (- (mod (* tile w) iw)) (- (* (int (Math/floor (/ (* tile w) iw))) w))))
+                               (q/image image (-> w
+                                                  (* tile)
+                                                  (mod iw)
+                                                  (-))
+                                              (-> w
+                                                  (* tile)
+                                                  (/ iw)
+                                                  (Math/floor)
+                                                  (int)
+                                                  (* w)
+                                                  (-))))
               (q/image g (* x w) (* y h) w h)))
           (recur
             (if (< (inc x) mapw)
