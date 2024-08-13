@@ -50,8 +50,8 @@
   (let [data (json/read-str (slurp (str "resources/" area-name "/" area-name "-tilemap.tmj")))]
     {:height (data "height")
      :width (data "width")
-     :layers (into {} (map (fn [l] (transform-layer l)) (filter (fn [l] (= "tilelayer" (l "type"))) (data "layers"))))
-     :objects (into {} (map (fn [o] (transform-objects o)) (filter (fn [o] (= "objectgroup" (o "type"))) (data "layers"))))}))
+     :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
+     :objects (into {} (map #(transform-objects %) (filter #(= "objectgroup" (% "type")) (data "layers"))))}))
 
 (defn load-map
   [area-name]
