@@ -1,6 +1,10 @@
 (ns cljrpgengine.map
   (:require [clojure.data.json :as json]
-           [quil.core :as q]))
+            [quil.core :as q])
+  (:import (java.awt.image BufferedImage)
+           (java.io File)
+           (javax.imageio ImageIO)
+           (processing.core PImage)))
 
 (def cnt (atom 0))
 (def x (atom 0))
@@ -53,43 +57,53 @@
      :layers (into {} (map (fn [l] (transform-layer l)) (filter (fn [l] (= "tilelayer" (l "type"))) (data "layers"))))
      :objects (into {} (map (fn [o] (transform-objects o)) (filter (fn [o] (= "objectgroup" (o "type"))) (data "layers"))))}))
 
+(defn draw-layer
+  [layer image w h mapw maph iw]
+  (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
+        g (.createGraphics buf)]
+    (loop [x 0 y 0]
+      (when (< y maph)
+        (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
+          (if (>= tile 0)
+            (do
+              (let [dx1 (* x w)
+                    dy1 (* y h)
+                    dx2 (+ dx1 w)
+                    dy2 (+ dy1 h)
+                    sx1 (mod (* tile w) iw)
+                    sy1 (* (int (Math/floor (/ (* tile w) iw))) w)
+                    sx2 (+ sx1 w)
+                    sy2 (+ sy1 h)]
+                (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil))))
+          (recur
+            (if (< (inc x) mapw)
+              (inc x)
+              0)
+            (if (>= (inc x) mapw)
+              (inc y)
+              y)))))
+    (PImage. buf)))
+
 (defn load-map
   [area-name]
-  {:tilemap (load-tilemap area-name)
-   :tileset (load-tileset area-name)
-   :image (q/load-image (str "resources/" area-name "/" area-name ".png"))})
-
-(def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
-
-(defn draw-layer
-  [layer image w h mapw maph iw g]
-  (loop [x 0 y 0]
-    (when (< y maph)
-      (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
-        (if (>= tile 0)
-          (do
-            (q/with-graphics g
-                             (.clear g)
-                             (q/image image (- (mod (* tile w) iw)) (- (* (int (Math/floor (/ (* tile w) iw))) w))))
-            (q/image g (* x w) (* y h) w h)))
-        (recur
-          (if (< (inc x) mapw)
-            (inc x)
-            0)
-          (if (>= (inc x) mapw)
-            (inc y)
-            y))))))
+  (let [tilemap (load-tilemap area-name)
+        tileset (load-tileset area-name)
+        image (ImageIO/read (File. (str "resources/" area-name "/" area-name ".png")))
+        w (:tilewidth tileset)
+        h (:tileheight tileset)
+        mapw (:width tilemap)
+        maph (:height tilemap)
+        iw (:imagewidth tileset)]
+    {:tilemap tilemap
+     :tileset tileset
+     :image image
+     :background (draw-layer (get-in tilemap [:layers :background]) image w h mapw maph iw)
+     :midground (draw-layer (get-in tilemap [:layers :midground]) image w h mapw maph iw)
+     :foreground (draw-layer (get-in tilemap [:layers :foreground]) image w h mapw maph iw)}))
 
 (defn draw
   [map]
-  (let [w (get-in map [:tileset :tilewidth])
-        h (get-in map [:tileset :tileheight])
-        mapw (get-in map [:tilemap :width])
-        maph (get-in map [:tilemap :height])
-        iw (get-in map [:tileset :imagewidth])
-        g (create-graphics w h)
-        image (:image map)]
-    (draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw g)
-    (draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw g)
-    (draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw g)
-    ))
+  (q/image (:background map) 0 0)
+  (q/image (:midground map) 0 0)
+  (q/image (:foreground map) 0 0)
+  )
