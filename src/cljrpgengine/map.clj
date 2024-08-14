@@ -57,8 +57,6 @@
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :objects (into {} (map #(transform-objects %) (filter #(= "objectgroup" (% "type")) (data "layers"))))}))
 
-(def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
-
 (defn draw-layer
   [layer image w h mapw maph iw]
   (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
