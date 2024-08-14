@@ -40,13 +40,31 @@
           (alter state update-in [:player :x] (constantly new-x))
           (alter state update-in [:player :y] (constantly new-y))))
 
+(defn check-start-moving
+  [state]
+  (let [player (:player @state)
+        x (:x player)
+        y (:y player)
+        keys (:keys @state)
+        last-key (first keys)]
+    (if (and
+          (= 0 (:x-offset player))
+          (= 0 (:y-offset player)))
+      (do
+        (if (= last-key :up)
+          (start-moving state :up x (dec y))
+          (if (= last-key :down)
+            (start-moving state :down x (inc y))
+            (if (= last-key :left)
+              (start-moving state :left (dec x) y)
+              (if (= last-key :right)
+                (start-moving state :right (inc x) y))))))
+      )))
+
 (defn reset-moving
   [state key]
   (dosync
-    (alter state update :keys disj key)
-    (let [keys (:keys @state)]
-      (if (not (empty? keys))
-        (alter state update-in [:player :sprite :current-animation] (constantly (last keys))))))
+    (alter state update :keys disj key))
   state)
 
 (defn update-player-sprite

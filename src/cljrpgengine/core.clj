@@ -24,6 +24,7 @@
   [state]
   (update-animations state)
   (player/update-move-offsets state)
+  (player/check-start-moving state)
   state)
 
 (defn draw

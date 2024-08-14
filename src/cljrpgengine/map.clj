@@ -103,9 +103,6 @@
 
 (defn draw
   [map]
-  ;(draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw)
-  ;(draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw)
-  ;(draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw)
   (q/image (:background map) 0 0)
   (q/image (:midground map) 0 0)
   (q/image (:foreground map) 0 0))
