@@ -53,12 +53,6 @@
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :objects (into {} (map #(transform-objects %) (filter #(= "objectgroup" (% "type")) (data "layers"))))}))
 
-(defn load-map
-  [area-name]
-  {:tilemap (load-tilemap area-name)
-   :tileset (load-tileset area-name)
-   :image (q/load-image (str "resources/" area-name "/" area-name ".png"))})
-
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
 (defn draw-layer
@@ -91,15 +85,28 @@
               (inc y)
               y)))))))
 
+(defn load-map
+  [area-name]
+  (let [tilemap (load-tilemap area-name)
+        tileset (load-tileset area-name)
+        image (q/load-image (str "resources/" area-name "/" area-name ".png"))
+        w (:tilewidth tileset)
+        h (:tileheight tileset)
+        mapw (:width tilemap)
+        maph (:height tilemap)
+        iw (:imagewidth tileset)]
+    {:tilemap tilemap
+     :tileset tileset
+     :image image
+     :background (draw-layer (get-in tilemap [:layers :background]) image w h mapw maph iw)
+     :midground (draw-layer (get-in tilemap [:layers :midground]) image w h mapw maph iw)
+     :foreground (draw-layer (get-in tilemap [:layers :foreground]) image w h mapw maph iw)}))
+
 (defn draw
   [map]
-  (let [w (get-in map [:tileset :tilewidth])
-        h (get-in map [:tileset :tileheight])
-        mapw (get-in map [:tilemap :width])
-        maph (get-in map [:tilemap :height])
-        iw (get-in map [:tileset :imagewidth])
-        image (:image map)]
-    (draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw)
-    (draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw)
-    (draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw)
-    ))
+  ;(draw-layer (get-in map [:tilemap :layers :background]) image w h mapw maph iw)
+  ;(draw-layer (get-in map [:tilemap :layers :midground]) image w h mapw maph iw)
+  ;(draw-layer (get-in map [:tilemap :layers :foreground]) image w h mapw maph iw)
+  (q/image (:background map) 0 0)
+  (q/image (:midground map) 0 0)
+  (q/image (:foreground map) 0 0))

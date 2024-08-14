@@ -35,8 +35,8 @@
   (dosync (alter state update :keys conj key)
           (alter state update-in [:player :sprite :current-animation] (constantly key))
           (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
-          (alter state update-in [:player :x-offset] (constantly (* (- new-x (get-in @state [:player :x])) (get-in @state [:map :tileset :tilewidth]))))
-          (alter state update-in [:player :y-offset] (constantly (* (- new-y (get-in @state [:player :y])) (get-in @state [:map :tileset :tileheight]))))
+          (alter state update-in [:player :x-offset] (constantly (* (- (get-in @state [:player :x]) new-x) (get-in @state [:map :tileset :tilewidth]))))
+          (alter state update-in [:player :y-offset] (constantly (* (- (get-in @state [:player :y]) new-y) (get-in @state [:map :tileset :tileheight]))))
           (alter state update-in [:player :x] (constantly new-x))
           (alter state update-in [:player :y] (constantly new-y))))
 
@@ -44,7 +44,6 @@
   [state key]
   (dosync
     (alter state update :keys disj key)
-    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false))
     (let [keys (:keys @state)]
       (if (not (empty? keys))
         (alter state update-in [:player :sprite :current-animation] (constantly (last keys))))))
@@ -59,4 +58,26 @@
         state
         update-in
         [:player :sprite :animations current-animation :frame]
-        (fn [frame] (sprite/get-sprite-frame sprite frame))))))
+        (fn [frame] (sprite/get-sprite-frame sprite frame))))
+    (if (and
+          (= 0 (get-in @state [:player :x-offset]))
+          (= 0 (get-in @state [:player :y-offset])))
+      (dosync (alter state update-in [:player :sprite :animations current-animation :is-playing] (constantly false))))))
+
+(defn update-move-offsets
+  [state]
+  (let [player (:player @state)
+        x-offset (:x-offset player)
+        y-offset (:y-offset player)]
+    (if (> 0 x-offset)
+      (dosync
+        (alter state update-in [:player :x-offset] inc))
+      (if (< 0 x-offset)
+        (dosync
+          (alter state update-in [:player :x-offset] dec))
+        (if (> 0 y-offset)
+          (dosync
+            (alter state update-in [:player :y-offset] inc))
+          (if (< 0 y-offset)
+            (dosync
+              (alter state update-in [:player :y-offset] dec))))))))
