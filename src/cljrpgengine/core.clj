@@ -23,13 +23,18 @@
   checking for game events."
   [state]
   (update-animations state)
+  (player/update-move-offsets state)
+  (player/check-start-moving state)
   state)
 
 (defn draw
   [state]
   (map/draw (:map @state))
-  (sprite/draw (get-in @state [:player :sprite]))
-  )
+  (let [player (:player @state)]
+    (sprite/draw
+      (+ (:x-offset player) (* (:x player) (get-in @state [:map :tileset :tilewidth])))
+      (+ (:y-offset player) (* (:y player) (get-in @state [:map :tileset :tileheight])))
+      (:sprite player))))
 
 (defn -main
   "I don't do a whole lot ... yet."

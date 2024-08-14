@@ -8,14 +8,13 @@
 
 (defn check-key-press
   [state {:keys [key]}]
-  (if (not (contains? (:keys @state) key))
-    (cond
-      (= key :up)
-      (player/start-moving state :up)
-      (= key :down)
-      (player/start-moving state :down)
-      (= key :left)
-      (player/start-moving state :left)
-      (= key :right)
-      (player/start-moving state :right)))
+  (cond
+    (= key :up)
+    (dosync (alter state update-in [:keys] conj :up))
+    (= key :down)
+    (dosync (alter state update-in [:keys] conj :down))
+    (= key :left)
+    (dosync (alter state update-in [:keys] conj :left))
+    (= key :right)
+    (dosync (alter state update-in [:keys] conj :right)))
   state)

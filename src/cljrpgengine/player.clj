@@ -3,7 +3,12 @@
 
 (defn create-player
   []
-  {:sprite (sprite/create
+  {:x 0
+   :y 0
+   :x-offset 0
+   :y-offset 0
+   :move-amount 0
+   :sprite (sprite/create
              :fireas
              "fireas.png"
              16
@@ -26,19 +31,40 @@
                       :y-offset 4}})})
 
 (defn start-moving
-  [state key]
+  [state key new-x new-y]
   (dosync (alter state update :keys conj key)
           (alter state update-in [:player :sprite :current-animation] (constantly key))
-          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))))
+          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
+          (alter state update-in [:player :x-offset] (constantly (* (- (get-in @state [:player :x]) new-x) (get-in @state [:map :tileset :tilewidth]))))
+          (alter state update-in [:player :y-offset] (constantly (* (- (get-in @state [:player :y]) new-y) (get-in @state [:map :tileset :tileheight]))))
+          (alter state update-in [:player :x] (constantly new-x))
+          (alter state update-in [:player :y] (constantly new-y))))
+
+(defn check-start-moving
+  [state]
+  (let [player (:player @state)
+        x (:x player)
+        y (:y player)
+        keys (:keys @state)
+        last-key (first keys)]
+    (if (and
+          (= 0 (:x-offset player))
+          (= 0 (:y-offset player)))
+      (do
+        (if (= last-key :up)
+          (start-moving state :up x (dec y))
+          (if (= last-key :down)
+            (start-moving state :down x (inc y))
+            (if (= last-key :left)
+              (start-moving state :left (dec x) y)
+              (if (= last-key :right)
+                (start-moving state :right (inc x) y))))))
+      )))
 
 (defn reset-moving
   [state key]
   (dosync
-    (alter state update :keys disj key)
-    (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly false))
-    (let [keys (:keys @state)]
-      (if (not (empty? keys))
-        (alter state update-in [:player :sprite :current-animation] (constantly (last keys))))))
+    (alter state update :keys disj key))
   state)
 
 (defn update-player-sprite
@@ -50,4 +76,26 @@
         state
         update-in
         [:player :sprite :animations current-animation :frame]
-        (fn [frame] (sprite/get-sprite-frame sprite frame))))))
+        (fn [frame] (sprite/get-sprite-frame sprite frame))))
+    (if (and
+          (= 0 (get-in @state [:player :x-offset]))
+          (= 0 (get-in @state [:player :y-offset])))
+      (dosync (alter state update-in [:player :sprite :animations current-animation :is-playing] (constantly false))))))
+
+(defn update-move-offsets
+  [state]
+  (let [player (:player @state)
+        x-offset (:x-offset player)
+        y-offset (:y-offset player)]
+    (if (> 0 x-offset)
+      (dosync
+        (alter state update-in [:player :x-offset] inc))
+      (if (< 0 x-offset)
+        (dosync
+          (alter state update-in [:player :x-offset] dec))
+        (if (> 0 y-offset)
+          (dosync
+            (alter state update-in [:player :y-offset] inc))
+          (if (< 0 y-offset)
+            (dosync
+              (alter state update-in [:player :y-offset] dec))))))))
