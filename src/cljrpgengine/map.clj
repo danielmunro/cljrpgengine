@@ -36,7 +36,7 @@
      :tilewidth tilewidth
      :imagewidth imagewidth
      :imageheight imageheight
-     :tiles (into {} (map (fn [t] (transform-tile t tilewidth tileheight imagewidth)) (data "tiles")))
+     :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))
      }))
 
 (defn transform-layer
