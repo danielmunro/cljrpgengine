@@ -29,11 +29,10 @@
 
 (defn get-sprite-frame
   [{:keys [current-animation animations]} frame]
-  (let [animation (current-animation animations)
-        is-playing (:is-playing animation)]
+  (let [animation (current-animation animations)]
     (if (and
           (= 0 (mod (q/frame-count) (:delay animation)))
-          (= true is-playing))
+          (:is-playing animation))
       (get-next-frame frame (:frames animation))
       frame)))
 
