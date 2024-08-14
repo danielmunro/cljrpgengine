@@ -1,6 +1,10 @@
 (ns cljrpgengine.map
   (:require [clojure.data.json :as json]
-           [quil.core :as q]))
+            [quil.core :as q])
+  (:import (java.awt.image BufferedImage)
+           (java.io File)
+           (javax.imageio ImageIO)
+           (processing.core PImage)))
 
 (def cnt (atom 0))
 (def x (atom 0))
@@ -57,39 +61,36 @@
 
 (defn draw-layer
   [layer image w h mapw maph iw]
-  (let [g (create-graphics w h)]
+  (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
+        g (.createGraphics buf)]
     (loop [x 0 y 0]
       (when (< y maph)
         (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
           (if (>= tile 0)
             (do
-              (q/with-graphics g
-                               (.clear g)
-                               (q/image image (-> w
-                                                  (* tile)
-                                                  (mod iw)
-                                                  (-))
-                                              (-> w
-                                                  (* tile)
-                                                  (/ iw)
-                                                  (Math/floor)
-                                                  (int)
-                                                  (* w)
-                                                  (-))))
-              (q/image g (* x w) (* y h) w h)))
+              (let [dx1 (* x w)
+                    dy1 (* y h)
+                    dx2 (+ dx1 w)
+                    dy2 (+ dy1 h)
+                    sx1 (mod (* tile w) iw)
+                    sy1 (* (int (Math/floor (/ (* tile w) iw))) w)
+                    sx2 (+ sx1 w)
+                    sy2 (+ sy1 h)]
+                (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil))))
           (recur
             (if (< (inc x) mapw)
               (inc x)
               0)
             (if (>= (inc x) mapw)
               (inc y)
-              y)))))))
+              y)))))
+    (PImage. buf)))
 
 (defn load-map
   [area-name]
   (let [tilemap (load-tilemap area-name)
         tileset (load-tileset area-name)
-        image (q/load-image (str "resources/" area-name "/" area-name ".png"))
+        image (ImageIO/read (File. (str "resources/" area-name "/" area-name ".png")))
         w (:tilewidth tileset)
         h (:tileheight tileset)
         mapw (:width tilemap)
