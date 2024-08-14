@@ -101,8 +101,11 @@
      :midground (draw-layer (get-in tilemap [:layers :midground]) image w h mapw maph iw)
      :foreground (draw-layer (get-in tilemap [:layers :foreground]) image w h mapw maph iw)}))
 
-(defn draw
+(defn draw-background
   [map]
   (q/image (:background map) 0 0)
-  (q/image (:midground map) 0 0)
+  (q/image (:midground map) 0 0))
+
+(defn draw-foreground
+  [map]
   (q/image (:foreground map) 0 0))

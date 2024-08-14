@@ -29,17 +29,19 @@
 
 (defn draw
   [state]
-  (map/draw (:map @state))
-  (let [player (:player @state)
-        tileset (get-in @state [:map :tileset])]
-    (sprite/draw
-      (-> (:x player)
-          (* (:tilewidth tileset))
-          (+ (:x-offset player)))
-      (-> (:y player)
-          (* (:tileheight tileset))
-          (+ (:y-offset player)))
-      (:sprite player))))
+  (let [map (:map @state)]
+    (map/draw-background map)
+    (let [player (:player @state)
+          tileset (:tileset map)]
+      (sprite/draw
+        (-> (:x player)
+            (* (:tilewidth tileset))
+            (+ (:x-offset player)))
+        (-> (:y player)
+            (* (:tileheight tileset))
+            (+ (:y-offset player)))
+        (:sprite player)))
+    (map/draw-foreground map)))
 
 (defn -main
   "I don't do a whole lot ... yet."
