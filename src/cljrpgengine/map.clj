@@ -63,18 +63,26 @@
         g (.createGraphics buf)]
     (loop [x 0 y 0]
       (when (< y maph)
-        (let [tile (- (get-in layer [:data (+ x (* y mapw))]) 1)]
+        (let [tile (- (get-in layer [:data (-> y
+                                               (* mapw)
+                                               (+ x))]) 1)]
           (if (>= tile 0)
-            (do
-              (let [dx1 (* x w)
-                    dy1 (* y h)
-                    dx2 (+ dx1 w)
-                    dy2 (+ dy1 h)
-                    sx1 (mod (* tile w) iw)
-                    sy1 (* (int (Math/floor (/ (* tile w) iw))) w)
-                    sx2 (+ sx1 w)
-                    sy2 (+ sy1 h)]
-                (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil))))
+            (let [dx1 (* x w)
+                  dy1 (* y h)
+                  dx2 (+ dx1 w)
+                  dy2 (+ dy1 h)
+                  sx1 (-> tile
+                          (* w)
+                          (mod iw))
+                  sy1 (-> tile
+                          (* w)
+                          (/ iw)
+                          (Math/floor)
+                          (int)
+                          (* w))
+                  sx2 (+ sx1 w)
+                  sy2 (+ sy1 h)]
+              (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil)))
           (recur
             (if (< (inc x) mapw)
               (inc x)
