@@ -32,8 +32,12 @@
   (map/draw (:map @state))
   (let [player (:player @state)]
     (sprite/draw
-      (+ (:x-offset player) (* (:x player) (get-in @state [:map :tileset :tilewidth])))
-      (+ (:y-offset player) (* (:y player) (get-in @state [:map :tileset :tileheight])))
+      (-> (:x player)
+          (* (get-in @state [:map :tileset :tilewidth]))
+          (+ (:x-offset player)))
+      (-> (:y player)
+          (* (get-in @state [:map :tileset :tileheight]))
+          (+ (:y-offset player)))
       (:sprite player))))
 
 (defn -main
