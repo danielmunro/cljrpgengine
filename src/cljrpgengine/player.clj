@@ -2,9 +2,9 @@
   (:require [cljrpgengine.sprite :as sprite]))
 
 (defn create-player
-  []
-  {:x 0
-   :y 0
+  [x y]
+  {:x x
+   :y y
    :x-offset 0
    :y-offset 0
    :move-amount 0
@@ -35,8 +35,8 @@
   (dosync (alter state update :keys conj key)
           (alter state update-in [:player :sprite :current-animation] (constantly key))
           (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
-          (alter state update-in [:player :x-offset] (constantly (* (- (get-in @state [:player :x]) new-x) (get-in @state [:map :tileset :tilewidth]))))
-          (alter state update-in [:player :y-offset] (constantly (* (- (get-in @state [:player :y]) new-y) (get-in @state [:map :tileset :tileheight]))))
+          (alter state update-in [:player :x-offset] (constantly (- (get-in @state [:player :x]) new-x)))
+          (alter state update-in [:player :y-offset] (constantly (- (get-in @state [:player :y]) new-y)))
           (alter state update-in [:player :x] (constantly new-x))
           (alter state update-in [:player :y] (constantly new-y))))
 
@@ -46,19 +46,21 @@
         x (:x player)
         y (:y player)
         keys (:keys @state)
-        last-key (first keys)]
+        last-key (first keys)
+        tilewidth (get-in @state [:map :tileset :tilewidth])
+        tileheight (get-in @state [:map :tileset :tileheight])]
     (if (and
           (= 0 (:x-offset player))
           (= 0 (:y-offset player)))
       (do
         (if (= last-key :up)
-          (start-moving state :up x (dec y))
+          (start-moving state :up x (- y tileheight))
           (if (= last-key :down)
-            (start-moving state :down x (inc y))
+            (start-moving state :down x (+ y tileheight))
             (if (= last-key :left)
-              (start-moving state :left (dec x) y)
+              (start-moving state :left (- x tilewidth) y)
               (if (= last-key :right)
-                (start-moving state :right (inc x) y))))))
+                (start-moving state :right (+ x tilewidth) y))))))
       )))
 
 (defn reset-moving

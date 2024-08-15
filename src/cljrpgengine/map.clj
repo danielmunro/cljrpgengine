@@ -71,7 +71,9 @@
 
 (defn load-tilemap
   [area-name]
-  (let [data (json/read-str (slurp (str "resources/" area-name "/" area-name "-tilemap.tmj")))]
+  (let [data (-> (str "resources/" area-name "/" area-name "-tilemap.tmj")
+                 (slurp)
+                 (json/read-str))]
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
@@ -117,6 +119,7 @@
   [area-name]
   (let [tilemap (load-tilemap area-name)
         tileset (load-tileset area-name)
+        layers (:layers tilemap)
         image (-> (str "resources/" area-name "/" area-name ".png")
                   (File.)
                   (ImageIO/read))
@@ -128,9 +131,9 @@
     {:tilemap tilemap
      :tileset tileset
      :image image
-     :background (draw-layer (get-in tilemap [:layers :background]) image w h mapw maph iw)
-     :midground (draw-layer (get-in tilemap [:layers :midground]) image w h mapw maph iw)
-     :foreground (draw-layer (get-in tilemap [:layers :foreground]) image w h mapw maph iw)}))
+     :background (draw-layer (:background layers) image w h mapw maph iw)
+     :midground (draw-layer (:midground layers) image w h mapw maph iw)
+     :foreground (draw-layer (:foreground layers) image w h mapw maph iw)}))
 
 (defn draw-background
   [map]
