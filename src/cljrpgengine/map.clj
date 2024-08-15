@@ -45,40 +45,40 @@
    {:data (layer "data")}})
 
 (defn transform-warps
-  [objects]
+  [objects tile-size]
   (map (fn
          [object]
          (merge
            {:name (object "name")
-            :x (object "x")
-            :y (object "y")
+            :x (/ (object "x") tile-size)
+            :y (/ (object "y") tile-size)
             :width (object "width")
             :height (object "height")}
            (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
        objects))
 
 (defn transform-arrive-at
-  [objects]
+  [objects tile-size]
   (map (fn
          [object]
          (merge
            {:name (object "name")
-            :x (object "x")
-            :y (object "y")
+            :x (/ (object "x") tile-size)
+            :y (/ (object "y") tile-size)
             :width (object "width")
             :height (object "height")}))
        objects))
 
 (defn load-tilemap
-  [area-name]
+  [area-name tile-size]
   (let [data (-> (str "resources/" area-name "/" area-name "-tilemap.tmj")
                  (slurp)
                  (json/read-str))]
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
-     :warps (transform-warps ((first (filter #(= "warps" (% "name")) (data "layers"))) "objects"))
-     :arrive_at (transform-arrive-at ((first (filter #(= "arrive_at" (% "name")) (data "layers"))) "objects"))}))
+     :warps (transform-warps ((first (filter #(= "warps" (% "name")) (data "layers"))) "objects") tile-size)
+     :arrive_at (transform-arrive-at ((first (filter #(= "arrive_at" (% "name")) (data "layers"))) "objects") tile-size)}))
 
 (defn draw-layer
   [layer image w h mapw maph iw]
@@ -117,8 +117,8 @@
 
 (defn load-map
   [area-name]
-  (let [tilemap (load-tilemap area-name)
-        tileset (load-tileset area-name)
+  (let [tileset (load-tileset area-name)
+        tilemap (load-tilemap area-name (:tilewidth tileset))
         layers (:layers tilemap)
         image (-> (str "resources/" area-name "/" area-name ".png")
                   (File.)

@@ -2,9 +2,9 @@
   (:require [cljrpgengine.sprite :as sprite]))
 
 (defn create-player
-  []
-  {:x 0
-   :y 0
+  [x y]
+  {:x x
+   :y y
    :x-offset 0
    :y-offset 0
    :move-amount 0
