@@ -66,7 +66,8 @@
             :x (object "x")
             :y (object "y")
             :width (object "width")
-            :height (object "height")})) objects))
+            :height (object "height")}))
+       objects))
 
 (defn load-tilemap
   [area-name]
@@ -116,7 +117,9 @@
   [area-name]
   (let [tilemap (load-tilemap area-name)
         tileset (load-tileset area-name)
-        image (ImageIO/read (File. (str "resources/" area-name "/" area-name ".png")))
+        image (-> (str "resources/" area-name "/" area-name ".png")
+                  (File.)
+                  (ImageIO/read))
         w (:tilewidth tileset)
         h (:tileheight tileset)
         mapw (:width tilemap)
