@@ -48,29 +48,34 @@
   [objects]
   (map (fn
          [object]
-         {:name (object "name")
-          :x (object "x")
-          :y (object "y")
-          :width (object "width")
-          :height (object "height")
-          :properties (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))})
+         (merge
+           {:name (object "name")
+            :x (object "x")
+            :y (object "y")
+            :width (object "width")
+            :height (object "height")}
+           (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
        objects))
 
 (defn transform-arrive-at
-  [object]
-  {})
+  [objects]
+  (map (fn
+         [object]
+         (merge
+           {:name (object "name")
+            :x (object "x")
+            :y (object "y")
+            :width (object "width")
+            :height (object "height")})) objects))
 
 (defn load-tilemap
   [area-name]
   (let [data (json/read-str (slurp (str "resources/" area-name "/" area-name "-tilemap.tmj")))]
-    ;(println (data "layers"))
-    ;(println (first (filter #(= "warps" (% "name")) (data "layers"))))
-    ;(System/exit 1)
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps ((first (filter #(= "warps" (% "name")) (data "layers"))) "objects"))
-     :arrive_at (into {} (map #(transform-arrive-at %) (filter #(= "arrive_at" (% "name")) (data "layers"))))}))
+     :arrive_at (transform-arrive-at ((first (filter #(= "arrive_at" (% "name")) (data "layers"))) "objects"))}))
 
 (defn draw-layer
   [layer image w h mapw maph iw]
