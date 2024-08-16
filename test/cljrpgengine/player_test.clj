@@ -4,7 +4,7 @@
             [clojure.test :refer :all]
             [quil.core :as q]))
 
-(deftest start-moving
+(deftest test-start-moving
   (testing "can start moving left"
     (let [lock (promise)]
       (q/defsketch start-moving
@@ -20,7 +20,7 @@
                            (q/exit))
                    :on-close #(deliver lock true))
       @lock))
-  (testing "can stop moving"
+  (testing "can reset moving"
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
