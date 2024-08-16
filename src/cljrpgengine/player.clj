@@ -80,26 +80,23 @@
         state
         update-in
         [:player :sprite :animations current-animation :frame]
-        (fn [frame] (sprite/get-sprite-frame sprite frame))))
-    (if (and
-          (= 0 (get-in @state [:player :x-offset]))
-          (= 0 (get-in @state [:player :y-offset])))
-      (dosync (alter state update-in [:player :sprite :animations current-animation :is-playing] (constantly false))))))
+        (fn [frame] (sprite/get-sprite-frame sprite frame)))
+      (if (and
+            (= 0 (get-in @state [:player :x-offset]))
+            (= 0 (get-in @state [:player :y-offset])))
+        (alter state update-in [:player :sprite :animations current-animation :is-playing] (constantly false))))))
 
 (defn update-move-offsets
   [state]
   (let [player (:player @state)
         x-offset (:x-offset player)
         y-offset (:y-offset player)]
-    (if (> 0 x-offset)
-      (dosync
-        (alter state update-in [:player :x-offset] inc))
-      (if (< 0 x-offset)
-        (dosync
-          (alter state update-in [:player :x-offset] dec))
-        (if (> 0 y-offset)
-          (dosync
-            (alter state update-in [:player :y-offset] inc))
-          (if (< 0 y-offset)
-            (dosync
+    (dosync
+      (if (> 0 x-offset)
+        (alter state update-in [:player :x-offset] inc)
+        (if (< 0 x-offset)
+          (alter state update-in [:player :x-offset] dec)
+          (if (> 0 y-offset)
+            (alter state update-in [:player :y-offset] inc)
+            (if (< 0 y-offset)
               (alter state update-in [:player :y-offset] dec))))))))
