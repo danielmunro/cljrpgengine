@@ -1,5 +1,6 @@
 (ns cljrpgengine.player
-  (:require [cljrpgengine.sprite :as sprite]))
+  (:require [cljrpgengine.map :as map]
+            [cljrpgengine.sprite :as sprite]))
 
 (defn create-player
   [x y]
@@ -32,13 +33,14 @@
 
 (defn start-moving
   [state key new-x new-y]
-  (dosync (alter state update :keys conj key)
-          (alter state update-in [:player :sprite :current-animation] (constantly key))
-          (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
-          (alter state update-in [:player :x-offset] (constantly (- (get-in @state [:player :x]) new-x)))
-          (alter state update-in [:player :y-offset] (constantly (- (get-in @state [:player :y]) new-y)))
-          (alter state update-in [:player :x] (constantly new-x))
-          (alter state update-in [:player :y] (constantly new-y))))
+  (if (not (map/is-blocking? (get-in @state [:map :tilemap]) (get-in @state [:map :tileset]) new-x new-y))
+    (dosync (alter state update :keys conj key)
+            (alter state update-in [:player :sprite :current-animation] (constantly key))
+            (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
+            (alter state update-in [:player :x-offset] (constantly (- (get-in @state [:player :x]) new-x)))
+            (alter state update-in [:player :y-offset] (constantly (- (get-in @state [:player :y]) new-y)))
+            (alter state update-in [:player :x] (constantly new-x))
+            (alter state update-in [:player :y] (constantly new-y)))))
 
 (defn check-start-moving
   [state]

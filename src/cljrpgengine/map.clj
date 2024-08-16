@@ -1,5 +1,6 @@
 (ns cljrpgengine.map
-  (:require [clojure.data.json :as json]
+  (:require [cljrpgengine.constants :as constants]
+            [clojure.data.json :as json]
             [quil.core :as q])
   (:import (java.awt.image BufferedImage)
            (java.io File)
@@ -80,8 +81,22 @@
      :warps (transform-warps ((first (filter #(= "warps" (% "name")) (data "layers"))) "objects"))
      :arrive_at (transform-arrive-at ((first (filter #(= "arrive_at" (% "name")) (data "layers"))) "objects"))}))
 
+(defn is-blocking?
+  [tile-map tile-set x y]
+  (let [map-width (:width tile-map)
+        tile-height (:tileheight tile-set)
+        tile-width (:tilewidth tile-set)
+        mapx (/ x tile-width)
+        mapy (/ y tile-height)
+        tile-pos (+ mapx (* mapy map-width))
+        back-tile (dec (get-in tile-map [:layers :background :data tile-pos]))
+        mid-tile (dec (get-in tile-map [:layers :midground :data tile-pos]))]
+    (or
+      (get-in tile-set [:tiles back-tile])
+      (get-in tile-set [:tiles mid-tile]))))
+
 (defn draw-layer
-  [layer image w h mapw maph iw]
+  [layer image w h mapw maph iw is-blocking?]
   (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
         g (.createGraphics buf)]
     (loop [x 0 y 0]
@@ -105,7 +120,11 @@
                           (* w))
                   sx2 (+ sx1 w)
                   sy2 (+ sy1 h)]
-              (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil)))
+              (if (and
+                    constants/draw-blocking
+                    (is-blocking? dx1 dy1))
+                (.drawRect g dx1 dy1 dx2 dy2)
+                (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil))))
           (recur
             (if (< (inc x) mapw)
               (inc x)
@@ -131,9 +150,9 @@
     {:tilemap tilemap
      :tileset tileset
      :image image
-     :background (draw-layer (:background layers) image w h mapw maph iw)
-     :midground (draw-layer (:midground layers) image w h mapw maph iw)
-     :foreground (draw-layer (:foreground layers) image w h mapw maph iw)}))
+     :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
+     :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
+     :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))}))
 
 (defn draw-background
   [map]
