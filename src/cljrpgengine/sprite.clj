@@ -42,8 +42,9 @@
         frame (:frame animation 0)
         x (* frame width)
         y (* height (:y-offset animation))
-        g (create-graphics width height)]
+        g (create-graphics width height)
+        y-diff (- height width)]
     (q/with-graphics g
                      (.clear g)
                      (q/image image (- x) (- y)))
-    (q/image g player-x player-y width height)))
+    (q/image g player-x (- player-y y-diff) width height)))
