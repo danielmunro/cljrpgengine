@@ -9,8 +9,12 @@
     (let [lock (promise)]
       (q/defsketch start-moving
                    :draw (fn []
-                           (let [state (state/create-state)]
-                             (player/start-moving state :left)
+                           (let [state (state/create-state "tinytown")]
+                             (player/start-moving
+                               state
+                               :left
+                               (+ (get-in @state [:player :x]) 16)
+                               (get-in @state [:player :y]))
                              (is (contains? (:keys @state) :left))
                              (is (= (get-in @state [:player :sprite :current-animation]) :left)))
                            (q/exit))
@@ -20,8 +24,12 @@
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
-                           (let [state (state/create-state)]
-                             (player/start-moving state :right)
+                           (let [state (state/create-state "tinytown")]
+                             (player/start-moving
+                               state
+                               :right
+                               (- (get-in @state [:player :x]) 16)
+                               (get-in @state [:player :y]))
                              (player/reset-moving state :right)
                              (is (empty? (:keys @state)))
                              (is (= (get-in @state [:player :sprite :current-animation]) :right)))
