@@ -1,5 +1,6 @@
 (ns cljrpgengine.map
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.util :as util]
             [clojure.data.json :as json]
             [quil.core :as q])
   (:import (java.awt.image BufferedImage)
@@ -80,8 +81,10 @@
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
-     :warps (transform-warps ((first (filter #(= "warps" (% "name")) (data "layers"))) "objects"))
-     :arrive_at (transform-arrive-at ((first (filter #(= "arrive_at" (% "name")) (data "layers"))) "objects"))}))
+     :warps (transform-warps ((util/filter-first #(= "warps" (% "name")) (data "layers")) "objects"))
+     :arrive_at (transform-arrive-at ((util/filter-first #(= "arrive_at" (% "name")) (data "layers")) "objects"))
+     :arrive_at (transform-arrive-at ((util/filter-first #(= "arrive_at" (% "name")) (data "layers")) "objects"))
+     }))
 
 (defn is-blocking?
   [tile-map tile-set x y]
