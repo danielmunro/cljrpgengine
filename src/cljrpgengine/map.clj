@@ -83,7 +83,6 @@
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps ((util/filter-first #(= "warps" (% "name")) (data "layers")) "objects"))
      :arrive_at (transform-arrive-at ((util/filter-first #(= "arrive_at" (% "name")) (data "layers")) "objects"))
-     :arrive_at (transform-arrive-at ((util/filter-first #(= "arrive_at" (% "name")) (data "layers")) "objects"))
      }))
 
 (defn is-blocking?
