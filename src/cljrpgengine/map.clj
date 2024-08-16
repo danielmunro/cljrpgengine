@@ -24,7 +24,9 @@
 
 (defn load-tileset
   [area-name]
-  (let [data (json/read-str (slurp (str "resources/" area-name "/" area-name "-tileset.tsj")))
+  (let [data (-> (str "resources/" area-name "/" area-name "-tileset.tsj")
+                 (slurp)
+                 (json/read-str))
         tilewidth (data "tilewidth")
         tileheight (data "tileheight")
         imagewidth (data "imagewidth")
