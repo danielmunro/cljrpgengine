@@ -8,7 +8,6 @@
    :y y
    :x-offset 0
    :y-offset 0
-   :move-amount 0
    :sprite (sprite/create
              :fireas
              "fireas.png"
