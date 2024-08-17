@@ -10,5 +10,5 @@
     (if (not start)
       (throw (AssertionError. "no start warp found for scene")))
     (ref {:keys #{}
-          :player (player/create-player (:x start) (:y start))
+          :player (player/create-new-player (:x start) (:y start))
           :map map})))
