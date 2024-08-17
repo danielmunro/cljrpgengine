@@ -9,14 +9,15 @@
     (let [lock (promise)]
       (q/defsketch start-moving
                    :draw (fn []
-                           (let [state (state/create-state "tinytown")]
+                           (let [state (state/create-state "tinytown")
+                                 mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state
                                :left
-                               (+ (get-in @state [:player :x]) 16)
-                               (get-in @state [:player :y]))
+                               (+ (:x mob) 16)
+                               (:y mob))
                              (is (contains? (:keys @state) :left))
-                             (is (= (get-in @state [:player :sprite :current-animation]) :left)))
+                             (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :left)))
                            (q/exit))
                    :on-close #(deliver lock true))
       @lock))
@@ -24,15 +25,16 @@
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
-                           (let [state (state/create-state "tinytown")]
+                           (let [state (state/create-state "tinytown")
+                                 mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state
                                :right
-                               (- (get-in @state [:player :x]) 16)
-                               (get-in @state [:player :y]))
+                               (- (:x mob) 16)
+                               (:y mob))
                              (player/reset-moving state :right)
                              (is (empty? (:keys @state)))
-                             (is (= (get-in @state [:player :sprite :current-animation]) :right)))
+                             (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))
                            (q/exit))
                    :on-close #(deliver lock true))
       @lock))

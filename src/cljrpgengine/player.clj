@@ -1,67 +1,72 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.map :as map]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]))
 
 (defn create-player
   [x y]
-  {:x x
-   :y y
-   :x-offset 0
-   :y-offset 0
-   :sprite (sprite/create
-             :fireas
-             "fireas.png"
-             16
-             24
-             :down
-             {:down  {:frames   4
-                      :delay    8
-                      :y-offset 0}
-              :left  {:frames   4
-                      :delay    8
-                      :y-offset 1}
-              :right {:frames   4
-                      :delay    8
-                      :y-offset 2}
-              :up    {:frames   4
-                      :delay    8
-                      :y-offset 3}
-              :sleep {:frames   1
-                      :delay    0
-                      :y-offset 4}})})
+  {:party [(mob/create-mob
+             "fireas"
+             x y
+             0 0
+             (sprite/create
+               :fireas
+               "fireas.png"
+               16
+               24
+               :down
+               {:down  {:frames   4
+                        :delay    8
+                        :y-offset 0}
+                :left  {:frames   4
+                        :delay    8
+                        :y-offset 1}
+                :right {:frames   4
+                        :delay    8
+                        :y-offset 2}
+                :up    {:frames   4
+                        :delay    8
+                        :y-offset 3}
+                :sleep {:frames   1
+                        :delay    0
+                        :y-offset 4}}))]})
+
+(defn get-player-first-mob
+  [state]
+  (get-in @state [:player :party 0]))
 
 (defn start-moving
   [state key new-x new-y]
   (if (not (map/is-blocking? (get-in @state [:map :tilemap]) (get-in @state [:map :tileset]) new-x new-y))
     (dosync (alter state update :keys conj key)
-            (alter state update-in [:player :sprite :current-animation] (constantly key))
-            (alter state update-in [:player :sprite :animations (keyword key) :is-playing] (constantly true))
-            (alter state update-in [:player :x-offset] (constantly (- (get-in @state [:player :x]) new-x)))
-            (alter state update-in [:player :y-offset] (constantly (- (get-in @state [:player :y]) new-y)))
-            (alter state update-in [:player :x] (constantly new-x))
-            (alter state update-in [:player :y] (constantly new-y)))))
+            (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
+            (alter state update-in [:player :party 0 :sprite :animations (keyword key) :is-playing] (constantly true))
+            (alter state update-in [:player :party 0 :x-offset] (constantly (- (get-in @state [:player :party 0 :x]) new-x)))
+            (alter state update-in [:player :party 0 :y-offset] (constantly (- (get-in @state [:player :party 0 :y]) new-y)))
+            (alter state update-in [:player :party 0 :x] (constantly new-x))
+            (alter state update-in [:player :party 0 :y] (constantly new-y)))))
 
 (defn check-start-moving
   [state]
-  (let [player (:player @state)
-        x (:x player)
-        y (:y player)
+  (let [mob (get-player-first-mob state)
+        x (:x mob)
+        y (:y mob)
         keys (:keys @state)
         last-key (first keys)
-        tilewidth (get-in @state [:map :tileset :tilewidth])
-        tileheight (get-in @state [:map :tileset :tileheight])]
+        tile-width (get-in @state [:map :tileset :tilewidth])
+        tile-height (get-in @state [:map :tileset :tileheight])]
     (if (and
-          (= 0 (:x-offset player))
-          (= 0 (:y-offset player)))
+          (= 0 (:x-offset mob))
+          (= 0 (:y-offset mob)))
       (do
         (if (= last-key :up)
-          (start-moving state :up x (- y tileheight))
+          (start-moving state :up x (- y tile-height))
           (if (= last-key :down)
-            (start-moving state :down x (+ y tileheight))
+            (start-moving state :down x (+ y tile-height))
             (if (= last-key :left)
-              (start-moving state :left (- x tilewidth) y)
+              (start-moving state :left (- x tile-width) y)
               (if (= last-key :right)
-                (start-moving state :right (+ x tilewidth) y))))))
+                (start-moving state :right (+ x tile-width) y))))))
       )))
 
 (defn reset-moving
@@ -72,30 +77,31 @@
 
 (defn update-player-sprite
   [state]
-  (let [sprite (get-in @state [:player :sprite])
+  (let [mob (get-player-first-mob state)
+        sprite (:sprite mob)
         current-animation (:current-animation sprite)]
     (dosync
       (alter
         state
         update-in
-        [:player :sprite :animations current-animation :frame]
+        [:player :party 0 :sprite :animations current-animation :frame]
         (fn [frame] (sprite/get-sprite-frame sprite frame)))
       (if (and
-            (= 0 (get-in @state [:player :x-offset]))
-            (= 0 (get-in @state [:player :y-offset])))
-        (alter state update-in [:player :sprite :animations current-animation :is-playing] (constantly false))))))
+            (= 0 (:x-offset mob))
+            (= 0 (:y-offset mob)))
+        (alter state update-in [:player :party 0 :sprite :animations current-animation :is-playing] (constantly false))))))
 
 (defn update-move-offsets
   [state]
-  (let [player (:player @state)
-        x-offset (:x-offset player)
-        y-offset (:y-offset player)]
+  (let [mob (get-player-first-mob state)
+        x-offset (:x-offset mob)
+        y-offset (:y-offset mob)]
     (dosync
       (if (> 0 x-offset)
-        (alter state update-in [:player :x-offset] inc)
+        (alter state update-in [:player :party 0 :x-offset] inc)
         (if (< 0 x-offset)
-          (alter state update-in [:player :x-offset] dec)
+          (alter state update-in [:player :party 0 :x-offset] dec)
           (if (> 0 y-offset)
-            (alter state update-in [:player :y-offset] inc)
+            (alter state update-in [:player :party 0 :y-offset] inc)
             (if (< 0 y-offset)
-              (alter state update-in [:player :y-offset] dec))))))))
+              (alter state update-in [:player :party 0 :y-offset] dec))))))))

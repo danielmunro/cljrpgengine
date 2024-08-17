@@ -30,14 +30,14 @@
 (defn draw
   [state]
   (let [map (:map @state)
-        player (:player @state)]
+        mob (player/get-player-first-mob state)]
     (map/draw-background map)
     (sprite/draw
-      (-> (:x player)
-          (+ (:x-offset player)))
-      (-> (:y player)
-          (+ (:y-offset player)))
-      (:sprite player))
+      (-> (:x mob)
+          (+ (:x-offset mob)))
+      (-> (:y mob)
+          (+ (:y-offset mob)))
+      (:sprite mob))
     (map/draw-foreground map)))
 
 (defn -main
