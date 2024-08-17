@@ -1,5 +1,6 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.player :as player]))
+  (:require [cljrpgengine.player :as player]
+            [cljrpgengine.save-file :as save-file]))
 
 (defn check-key-released
   [state {:keys [key]}]
@@ -16,5 +17,7 @@
     (= key :left)
     (dosync (alter state update-in [:keys] conj :left))
     (= key :right)
-    (dosync (alter state update-in [:keys] conj :right)))
+    (dosync (alter state update-in [:keys] conj :right))
+    (= key :s)
+    (save-file/save state))
   state)

@@ -2,8 +2,7 @@
 
 (defn create-mob
   [name x y x-offset y-offset sprite]
-  {
-   :name name
+  {:name name
    :x x
    :y y
    :x-offset x-offset

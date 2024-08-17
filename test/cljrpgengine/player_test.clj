@@ -9,7 +9,7 @@
     (let [lock (promise)]
       (q/defsketch start-moving
                    :draw (fn []
-                           (let [state (state/create-state "tinytown")
+                           (let [state (state/create-new-state "tinytown")
                                  mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state
@@ -25,7 +25,7 @@
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
-                           (let [state (state/create-state "tinytown")
+                           (let [state (state/create-new-state "tinytown")
                                  mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state

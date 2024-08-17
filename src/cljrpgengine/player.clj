@@ -4,10 +4,10 @@
             [cljrpgengine.sprite :as sprite]))
 
 (defn create-new-player
-  []
+  [x y]
   {:party [(mob/create-mob
              "fireas"
-             0 0
+             x y
              0 0
              (sprite/create
                :fireas
