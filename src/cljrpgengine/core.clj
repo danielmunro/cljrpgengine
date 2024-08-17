@@ -12,7 +12,9 @@
   []
   (q/frame-rate constants/target-fps)
   (q/background 0)
-  (state/create-new-state "tinytown"))
+  ;(state/create-new-state "tinytown")
+  (state/create-from-latest-save "9442e963-e8c2-4246-a7f2-a7e5eccf65d2")
+  )
 
 (defn update-animations
   [state]

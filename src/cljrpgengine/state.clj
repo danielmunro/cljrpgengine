@@ -1,7 +1,10 @@
 (ns cljrpgengine.state
   (:require [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
-            [cljrpgengine.util :as util]))
+            [cljrpgengine.save-file :as save-file]
+            [cljrpgengine.util :as util]
+            [clojure.java.io :as io]
+            [clojure.string :as string]))
 
 (defn create-new-state
   [start-area]
@@ -14,3 +17,9 @@
           :keys #{}
           :player player
           :map map})))
+
+(defn create-from-latest-save
+  [save-name]
+  (let [directory (io/file (str "resources/saves/" save-name))
+        files (sort (filter #(string/includes? % ".txt") (file-seq directory)))]
+    (save-file/load-save-file (last files))))

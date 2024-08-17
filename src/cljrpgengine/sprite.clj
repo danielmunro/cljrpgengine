@@ -48,3 +48,29 @@
                      (.clear g)
                      (q/image image (- x) (- y)))
     (q/image g player-x (- player-y y-diff) width height)))
+
+(defn create-from-name
+  [name]
+  (cond
+    (= :fireas name)
+    (create
+      name
+      "fireas.png"
+      16
+      24
+      :down
+      {:down  {:frames   4
+               :delay    8
+               :y-offset 0}
+       :left  {:frames   4
+               :delay    8
+               :y-offset 1}
+       :right {:frames   4
+               :delay    8
+               :y-offset 2}
+       :up    {:frames   4
+               :delay    8
+               :y-offset 3}
+       :sleep {:frames   1
+               :delay    0
+               :y-offset 4}})))

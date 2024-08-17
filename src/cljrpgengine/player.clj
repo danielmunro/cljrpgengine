@@ -9,27 +9,7 @@
              "fireas"
              x y
              0 0
-             (sprite/create
-               :fireas
-               "fireas.png"
-               16
-               24
-               :down
-               {:down  {:frames   4
-                        :delay    8
-                        :y-offset 0}
-                :left  {:frames   4
-                        :delay    8
-                        :y-offset 1}
-                :right {:frames   4
-                        :delay    8
-                        :y-offset 2}
-                :up    {:frames   4
-                        :delay    8
-                        :y-offset 3}
-                :sleep {:frames   1
-                        :delay    0
-                        :y-offset 4}}))]})
+             (sprite/create-from-name :fireas))]})
 
 (defn get-player-first-mob
   [state]

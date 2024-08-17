@@ -151,7 +151,8 @@
         mapw (:width tilemap)
         maph (:height tilemap)
         iw (:imagewidth tileset)]
-    {:tilemap tilemap
+    {:name area-name
+     :tilemap tilemap
      :tileset tileset
      :image image
      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
