@@ -16,7 +16,7 @@
   (q/background 0)
   (if @save-file
     (state/create-from-latest-save @save-file)
-    (state/create-new-state "tinytown")))
+    (state/create-new-state constants/start-map)))
 
 (defn update-animations
   [state]

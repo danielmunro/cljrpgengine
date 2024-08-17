@@ -5,3 +5,5 @@
 (def window [640 400])
 
 (def draw-blocking false)
+
+(def start-map "tinytown")
