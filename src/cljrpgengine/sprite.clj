@@ -3,7 +3,7 @@
 
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
-(defn add-default-props
+(defn- add-default-props
   [animations]
   (into {}
         (map

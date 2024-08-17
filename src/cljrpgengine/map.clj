@@ -12,7 +12,7 @@
 (def x (atom 0))
 (def y (atom 0))
 
-(defn transform-tile
+(defn- transform-tile
   [tile tw th iw]
   (swap! cnt inc)
   (swap! x + tw)
@@ -23,7 +23,7 @@
   {(tile "id") {:x @x
                 :y @y}})
 
-(defn load-tileset
+(defn- load-tileset
   [area-name]
   (let [data (-> (str "resources/" area-name "/" area-name "-tileset.tsj")
                  (slurp)
@@ -43,12 +43,12 @@
      :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))
      }))
 
-(defn transform-layer
+(defn- transform-layer
   [layer]
   {(keyword (layer "name"))
    {:data (layer "data")}})
 
-(defn transform-warps
+(defn- transform-warps
   [objects]
   (map (fn
          [object]
@@ -61,7 +61,7 @@
            (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
        objects))
 
-(defn transform-arrive-at
+(defn- transform-arrive-at
   [objects]
   (map (fn
          [object]
@@ -73,7 +73,7 @@
             :height (object "height")}))
        objects))
 
-(defn load-tilemap
+(defn- load-tilemap
   [area-name]
   (let [data (-> (str "resources/" area-name "/" area-name "-tilemap.tmj")
                  (slurp)
@@ -99,7 +99,7 @@
       (get-in tile-set [:tiles back-tile])
       (get-in tile-set [:tiles mid-tile]))))
 
-(defn draw-layer
+(defn- draw-layer
   [layer image w h mapw maph iw is-blocking?]
   (let [buf (BufferedImage. (* mapw w) (* maph h) BufferedImage/TYPE_INT_ARGB)
         g (.createGraphics buf)]
