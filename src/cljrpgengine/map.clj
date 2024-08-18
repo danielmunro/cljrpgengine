@@ -24,7 +24,7 @@
                 :y @y}})
 
 (defn- load-tileset
-  [area-name]
+  [area-name room]
   (let [data (-> (str "resources/" area-name "/" area-name "-tileset.tsj")
                  (slurp)
                  (json/read-str))
@@ -74,8 +74,8 @@
        objects))
 
 (defn- load-tilemap
-  [area-name]
-  (let [data (-> (str "resources/" area-name "/" area-name "-tilemap.tmj")
+  [area-name room]
+  (let [data (-> (str "resources/" area-name "/" room "/" area-name "-tilemap.tmj")
                  (slurp)
                  (json/read-str))]
     {:height (data "height")
@@ -139,9 +139,9 @@
     (PImage. buf)))
 
 (defn load-map
-  [area-name]
-  (let [tilemap (load-tilemap area-name)
-        tileset (load-tileset area-name)
+  [area-name room]
+  (let [tilemap (load-tilemap area-name room)
+        tileset (load-tileset area-name room)
         layers (:layers tilemap)
         image (-> (str "resources/" area-name "/" area-name ".png")
                   (File.)
@@ -152,6 +152,7 @@
         maph (:height tilemap)
         iw (:imagewidth tileset)]
     {:name area-name
+     :room room
      :tilemap tilemap
      :tileset tileset
      :image image

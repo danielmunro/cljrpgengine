@@ -329,7 +329,7 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"tinytown-tileset.tsj"
+         "source":"..\/tinytown-tileset.tsj"
         }],
  "tilewidth":16,
  "type":"map",

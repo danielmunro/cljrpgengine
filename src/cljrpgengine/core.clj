@@ -16,7 +16,7 @@
   (q/background 0)
   (if @save-file
     (state/create-from-latest-save @save-file)
-    (state/create-new-state constants/start-map)))
+    (state/create-new-state constants/start-map constants/start-room)))
 
 (defn update-animations
   [state]

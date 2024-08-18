@@ -7,3 +7,5 @@
 (def draw-blocking false)
 
 (def start-map "tinytown")
+
+(def start-room "main")

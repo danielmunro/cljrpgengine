@@ -14,7 +14,8 @@
                                             :x (:x p)
                                             :y (:y p)
                                             :sprite (get-in p [:sprite :name])}) party))}
-     :map (get-in @state [:map :name])}))
+     :map {:name (get-in @state [:map :name])
+           :room (get-in @state [:map :room])}}))
 
 (defn save
   [state]
@@ -31,11 +32,11 @@
           :player (player/create-new-player
                     (get-in data [:player :party 0 :x])
                     (get-in data [:player :party 0 :y]))
-          :map (map/load-map (:map data))})))
+          :map (map/load-map (get-in data [:map :name]) (get-in data [:map :room]))})))
 
 (defn create-new-state
-  [start-area]
-  (let [map (map/load-map start-area)
+  [start-area start-room]
+  (let [map (map/load-map start-area start-room)
         start (util/filter-first #(= (:name %) "start") (get-in map [:tilemap :warps]))
         player (player/create-new-player (:x start) (:y start))]
     (if (not start)
