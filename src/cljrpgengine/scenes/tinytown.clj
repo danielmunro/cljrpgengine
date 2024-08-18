@@ -4,4 +4,4 @@
 (defn load-scene
   [state]
   (dosync
-    (alter state ref-set :map (map/load-map "tinytown"))))
+    (alter state ref-set :map (map/load-map "tinytown" "main"))))
