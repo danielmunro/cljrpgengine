@@ -52,11 +52,13 @@
       (if (= "-s" arg)
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
-  (q/defsketch hello
+  (q/defsketch game
                :setup setup
                :size constants/window
                :update update-state
                :draw draw
                :key-pressed input/check-key-press
                :key-released input/check-key-released
-               :middleware [m/fun-mode]))
+               :middleware [m/fun-mode]
+               :features [:exit-on-close
+                          :keep-on-top]))
