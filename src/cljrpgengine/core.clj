@@ -13,7 +13,6 @@
 (defn setup
   []
   (q/frame-rate constants/target-fps)
-  (q/background 0)
   (if @save-file
     (state/create-from-latest-save @save-file)
     (state/create-new-state constants/start-map constants/start-room)))
@@ -34,15 +33,30 @@
 (defn draw
   [state]
   (let [map (:map @state)
-        mob (player/get-player-first-mob state)]
-    (map/draw-background map)
+        mob (player/get-player-first-mob state)
+        x (-> (:x mob)
+              (+ (:x-offset mob)))
+        y (-> (:y mob)
+            (+ (:y-offset mob)))
+        offset-x (-> (constants/window 0)
+                     (/ 2)
+                     (- x))
+        offset-y (-> (constants/window 1)
+                     (/ 2)
+                     (- y))
+        character-x (-> (constants/character-dimensions 0)
+                        (/ 2))
+        character-y (-> (constants/character-dimensions 1)
+                        (/ 2))]
+    (q/background 0)
+    (map/draw-background map (- offset-x character-x) (- offset-y character-y))
     (sprite/draw
-      (-> (:x mob)
-          (+ (:x-offset mob)))
-      (-> (:y mob)
-          (+ (:y-offset mob)))
+      (-> (+ x offset-x)
+          (- character-x))
+      (-> (+ y offset-y)
+          (- character-y))
       (:sprite mob))
-    (map/draw-foreground map)))
+    (map/draw-foreground map (- offset-x character-x) (- offset-y character-y))))
 
 (defn -main
   "I don't do a whole lot ... yet."

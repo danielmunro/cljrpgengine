@@ -9,3 +9,5 @@
 (def start-map "tinytown")
 
 (def start-room "main")
+
+(def character-dimensions [16 24])

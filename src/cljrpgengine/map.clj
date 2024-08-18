@@ -161,10 +161,10 @@
      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))}))
 
 (defn draw-background
-  [map]
-  (q/image (:background map) 0 0)
-  (q/image (:midground map) 0 0))
+  [map offset-x offset-y]
+  (q/image (:background map) offset-x offset-y)
+  (q/image (:midground map) offset-x offset-y))
 
 (defn draw-foreground
-  [map]
-  (q/image (:foreground map) 0 0))
+  [map offset-x offset-y]
+  (q/image (:foreground map) offset-x offset-y))
