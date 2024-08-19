@@ -46,8 +46,7 @@
             (if (= last-key :left)
               (start-moving state :left (- x tile-width) y)
               (if (= last-key :right)
-                (start-moving state :right (+ x tile-width) y))))))
-      )))
+                (start-moving state :right (+ x tile-width) y)))))))))
 
 (defn reset-moving
   [state key]

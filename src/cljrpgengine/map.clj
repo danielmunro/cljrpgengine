@@ -75,7 +75,7 @@
 
 (defn- load-tilemap
   [area-name room]
-  (let [data (-> (str "resources/" area-name "/" room "/" area-name "-tilemap.tmj")
+  (let [data (-> (str "resources/" area-name "/" room "/" room "-tilemap.tmj")
                  (slurp)
                  (json/read-str))]
     {:height (data "height")

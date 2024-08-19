@@ -135,14 +135,19 @@
                  "name":"to_shop",
                  "properties":[
                         {
+                         "name":"room",
+                         "type":"string",
+                         "value":"item-shop"
+                        }, 
+                        {
                          "name":"scene",
                          "type":"string",
-                         "value":"item_shop"
+                         "value":"tinytown"
                         }, 
                         {
                          "name":"to",
                          "type":"string",
-                         "value":"from_tinytown"
+                         "value":"entrance"
                         }],
                  "rotation":0,
                  "type":"exit",
@@ -157,14 +162,19 @@
                  "name":"to_house1",
                  "properties":[
                         {
-                         "name":"scene",
+                         "name":"room",
                          "type":"string",
                          "value":"house1"
                         }, 
                         {
+                         "name":"scene",
+                         "type":"string",
+                         "value":"tinytown"
+                        }, 
+                        {
                          "name":"to",
                          "type":"string",
-                         "value":"from_tinytown"
+                         "value":"entrance"
                         }],
                  "rotation":0,
                  "type":"exit",
@@ -333,6 +343,6 @@
         }],
  "tilewidth":16,
  "type":"map",
- "version":"1.11",
+ "version":"1.10",
  "width":50
 }
