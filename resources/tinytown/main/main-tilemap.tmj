@@ -132,7 +132,7 @@
                 {
                  "height":16,
                  "id":3,
-                 "name":"to_shop",
+                 "name":"to-shop",
                  "properties":[
                         {
                          "name":"room",
@@ -159,7 +159,7 @@
                 {
                  "height":16,
                  "id":4,
-                 "name":"to_house1",
+                 "name":"to-house1",
                  "properties":[
                         {
                          "name":"room",
@@ -231,7 +231,7 @@
                 {
                  "height":16,
                  "id":13,
-                 "name":"from_shop",
+                 "name":"from-shop",
                  "rotation":0,
                  "type":"entrance",
                  "visible":true,
@@ -242,7 +242,7 @@
                 {
                  "height":16,
                  "id":14,
-                 "name":"from_house1",
+                 "name":"from-house1",
                  "rotation":0,
                  "type":"entrance",
                  "visible":true,

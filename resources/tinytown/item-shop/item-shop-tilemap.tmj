@@ -133,8 +133,13 @@
                 {
                  "height":16,
                  "id":9,
-                 "name":"to_tinytown",
+                 "name":"to-tinytown",
                  "properties":[
+                        {
+                         "name":"room",
+                         "type":"string",
+                         "value":"main"
+                        }, 
                         {
                          "name":"scene",
                          "type":"string",
@@ -143,7 +148,7 @@
                         {
                          "name":"to",
                          "type":"string",
-                         "value":"from_shop"
+                         "value":"from-shop"
                         }],
                  "rotation":0,
                  "type":"exit",

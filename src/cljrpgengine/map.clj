@@ -54,6 +54,7 @@
          [object]
          (merge
            {:name (object "name")
+            :type (object "type")
             :x (object "x")
             :y (object "y")
             :width (object "width")
@@ -77,13 +78,15 @@
   [area-name room]
   (let [data (-> (str "resources/" area-name "/" room "/" room "-tilemap.tmj")
                  (slurp)
-                 (json/read-str))]
+                 (json/read-str))
+        arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))]
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps ((util/filter-first #(= "warps" (% "name")) (data "layers")) "objects"))
-     :arrive_at (transform-arrive-at ((util/filter-first #(= "arrive_at" (% "name")) (data "layers")) "objects"))
-     }))
+     :arrive_at (transform-arrive-at (if arrive-at
+                                       (arrive-at "objects")
+                                       []))}))
 
 (defn is-blocking?
   [tile-map tile-set x y]
@@ -175,3 +178,25 @@
     (if (not warp)
       (throw (AssertionError. (str "no warp found: " warp-name))))
     warp))
+
+(defn get-exits
+  [map]
+  (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
+
+(defn get-exit-warp-from-coords
+  [map x y]
+  (let [cw (constants/character-dimensions 0)
+        ch (constants/character-dimensions 1)
+        tw (get-in map [:tileset :tilewidth])
+        th (get-in map [:tileset :tileheight])]
+    (util/filter-first
+      #(util/collision-detected?
+         x y (+ x cw) (+ y ch)
+         (:x %) (:y %) (+ (:x %) tw) (+ (:y %) th))
+      (get-exits map))))
+
+(defn get-entrance
+  [map entrance-name]
+  (util/filter-first
+    #(= entrance-name (:name %))
+    (filter #(= "entrance" (:type %)) (get-in map [:tilemap :warps]))))

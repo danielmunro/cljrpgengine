@@ -84,3 +84,23 @@
             (alter state update-in [:player :party 0 :y-offset] inc)
             (if (< 0 y-offset)
               (alter state update-in [:player :party 0 :y-offset] dec))))))))
+
+(defn change-map
+  [state area-name room entrance-name]
+  (let [new-map (map/load-map area-name room)
+        entrance (map/get-entrance new-map entrance-name)]
+    (dosync
+      (alter state update-in [:map] (constantly new-map))
+      (alter state update-in [:player :party 0 :x] (constantly (:x entrance)))
+      (alter state update-in [:player :party 0 :y] (constantly (:y entrance))))))
+
+(defn check-exits
+  [state]
+  (let [mob (get-player-first-mob state)
+        x-offset (:x-offset mob)
+        y-offset (:y-offset mob)]
+    (if (and (= 0 y-offset)
+             (= 0 x-offset))
+      (let [exit (map/get-exit-warp-from-coords (:map @state) (:x mob) (:y mob))]
+        (if exit
+          (change-map state (:scene exit) (:room exit) (:to exit)))))))
