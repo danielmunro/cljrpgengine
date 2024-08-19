@@ -2,6 +2,7 @@
   (:require [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [cljrpgengine.util :as util]
+            [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [java-time.api :as jt]))
@@ -35,16 +36,14 @@
           :map (map/load-map (get-in data [:map :name]) (get-in data [:map :room]))})))
 
 (defn create-new-state
-  [start-area start-room]
-  (let [map (map/load-map start-area start-room)
-        start (util/filter-first #(= (:name %) "start") (get-in map [:tilemap :warps]))
-        player (player/create-new-player (:x start) (:y start))]
-    (if (not start)
-      (throw (AssertionError. "no start warp found for scene")))
-    (ref {:save-name (random-uuid)
-          :keys #{}
-          :player player
-          :map map})))
+  []
+  (let [player (player/create-new-player 0 0)
+        state (ref {:save-name (random-uuid)
+                    :keys #{}
+                    :player player
+                    :map nil})]
+    (tinytown-scene/initialize state)
+    state))
 
 (defn create-from-latest-save
   [save-name]

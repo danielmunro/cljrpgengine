@@ -15,7 +15,7 @@
   (q/frame-rate constants/target-fps)
   (if @save-file
     (state/create-from-latest-save @save-file)
-    (state/create-new-state constants/start-map constants/start-room)))
+    (state/create-new-state)))
 
 (defn update-animations
   [state]
@@ -67,6 +67,7 @@
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
   (q/defsketch game
+               :title constants/title
                :setup setup
                :size constants/window
                :update update-state

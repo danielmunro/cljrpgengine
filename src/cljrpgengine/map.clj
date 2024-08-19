@@ -24,7 +24,7 @@
                 :y @y}})
 
 (defn- load-tileset
-  [area-name room]
+  [area-name]
   (let [data (-> (str "resources/" area-name "/" area-name "-tileset.tsj")
                  (slurp)
                  (json/read-str))
@@ -141,7 +141,7 @@
 (defn load-map
   [area-name room]
   (let [tilemap (load-tilemap area-name room)
-        tileset (load-tileset area-name room)
+        tileset (load-tileset area-name)
         layers (:layers tilemap)
         image (-> (str "resources/" area-name "/" area-name ".png")
                   (File.)
@@ -168,3 +168,10 @@
 (defn draw-foreground
   [map offset-x offset-y]
   (q/image (:foreground map) offset-x offset-y))
+
+(defn get-warp
+  [map warp-name]
+  (let [warp (util/filter-first #(= (:name %) warp-name) (get-in map [:tilemap :warps]))]
+    (if (not warp)
+      (throw (AssertionError. (str "no warp found: " warp-name))))
+    warp))

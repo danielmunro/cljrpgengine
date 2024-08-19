@@ -1,6 +1,5 @@
 (ns cljrpgengine.player-test
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.player :as player]
+  (:require [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [clojure.test :refer :all]
             [quil.core :as q]))
@@ -10,7 +9,7 @@
     (let [lock (promise)]
       (q/defsketch start-moving
                    :draw (fn []
-                           (let [state (state/create-new-state constants/start-map constants/start-room)
+                           (let [state (state/create-new-state)
                                  mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state
@@ -26,7 +25,7 @@
     (let [lock (promise)]
       (q/defsketch reset-moving
                    :draw (fn []
-                           (let [state (state/create-new-state constants/start-map constants/start-room)
+                           (let [state (state/create-new-state)
                                  mob (player/get-player-first-mob state)]
                              (player/start-moving
                                state
