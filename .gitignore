@@ -10,6 +10,9 @@ pom.xml.asc
 /.nrepl-port
 /.prepl-port
 .hgignore
+zed.tiled-project
+zed.tiled-session
+.DS_Store
 .hg/
 .idea/
 resources/saves
