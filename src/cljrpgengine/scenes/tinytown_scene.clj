@@ -1,8 +1,10 @@
 (ns cljrpgengine.scenes.tinytown-scene
   (:require [cljrpgengine.map :as map]
-            [cljrpgengine.scene :as scene]))
+            [cljrpgengine.mob :as mob]
+            [cljrpgengine.scene :as scene]
+            [cljrpgengine.sprite :as sprite]))
 
-(defn initialize
+(defn initialize-scene
   [state]
   (dosync
    (let [map (map/load-map "tinytown" "main")
@@ -11,6 +13,19 @@
      (alter state update-in [:player :party 0 :x] (constantly (:x start)))
      (alter state update-in [:player :party 0 :y] (constantly (:y start))))))
 
+(defn update-item-shop
+  [state]
+  (mob/find-or-create
+    state
+    "shop-owner"
+    (fn [name] (mob/create-mob name :down 240 80 (sprite/create-from-name :fireas)))))
+
+(defn update-scene
+  [state]
+  (cond (= "item-shop" (get-in @state [:map :room]))
+        (update-item-shop state)))
+
 (deftype TinytownScene []
   scene/Scene
-  (initialize [state] (initialize state)))
+  (initialize-scene [state] (initialize-scene state))
+  (update-scene [state] (update-scene state)))

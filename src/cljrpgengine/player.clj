@@ -7,8 +7,8 @@
   [x y]
   {:party [(mob/create-mob
             "fireas"
+            :down
             x y
-            0 0
             (sprite/create-from-name :fireas))]})
 
 (defn get-player-first-mob
@@ -92,7 +92,8 @@
     (dosync
      (alter state update-in [:map] (constantly new-map))
      (alter state update-in [:player :party 0 :x] (constantly (:x entrance)))
-     (alter state update-in [:player :party 0 :y] (constantly (:y entrance))))))
+     (alter state update-in [:player :party 0 :y] (constantly (:y entrance)))
+     (alter state update-in [:mobs] (constantly #{})))))
 
 (defn check-exits
   [state]

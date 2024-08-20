@@ -28,6 +28,7 @@
   [save-file]
   (let [data (read-string (slurp save-file))]
     (ref {:keys #{}
+          :mobs #{}
           :save-name (:save-name data)
           :player (player/create-new-player
                    (get-in data [:player :party 0 :x])
@@ -39,9 +40,10 @@
   (let [player (player/create-new-player 0 0)
         state (ref {:save-name (random-uuid)
                     :keys #{}
+                    :mobs #{}
                     :player player
                     :map nil})]
-    (tinytown-scene/initialize state)
+    (tinytown-scene/initialize-scene state)
     state))
 
 (defn create-from-latest-save
