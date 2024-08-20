@@ -1,5 +1,6 @@
 (ns cljrpgengine.sprite
-  (:require [quil.core :as q]))
+  (:require [cljrpgengine.constants :as constants]
+            [quil.core :as q]))
 
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
@@ -56,8 +57,8 @@
     (create
      name
      "fireas.png"
-     16
-     24
+     (constants/character-dimensions 0)
+     (constants/character-dimensions 1)
      :down
      {:down  {:frames   4
               :delay    8
