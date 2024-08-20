@@ -11,6 +11,7 @@
 (def save-file (atom nil))
 
 (defn setup
+  "Setup function for the game."
   []
   (q/frame-rate constants/target-fps)
   (if @save-file
@@ -18,6 +19,7 @@
     (state/create-new-state)))
 
 (defn update-animations
+  "Update all animations -- just the player right now."
   [state]
   (player/update-player-sprite state))
 
@@ -32,6 +34,7 @@
   state)
 
 (defn draw
+  "Redraw the screen, including backgrounds, mobs, and player."
   [state]
   (let [map (:map @state)
         mob (player/get-player-first-mob state)
@@ -60,7 +63,7 @@
     (map/draw-foreground map (- offset-x character-x) (- offset-y character-y))))
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "Start the game."
   [& args]
   (if (seq args)
     (doseq [arg args]
