@@ -9,6 +9,7 @@
                  [clojure.java-time "1.4.2"]]
   :main ^:skip-aot cljrpgengine.core
   :target-path "target/%s"
-  :plugins [[lein-pprint "1.3.2"]]
+  :plugins [[lein-pprint "1.3.2"]
+            [dev.weavejester/lein-cljfmt "0.12.0"]]
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})

@@ -30,8 +30,8 @@
     (ref {:keys #{}
           :save-name (:save-name data)
           :player (player/create-new-player
-                    (get-in data [:player :party 0 :x])
-                    (get-in data [:player :party 0 :y]))
+                   (get-in data [:player :party 0 :x])
+                   (get-in data [:player :party 0 :y]))
           :map (map/load-map (get-in data [:map :name]) (get-in data [:map :room]))})))
 
 (defn create-new-state

@@ -7,5 +7,4 @@
    :y y
    :x-offset x-offset
    :y-offset y-offset
-   :sprite sprite
-   })
+   :sprite sprite})

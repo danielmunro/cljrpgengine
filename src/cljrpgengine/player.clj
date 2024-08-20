@@ -6,10 +6,10 @@
 (defn create-new-player
   [x y]
   {:party [(mob/create-mob
-             "fireas"
-             x y
-             0 0
-             (sprite/create-from-name :fireas))]})
+            "fireas"
+            x y
+            0 0
+            (sprite/create-from-name :fireas))]})
 
 (defn get-player-first-mob
   [state]
@@ -36,8 +36,8 @@
         tile-width (get-in @state [:map :tileset :tilewidth])
         tile-height (get-in @state [:map :tileset :tileheight])]
     (if (and
-          (= 0 (:x-offset mob))
-          (= 0 (:y-offset mob)))
+         (= 0 (:x-offset mob))
+         (= 0 (:y-offset mob)))
       (do
         (if (= last-key :up)
           (start-moving state :up x (- y tile-height))
@@ -51,7 +51,7 @@
 (defn reset-moving
   [state key]
   (dosync
-    (alter state update :keys disj key))
+   (alter state update :keys disj key))
   state)
 
 (defn update-player-sprite
@@ -60,15 +60,15 @@
         sprite (:sprite mob)
         current-animation (:current-animation sprite)]
     (dosync
-      (alter
-        state
-        update-in
-        [:player :party 0 :sprite :animations current-animation :frame]
-        (fn [frame] (sprite/get-sprite-frame sprite frame)))
-      (if (and
-            (= 0 (:x-offset mob))
-            (= 0 (:y-offset mob)))
-        (alter state update-in [:player :party 0 :sprite :animations current-animation :is-playing] (constantly false))))))
+     (alter
+      state
+      update-in
+      [:player :party 0 :sprite :animations current-animation :frame]
+      (fn [frame] (sprite/get-sprite-frame sprite frame)))
+     (if (and
+          (= 0 (:x-offset mob))
+          (= 0 (:y-offset mob)))
+       (alter state update-in [:player :party 0 :sprite :animations current-animation :is-playing] (constantly false))))))
 
 (defn update-move-offsets
   [state]
@@ -76,23 +76,23 @@
         x-offset (:x-offset mob)
         y-offset (:y-offset mob)]
     (dosync
-      (if (> 0 x-offset)
-        (alter state update-in [:player :party 0 :x-offset] inc)
-        (if (< 0 x-offset)
-          (alter state update-in [:player :party 0 :x-offset] dec)
-          (if (> 0 y-offset)
-            (alter state update-in [:player :party 0 :y-offset] inc)
-            (if (< 0 y-offset)
-              (alter state update-in [:player :party 0 :y-offset] dec))))))))
+     (if (> 0 x-offset)
+       (alter state update-in [:player :party 0 :x-offset] inc)
+       (if (< 0 x-offset)
+         (alter state update-in [:player :party 0 :x-offset] dec)
+         (if (> 0 y-offset)
+           (alter state update-in [:player :party 0 :y-offset] inc)
+           (if (< 0 y-offset)
+             (alter state update-in [:player :party 0 :y-offset] dec))))))))
 
 (defn change-map
   [state area-name room entrance-name]
   (let [new-map (map/load-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
     (dosync
-      (alter state update-in [:map] (constantly new-map))
-      (alter state update-in [:player :party 0 :x] (constantly (:x entrance)))
-      (alter state update-in [:player :party 0 :y] (constantly (:y entrance))))))
+     (alter state update-in [:map] (constantly new-map))
+     (alter state update-in [:player :party 0 :x] (constantly (:x entrance)))
+     (alter state update-in [:player :party 0 :y] (constantly (:y entrance))))))
 
 (defn check-exits
   [state]

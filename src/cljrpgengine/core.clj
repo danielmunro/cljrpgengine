@@ -41,7 +41,7 @@
         x (-> (:x mob)
               (+ (:x-offset mob)))
         y (-> (:y mob)
-            (+ (:y-offset mob)))
+              (+ (:y-offset mob)))
         offset-x (-> (constants/window 0)
                      (/ 2)
                      (- x))
@@ -55,11 +55,11 @@
     (q/background 0)
     (map/draw-background map (- offset-x character-x) (- offset-y character-y))
     (sprite/draw
-      (-> (+ x offset-x)
-          (- character-x))
-      (-> (+ y offset-y)
-          (- character-y))
-      (:sprite mob))
+     (-> (+ x offset-x)
+         (- character-x))
+     (-> (+ y offset-y)
+         (- character-y))
+     (:sprite mob))
     (map/draw-foreground map (- offset-x character-x) (- offset-y character-y))))
 
 (defn -main
@@ -71,13 +71,13 @@
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
   (q/defsketch game
-               :title constants/title
-               :setup setup
-               :size constants/window
-               :update update-state
-               :draw draw
-               :key-pressed input/check-key-press
-               :key-released input/check-key-released
-               :middleware [m/fun-mode]
-               :features [:exit-on-close
-                          :keep-on-top]))
+    :title constants/title
+    :setup setup
+    :size constants/window
+    :update update-state
+    :draw draw
+    :key-pressed input/check-key-press
+    :key-released input/check-key-released
+    :middleware [m/fun-mode]
+    :features [:exit-on-close
+               :keep-on-top]))
