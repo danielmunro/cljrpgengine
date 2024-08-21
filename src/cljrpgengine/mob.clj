@@ -16,7 +16,7 @@
 
 (defn create-mob
   [name direction x y sprite]
-  (println "creating mob " name)
+  (println "creating mob" name)
   {:name name
    :direction direction
    :x x
