@@ -10,8 +10,9 @@
    (let [map (map/load-map "tinytown" "main")
          start (map/get-warp map "start")]
      (alter state update-in [:map] (constantly map))
-     (alter state update-in [:player :party 0 :x] (constantly (:x start)))
-     (alter state update-in [:player :party 0 :y] (constantly (:y start))))))
+     (alter state update-in [:player :party 0] assoc
+            :x (:x start)
+            :y (:y start)))))
 
 (defn update-item-shop
   [state]

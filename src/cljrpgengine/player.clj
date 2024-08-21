@@ -21,10 +21,11 @@
     (dosync (alter state update :keys conj key)
             (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
             (alter state update-in [:player :party 0 :sprite :animations (keyword key) :is-playing] (constantly true))
-            (alter state update-in [:player :party 0 :x-offset] (constantly (- (get-in @state [:player :party 0 :x]) new-x)))
-            (alter state update-in [:player :party 0 :y-offset] (constantly (- (get-in @state [:player :party 0 :y]) new-y)))
-            (alter state update-in [:player :party 0 :x] (constantly new-x))
-            (alter state update-in [:player :party 0 :y] (constantly new-y)))))
+            (alter state update-in [:player :party 0] assoc
+                   :x-offset (- (get-in @state [:player :party 0 :x]) new-x)
+                   :y-offset (- (get-in @state [:player :party 0 :y]) new-y)
+                   :x new-x
+                   :y new-y))))
 
 (defn check-start-moving
   [state]
@@ -91,8 +92,9 @@
         entrance (map/get-entrance new-map entrance-name)]
     (dosync
      (alter state update-in [:map] (constantly new-map))
-     (alter state update-in [:player :party 0 :x] (constantly (:x entrance)))
-     (alter state update-in [:player :party 0 :y] (constantly (:y entrance)))
+     (alter state update-in [:player :party 0] assoc
+            :x (:x entrance)
+            :y (:y entrance))
      (alter state update-in [:mobs] (constantly #{})))))
 
 (defn check-exits
