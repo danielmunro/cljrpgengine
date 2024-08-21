@@ -1,6 +1,5 @@
 (ns cljrpgengine.mob
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.sprite :as sprite]
+  (:require [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]))
 
 (defn find-or-create
