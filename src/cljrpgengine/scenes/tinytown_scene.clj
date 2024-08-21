@@ -16,9 +16,9 @@
 (defn update-item-shop
   [state]
   (mob/find-or-create
-    state
-    "shop-owner"
-    (fn [name] (mob/create-mob name :down 240 80 (sprite/create-from-name :fireas)))))
+   state
+   "shop-owner"
+   (fn [name] (mob/create-mob name :down 240 80 (sprite/create-from-name :fireas)))))
 
 (defn update-scene
   [_ state]
@@ -26,7 +26,7 @@
         (update-item-shop state)))
 
 (deftype TinytownScene
-  []
+         []
   scene/Scene
   (initialize-scene [scene state] (initialize-scene scene state))
   (update-scene [scene state] (update-scene scene state)))

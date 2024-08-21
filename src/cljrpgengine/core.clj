@@ -66,8 +66,8 @@
          (- character-y))
      (:sprite player-mob))
     (dorun
-      (for [m (:mobs @state)]
-        (mob/draw-mob m adjusted-x adjusted-y)))
+     (for [m (:mobs @state)]
+       (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)))
 
 (defn -main
