@@ -31,7 +31,6 @@
   checking for game events."
   [state]
   (.update-scene (all-scenes/scenes (:scene @state)) state)
-  ;(.. (all-scenes/scenes (:scene @state)) (.update-scene state))
   (update-animations state)
   (player/update-move-offsets state)
   (player/check-exits state)
