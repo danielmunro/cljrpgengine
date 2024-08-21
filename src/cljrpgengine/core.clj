@@ -3,6 +3,7 @@
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
+            [cljrpgengine.all-scenes :as all-scenes]
             [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
@@ -29,7 +30,8 @@
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state]
-  (tinytown-scene/update-scene state)
+  (.update-scene (all-scenes/scenes (:scene @state)) state)
+  ;(.. (all-scenes/scenes (:scene @state)) (.update-scene state))
   (update-animations state)
   (player/update-move-offsets state)
   (player/check-exits state)

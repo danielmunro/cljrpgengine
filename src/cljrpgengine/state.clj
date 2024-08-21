@@ -1,5 +1,6 @@
 (ns cljrpgengine.state
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.all-scenes :as all-scenes]
+            [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
             [clojure.java.io :as io]
@@ -10,6 +11,7 @@
   [state]
   (let [party (get-in @state [:player :party])]
     {:save-name (:save-name @state)
+     :scene (name (:scene @state))
      :player {:party (into [] (map (fn [p] {:name (:name p)
                                             :x (:x p)
                                             :y (:y p)
@@ -29,6 +31,7 @@
   (let [data (read-string (slurp save-file))]
     (ref {:keys #{}
           :mobs #{}
+          :save (keyword (:scene data))
           :save-name (:save-name data)
           :player (player/create-new-player
                    (get-in data [:player :party 0 :x])
@@ -41,9 +44,10 @@
         state (ref {:save-name (random-uuid)
                     :keys #{}
                     :mobs #{}
+                    :scene :tinytown
                     :player player
                     :map nil})]
-    (tinytown-scene/initialize-scene state)
+    (tinytown-scene/initialize-scene (all-scenes/scenes :tinytown) state)
     state))
 
 (defn create-from-latest-save
