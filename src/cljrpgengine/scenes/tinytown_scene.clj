@@ -21,7 +21,7 @@
     (fn [name] (mob/create-mob name :down 240 80 (sprite/create-from-name :fireas)))))
 
 (defn update-scene
-  [scene state]
+  [_ state]
   (cond (= "item-shop" (get-in @state [:map :room]))
         (update-item-shop state)))
 
