@@ -2,7 +2,6 @@
   (:require [cljrpgengine.all-scenes :as all-scenes]
             [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
-            [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [java-time.api :as jt]))

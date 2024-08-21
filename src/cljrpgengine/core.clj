@@ -2,7 +2,6 @@
   (:require [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
             [cljrpgengine.all-scenes :as all-scenes]
             [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
