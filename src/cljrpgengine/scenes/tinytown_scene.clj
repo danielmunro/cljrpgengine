@@ -5,7 +5,7 @@
             [cljrpgengine.sprite :as sprite]))
 
 (defn initialize-scene
-  [_ state]
+  [state]
   (dosync
    (let [map (map/load-map "tinytown" "main")
          start (map/get-warp map "start")]
@@ -22,15 +22,15 @@
    (fn [name] (mob/create-mob name :down 240 80 (sprite/create-from-name :fireas)))))
 
 (defn update-scene
-  [_ state]
+  [state]
   (cond (= "item-shop" (get-in @state [:map :room]))
         (update-item-shop state)))
 
 (deftype TinytownScene
          []
   scene/Scene
-  (initialize-scene [scene state] (initialize-scene scene state))
-  (update-scene [scene state] (update-scene scene state)))
+  (initialize-scene [scene state] (initialize-scene state))
+  (update-scene [scene state] (update-scene state)))
 
 (defn create-tinytown-scene
   []
