@@ -1,5 +1,6 @@
 (ns cljrpgengine.sprite
-  (:require [quil.core :as q]))
+  (:require [cljrpgengine.constants :as constants]
+            [quil.core :as q]))
 
 (def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
 
@@ -7,8 +8,8 @@
   [animations]
   (into {}
         (map
-          (fn[animation] {animation (assoc (animation animations) :frame 0 :is-playing false)})
-          (keys animations))))
+         (fn [animation] {animation (assoc (animation animations) :frame 0 :is-playing false)})
+         (keys animations))))
 
 (defn create
   [name filename width height current-animation animations]
@@ -31,8 +32,8 @@
   [{:keys [current-animation animations]} frame]
   (let [animation (current-animation animations)]
     (if (and
-          (= 0 (mod (q/frame-count) (:delay animation)))
-          (:is-playing animation))
+         (= 0 (mod (q/frame-count) (:delay animation)))
+         (:is-playing animation))
       (get-next-frame frame (:frames animation))
       frame)))
 
@@ -45,8 +46,8 @@
         g (create-graphics width height)
         y-diff (- height width)]
     (q/with-graphics g
-                     (.clear g)
-                     (q/image image (- x) (- y)))
+      (.clear g)
+      (q/image image (- x) (- y)))
     (q/image g player-x (- player-y y-diff) width height)))
 
 (defn create-from-name
@@ -54,23 +55,23 @@
   (cond
     (= :fireas name)
     (create
-      name
-      "fireas.png"
-      16
-      24
-      :down
-      {:down  {:frames   4
-               :delay    8
-               :y-offset 0}
-       :left  {:frames   4
-               :delay    8
-               :y-offset 1}
-       :right {:frames   4
-               :delay    8
-               :y-offset 2}
-       :up    {:frames   4
-               :delay    8
-               :y-offset 3}
-       :sleep {:frames   1
-               :delay    0
-               :y-offset 4}})))
+     name
+     "fireas.png"
+     (constants/character-dimensions 0)
+     (constants/character-dimensions 1)
+     :down
+     {:down  {:frames   4
+              :delay    8
+              :y-offset 0}
+      :left  {:frames   4
+              :delay    8
+              :y-offset 1}
+      :right {:frames   4
+              :delay    8
+              :y-offset 2}
+      :up    {:frames   4
+              :delay    8
+              :y-offset 3}
+      :sleep {:frames   1
+              :delay    0
+              :y-offset 4}})))

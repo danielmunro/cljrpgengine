@@ -1,4 +1,5 @@
 (ns cljrpgengine.scene)
 
 (defprotocol Scene
-  (initialize [state]))
+  (initialize-scene [scene state])
+  (update-scene [scene state]))

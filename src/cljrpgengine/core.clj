@@ -1,6 +1,9 @@
 (ns cljrpgengine.core
   (:require [cljrpgengine.map :as map]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
+            [cljrpgengine.scenes.tinytown-scene :as tinytown-scene]
+            [cljrpgengine.all-scenes :as all-scenes]
             [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
@@ -27,6 +30,7 @@
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state]
+  (.update-scene (all-scenes/scenes (:scene @state)) state)
   (update-animations state)
   (player/update-move-offsets state)
   (player/check-exits state)
@@ -36,12 +40,12 @@
 (defn draw
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
-  (let [map (:map @state)
-        mob (player/get-player-first-mob state)
-        x (-> (:x mob)
-              (+ (:x-offset mob)))
-        y (-> (:y mob)
-            (+ (:y-offset mob)))
+  (let [scene-map (:map @state)
+        player-mob (player/get-player-first-mob state)
+        x (-> (:x player-mob)
+              (+ (:x-offset player-mob)))
+        y (-> (:y player-mob)
+              (+ (:y-offset player-mob)))
         offset-x (-> (constants/window 0)
                      (/ 2)
                      (- x))
@@ -51,16 +55,21 @@
         character-x (-> (constants/character-dimensions 0)
                         (/ 2))
         character-y (-> (constants/character-dimensions 1)
-                        (/ 2))]
+                        (/ 2))
+        adjusted-x (- offset-x character-x)
+        adjusted-y (- offset-y character-y)]
     (q/background 0)
-    (map/draw-background map (- offset-x character-x) (- offset-y character-y))
+    (map/draw-background scene-map adjusted-x adjusted-y)
     (sprite/draw
-      (-> (+ x offset-x)
-          (- character-x))
-      (-> (+ y offset-y)
-          (- character-y))
-      (:sprite mob))
-    (map/draw-foreground map (- offset-x character-x) (- offset-y character-y))))
+     (-> (+ x offset-x)
+         (- character-x))
+     (-> (+ y offset-y)
+         (- character-y))
+     (:sprite player-mob))
+    (dorun
+      (for [m (:mobs @state)]
+        (mob/draw-mob m adjusted-x adjusted-y)))
+    (map/draw-foreground scene-map adjusted-x adjusted-y)))
 
 (defn -main
   "Start the game."
@@ -71,13 +80,13 @@
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
   (q/defsketch game
-               :title constants/title
-               :setup setup
-               :size constants/window
-               :update update-state
-               :draw draw
-               :key-pressed input/check-key-press
-               :key-released input/check-key-released
-               :middleware [m/fun-mode]
-               :features [:exit-on-close
-                          :keep-on-top]))
+    :title constants/title
+    :setup setup
+    :size constants/window
+    :update update-state
+    :draw draw
+    :key-pressed input/check-key-press
+    :key-released input/check-key-released
+    :middleware [m/fun-mode]
+    :features [:exit-on-close
+               :keep-on-top]))

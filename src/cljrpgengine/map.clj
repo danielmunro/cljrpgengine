@@ -40,8 +40,7 @@
      :tilewidth tilewidth
      :imagewidth imagewidth
      :imageheight imageheight
-     :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))
-     }))
+     :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))}))
 
 (defn- transform-layer
   [layer]
@@ -53,13 +52,13 @@
   (map (fn
          [object]
          (merge
-           {:name (object "name")
-            :type (object "type")
-            :x (object "x")
-            :y (object "y")
-            :width (object "width")
-            :height (object "height")}
-           (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
+          {:name (object "name")
+           :type (object "type")
+           :x (object "x")
+           :y (object "y")
+           :width (object "width")
+           :height (object "height")}
+          (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
        objects))
 
 (defn- transform-arrive-at
@@ -67,11 +66,11 @@
   (map (fn
          [object]
          (merge
-           {:name (object "name")
-            :x (object "x")
-            :y (object "y")
-            :width (object "width")
-            :height (object "height")}))
+          {:name (object "name")
+           :x (object "x")
+           :y (object "y")
+           :width (object "width")
+           :height (object "height")}))
        objects))
 
 (defn- load-tilemap
@@ -99,8 +98,8 @@
         back-tile (dec (get-in tile-map [:layers :background :data tile-pos]))
         mid-tile (dec (get-in tile-map [:layers :midground :data tile-pos]))]
     (or
-      (get-in tile-set [:tiles back-tile])
-      (get-in tile-set [:tiles mid-tile]))))
+     (get-in tile-set [:tiles back-tile])
+     (get-in tile-set [:tiles mid-tile]))))
 
 (defn- draw-layer
   [layer image w h mapw maph iw is-blocking?]
@@ -128,17 +127,17 @@
                   sx2 (+ sx1 w)
                   sy2 (+ sy1 h)]
               (if (and
-                    constants/draw-blocking
-                    (is-blocking? dx1 dy1))
+                   constants/draw-blocking
+                   (is-blocking? dx1 dy1))
                 (.drawRect g dx1 dy1 dx2 dy2)
                 (.drawImage g image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil))))
           (recur
-            (if (< (inc x) mapw)
-              (inc x)
-              0)
-            (if (>= (inc x) mapw)
-              (inc y)
-              y)))))
+           (if (< (inc x) mapw)
+             (inc x)
+             0)
+           (if (>= (inc x) mapw)
+             (inc y)
+             y)))))
     (PImage. buf)))
 
 (defn load-map
@@ -190,13 +189,13 @@
         tw (get-in map [:tileset :tilewidth])
         th (get-in map [:tileset :tileheight])]
     (util/filter-first
-      #(util/collision-detected?
-         x y (+ x cw) (+ y ch)
-         (:x %) (:y %) (+ (:x %) tw) (+ (:y %) th))
-      (get-exits map))))
+     #(util/collision-detected?
+       x y (+ x cw) (+ y ch)
+       (:x %) (:y %) (+ (:x %) tw) (+ (:y %) th))
+     (get-exits map))))
 
 (defn get-entrance
   [map entrance-name]
   (util/filter-first
-    #(= entrance-name (:name %))
-    (filter #(= "entrance" (:type %)) (get-in map [:tilemap :warps]))))
+   #(= entrance-name (:name %))
+   (filter #(= "entrance" (:type %)) (get-in map [:tilemap :warps]))))
