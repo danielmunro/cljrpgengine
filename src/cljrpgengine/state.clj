@@ -31,7 +31,7 @@
   (let [data (read-string (slurp save-file))]
     (ref {:keys #{}
           :mobs #{}
-          :save (keyword (:scene data))
+          :scene (keyword (:scene data))
           :save-name (:save-name data)
           :player (player/create-new-player
                    (get-in data [:player :party 0 :x])
@@ -41,13 +41,14 @@
 (defn create-new-state
   []
   (let [player (player/create-new-player 0 0)
+        scene (all-scenes/scenes :tinytown)
         state (ref {:save-name (random-uuid)
                     :keys #{}
                     :mobs #{}
                     :scene :tinytown
                     :player player
                     :map nil})]
-    (tinytown-scene/initialize-scene (all-scenes/scenes :tinytown) state)
+    (.initialize-scene scene state)
     state))
 
 (defn create-from-latest-save
