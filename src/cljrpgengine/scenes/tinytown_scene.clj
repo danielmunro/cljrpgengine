@@ -25,7 +25,8 @@
   (cond (= "item-shop" (get-in @state [:map :room]))
         (update-item-shop state)))
 
-(deftype TinytownScene []
+(deftype TinytownScene
+  []
   scene/Scene
   (initialize-scene [scene state] (initialize-scene scene state))
   (update-scene [scene state] (update-scene scene state)))
