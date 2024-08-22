@@ -60,11 +60,9 @@
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (sprite/draw
-     (-> (+ x offset-x)
-         (- character-x))
-     (-> (+ y offset-y)
-         (- character-y))
-     (:sprite player-mob))
+      (+ x adjusted-x)
+      (+ y adjusted-y)
+      (:sprite player-mob))
     (dorun
      (for [m (:mobs @state)]
        (mob/draw-mob m adjusted-x adjusted-y)))
