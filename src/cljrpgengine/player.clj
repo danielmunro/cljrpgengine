@@ -39,7 +39,8 @@
                    :x-offset (- (get-in @state [:player :party 0 :x]) new-x)
                    :y-offset (- (get-in @state [:player :party 0 :y]) new-y)
                    :x new-x
-                   :y new-y))))
+                   :y new-y))
+    (dosync (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key)))))
 
 (defn check-start-moving
   [state]
