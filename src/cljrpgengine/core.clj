@@ -61,7 +61,7 @@
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
-     (for [m (mob/sort-by-y (conj (:mobs @state) player-mob))]
+     (for [m (sort-by :y (conj (:mobs @state) player-mob))]
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)))
 

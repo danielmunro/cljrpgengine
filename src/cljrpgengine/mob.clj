@@ -52,11 +52,3 @@
          (+ (% :x) tile-size)
          (+ (% :y) tile-size)))
       mobs-to-search))))
-
-(defn sort-by-y
-  [mobs]
-  ;(println "sorting")
-  ;(println (count mobs))
-  ;(println (sort-by :y mobs))
-  ;(System/exit 1)
-  (sort-by :y mobs))
