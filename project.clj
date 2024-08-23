@@ -10,6 +10,7 @@
   :main ^:skip-aot cljrpgengine.core
   :target-path "target/%s"
   :plugins [[lein-pprint "1.3.2"]
-            [dev.weavejester/lein-cljfmt "0.12.0"]]
+            [dev.weavejester/lein-cljfmt "0.12.0"]
+            [lein-cloverage "1.2.2"]]
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
