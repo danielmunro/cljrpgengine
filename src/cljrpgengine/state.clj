@@ -22,8 +22,8 @@
                                             :x (:x p)
                                             :y (:y p)
                                             :sprite (get-in p [:sprite :name])}) party))}
-     :map {:name (get-in @state [:map :name])
-           :room (get-in @state [:map :room])}}))
+     :map {:name (name (get-in @state [:map :name]))
+           :room (name (get-in @state [:map :room]))}}))
 
 (defn save
   [state]
@@ -48,13 +48,18 @@
 (defn create-new-state
   []
   (let [player (player/create-new-player 0 0)
-        scene (all-scenes/scenes :tinytown)
         state (ref
                (merge
                 initial-state
                 {:player player
                  :save-name (random-uuid)}))]
-    (.initialize-scene scene state)
+    (dosync
+     (let [map (map/load-map "tinytown" "main")
+           start (map/get-warp map "start")]
+       (alter state update-in [:map] (constantly map))
+       (alter state update-in [:player :party 0] assoc
+              :x (:x start)
+              :y (:y start))))
     state))
 
 (defn create-from-latest-save

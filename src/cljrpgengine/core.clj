@@ -16,9 +16,11 @@
   "Setup function for the game."
   []
   (q/frame-rate constants/target-fps)
-  (if @save-file
-    (state/create-from-latest-save @save-file)
-    (state/create-new-state)))
+  (let [state (if @save-file
+                (state/create-from-latest-save @save-file)
+                (state/create-new-state))]
+    (.initialize-scene (all-scenes/scenes (:scene @state)) state)
+    state))
 
 (defn update-animations
   "Update all animations -- just the player right now."

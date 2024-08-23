@@ -153,8 +153,8 @@
         mapw (:width tilemap)
         maph (:height tilemap)
         iw (:imagewidth tileset)]
-    {:name area-name
-     :room room
+    {:name (keyword area-name)
+     :room (keyword room)
      :tilemap tilemap
      :tileset tileset
      :image image

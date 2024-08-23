@@ -3,10 +3,10 @@
             [cljrpgengine.util :as util]))
 
 (defn find-or-create
-  [state name mob]
-  (if (not (util/filter-first #(= name (:name %)) (:mobs @state)))
+  [state mob]
+  (if (not (util/filter-first #(= (:name mob) (:name %)) (:mobs @state)))
     (dosync
-     (alter state update-in [:mobs] conj (mob name)))))
+     (alter state update-in [:mobs] conj mob))))
 
 (defn draw-mob
   [mob offset-x offset-y]
@@ -24,3 +24,7 @@
    :x-offset 0
    :y-offset 0
    :sprite sprite})
+
+(defn update-room-mobs
+  [state mobs]
+  (dorun (map #(find-or-create state %) mobs)))
