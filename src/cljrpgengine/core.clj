@@ -3,7 +3,6 @@
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.all-scenes :as all-scenes]
-            [cljrpgengine.sprite :as sprite]
             [quil.core :as q]
             [quil.middleware :as m]
             [cljrpgengine.state :as state]
@@ -61,12 +60,8 @@
         adjusted-y (- offset-y character-y)]
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
-    (sprite/draw
-     (+ x adjusted-x)
-     (+ y adjusted-y)
-     (:sprite player-mob))
     (dorun
-     (for [m (:mobs @state)]
+     (for [m (mob/sort-by-y (conj (:mobs @state) player-mob))]
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)))
 

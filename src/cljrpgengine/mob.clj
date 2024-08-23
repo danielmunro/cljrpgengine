@@ -11,8 +11,8 @@
 
 (defn draw-mob
   [mob offset-x offset-y]
-  (let [x (:x mob)
-        y (:y mob)]
+  (let [x (+ (:x mob) (:x-offset mob))
+        y (+ (:y mob) (:y-offset mob))]
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
@@ -52,3 +52,11 @@
          (+ (% :x) tile-size)
          (+ (% :y) tile-size)))
       mobs-to-search))))
+
+(defn sort-by-y
+  [mobs]
+  ;(println "sorting")
+  ;(println (count mobs))
+  ;(println (sort-by :y mobs))
+  ;(System/exit 1)
+  (sort-by :y mobs))
