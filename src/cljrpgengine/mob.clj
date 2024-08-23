@@ -1,5 +1,6 @@
 (ns cljrpgengine.mob
-  (:require [cljrpgengine.sprite :as sprite]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]))
 
 (defn find-or-create
@@ -30,3 +31,24 @@
   (let [room (get-in @state [:map :room])]
     (if (contains? mobs room)
       (dorun (map #(find-or-create state %) (mobs room))))))
+
+(defn blocked-by-mob?
+  [mob mobs new-x new-y tile-size]
+  (let [height (constants/character-dimensions 1)
+        mobs-to-search (filter #(not= (:name mob) (:name %)) mobs)]
+    (some
+     #(not= false %)
+     (map
+      #(and
+        (util/collision-detected?
+         new-x
+         (-> (- height tile-size)
+             (+ new-y))
+         (+ new-x tile-size)
+         (+ new-y tile-size)
+         (% :x)
+         (-> (- height tile-size)
+             (+ (% :y)))
+         (+ (% :x) tile-size)
+         (+ (% :y) tile-size)))
+      mobs-to-search))))

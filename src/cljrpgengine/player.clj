@@ -17,7 +17,21 @@
 
 (defn start-moving
   [state key new-x new-y]
-  (if (not (map/is-blocking? (get-in @state [:map :tilemap]) (get-in @state [:map :tileset]) new-x new-y))
+  (if
+   (and
+    (not
+     (mob/blocked-by-mob?
+      (get-in @state [:player :party 0])
+      (:mobs @state)
+      new-x
+      new-y
+      (get-in @state [:map :tileset :tilewidth])))
+    (not
+     (map/is-blocking?
+      (get-in @state [:map :tilemap])
+      (get-in @state [:map :tileset])
+      new-x
+      new-y)))
     (dosync (alter state update :keys conj key)
             (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
             (alter state update-in [:player :party 0 :sprite :animations (keyword key) :is-playing] (constantly true))

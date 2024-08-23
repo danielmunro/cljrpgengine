@@ -9,7 +9,7 @@
   [_]
   (swap! mobs
          (constantly {:item-shop [(mob/create-mob "Gareth" :down 240 80 (sprite/create-from-name :fireas))]
-                      :main [(mob/create-mob "Andros" :down 336 224 (sprite/create-from-name :fireas))
+                      :main [(mob/create-mob "Andros" :down 352 224 (sprite/create-from-name :fireas))
                              (mob/create-mob "Sordna" :down 544 320 (sprite/create-from-name :fireas))]})))
 
 (defn update-scene
