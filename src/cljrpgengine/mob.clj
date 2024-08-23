@@ -27,4 +27,6 @@
 
 (defn update-room-mobs
   [state mobs]
-  (dorun (map #(find-or-create state %) mobs)))
+  (let [room (get-in @state [:map :room])]
+    (if (contains? mobs room)
+      (dorun (map #(find-or-create state %) (mobs room))))))

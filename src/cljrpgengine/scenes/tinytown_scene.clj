@@ -14,9 +14,7 @@
 
 (defn update-scene
   [state]
-  (let [room (get-in @state [:map :room])]
-    (if (contains? @mobs room)
-      (mob/update-room-mobs state (@mobs room)))))
+  (mob/update-room-mobs state @mobs))
 
 (deftype TinytownScene []
   scene/Scene
