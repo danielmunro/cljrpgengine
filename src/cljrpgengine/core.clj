@@ -3,6 +3,7 @@
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.all-scenes :as all-scenes]
+            [cljrpgengine.ui :as ui]
             [quil.core :as q]
             [quil.middleware :as m]
             [cljrpgengine.state :as state]
@@ -15,6 +16,7 @@
   "Setup function for the game."
   []
   (q/frame-rate constants/target-fps)
+  (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file
                 (state/create-from-latest-save @save-file)
                 (state/create-new-state))]
@@ -57,13 +59,16 @@
         character-y (-> (constants/character-dimensions 1)
                         (/ 2))
         adjusted-x (- offset-x character-x)
-        adjusted-y (- offset-y character-y)]
+        adjusted-y (- offset-y character-y)
+        dialog (:dialog @state)]
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
      (for [m (sort-by :y (conj (:mobs @state) player-mob))]
        (mob/draw-mob m adjusted-x adjusted-y)))
-    (map/draw-foreground scene-map adjusted-x adjusted-y)))
+    (map/draw-foreground scene-map adjusted-x adjusted-y)
+    (if dialog
+      (ui/dialog dialog))))
 
 (defn -main
   "Start the game."

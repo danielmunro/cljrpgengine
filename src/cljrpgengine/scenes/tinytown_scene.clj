@@ -1,16 +1,19 @@
 (ns cljrpgengine.scenes.tinytown-scene
-  (:require [cljrpgengine.mob :as mob]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.scene :as scene]
             [cljrpgengine.sprite :as sprite]))
 
 (def mobs (atom {}))
 
 (defn initialize-scene
-  [_]
+  [state]
   (swap! mobs
-         (constantly {:item-shop [(mob/create-mob "Gareth" :down 240 80 (sprite/create-from-name :fireas))]
-                      :main [(mob/create-mob "Andros" :down 352 224 (sprite/create-from-name :fireas))
-                             (mob/create-mob "Sordna" :down 544 320 (sprite/create-from-name :fireas))]})))
+         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas))]
+                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas))
+                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas))]}))
+  (event/create-dialog-event state :default :sordna "Hola")
+  (event/create-dialog-event state :default :andros "Hello traveller"))
 
 (defn update-scene
   [state]

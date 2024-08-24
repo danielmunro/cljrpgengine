@@ -1,15 +1,18 @@
 (ns cljrpgengine.player
-  (:require [cljrpgengine.map :as map]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.sprite :as sprite]))
+            [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.util :as util]))
 
 (defn create-new-player
   [x y]
   {:party [(mob/create-mob
-            "fireas"
-            :down
-            x y
-            (sprite/create-from-name :fireas))]})
+             :fireas
+             "Fireas"
+             :down
+             x y
+             (sprite/create-from-name :fireas))]})
 
 (defn get-player-first-mob
   [state]
@@ -39,8 +42,11 @@
                    :x-offset (- (get-in @state [:player :party 0 :x]) new-x)
                    :y-offset (- (get-in @state [:player :party 0 :y]) new-y)
                    :x new-x
-                   :y new-y))
-    (dosync (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key)))))
+                   :y new-y
+                   :direction key))
+    (dosync
+      (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
+      (alter state update-in [:player :party 0 :direction] (constantly key)))))
 
 (defn check-start-moving
   [state]
@@ -53,7 +59,8 @@
         tile-height (get-in @state [:map :tileset :tileheight])]
     (if (and
          (= 0 (:x-offset mob))
-         (= 0 (:y-offset mob)))
+         (= 0 (:y-offset mob))
+         (= nil (:dialog @state)))
       (do
         (if (= last-key :up)
           (start-moving state :up x (- y tile-height))
@@ -63,12 +70,6 @@
               (start-moving state :left (- x tile-width) y)
               (if (= last-key :right)
                 (start-moving state :right (+ x tile-width) y)))))))))
-
-(defn reset-moving
-  [state key]
-  (dosync
-   (alter state update :keys disj key))
-  state)
 
 (defn update-player-sprite
   [state]
@@ -122,3 +123,26 @@
       (let [exit (map/get-exit-warp-from-coords (:map @state) (:x mob) (:y mob))]
         (if exit
           (change-map state (:scene exit) (:room exit) (:to exit)))))))
+
+(defn action-engaged
+  [state]
+  (if (:dialog @state)
+    (dosync (alter state update :dialog (constantly nil)))
+    (let [tile-size (get-in @state [:map :tileset :tilewidth])
+          direction (get-in @state [:player :party 0 :direction])
+          x (get-in @state [:player :party 0 :x])
+          y (get-in @state [:player :party 0 :y])
+          inspect-x (if (= :left direction)
+                      (- x  tile-size)
+                      (if (= :right direction)
+                        (+ x tile-size)
+                        x))
+          inspect-y (if (= :up direction)
+                      (- y tile-size)
+                      (if (= :down direction)
+                        (+ y tile-size)
+                        y))
+          mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
+      (if mob
+        (dosync
+          (alter state update :dialog (constantly (:dialog (event/get-dialog-event state (:identifier mob))))))))))

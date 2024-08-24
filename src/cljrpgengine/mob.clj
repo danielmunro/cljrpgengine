@@ -16,9 +16,10 @@
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
-  [name direction x y sprite]
+  [identifier name direction x y sprite]
   (println "creating mob" name)
-  {:name name
+  {:identifier identifier
+   :name name
    :direction direction
    :x x
    :y y

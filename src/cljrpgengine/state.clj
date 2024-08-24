@@ -1,6 +1,5 @@
 (ns cljrpgengine.state
-  (:require [cljrpgengine.all-scenes :as all-scenes]
-            [cljrpgengine.player :as player]
+  (:require [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -9,6 +8,8 @@
 (def initial-state {:save-name nil
                     :keys #{}
                     :mobs #{}
+                    :events #{}
+                    :potential-events #{}
                     :scene :tinytown
                     :player nil
                     :map nil})
@@ -40,6 +41,7 @@
       initial-state
       {:scene (keyword (:scene data))
        :save-name (:save-name data)
+       :events (:events data)
        :player (player/create-new-player
                 (get-in data [:player :party 0 :x])
                 (get-in data [:player :party 0 :y]))

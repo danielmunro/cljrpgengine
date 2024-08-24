@@ -6,7 +6,7 @@
   (testing "find-or-create doesn't create more than one mob with the same name"
     (let [state (ref {:map {:room :foo}
                       :mobs []})
-          mobs (atom {:foo [(mob/create-mob "foo" :down 0 0 nil)]})]
+          mobs (atom {:foo [(mob/create-mob :foo "foo" :down 0 0 nil)]})]
       (mob/update-room-mobs state @mobs)
       (mob/update-room-mobs state @mobs)
       (is (= (@state :mobs) (@mobs :foo))))))

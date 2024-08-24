@@ -4,7 +4,8 @@
 
 (defn check-key-released
   [state {:keys [key]}]
-  (player/reset-moving state key)
+  (dosync
+   (alter state update :keys disj key))
   state)
 
 (defn check-key-press
@@ -19,5 +20,7 @@
     (= key :right)
     (dosync (alter state update-in [:keys] conj :right))
     (= key :s)
-    (state/save state))
+    (state/save state)
+    (= key :space)
+    (player/action-engaged state))
   state)
