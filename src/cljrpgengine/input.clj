@@ -2,13 +2,13 @@
   (:require [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]))
 
-(defn check-key-released
+(defn check-key-released!
   [state {:keys [key]}]
   (dosync
    (alter state update :keys disj key))
   state)
 
-(defn check-key-press
+(defn check-key-press!
   [state {:keys [key]}]
   (cond
     (= key :up)

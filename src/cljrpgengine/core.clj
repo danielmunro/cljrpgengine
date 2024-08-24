@@ -26,7 +26,7 @@
 (defn update-animations
   "Update all animations -- just the player right now."
   [state]
-  (player/update-player-sprite state))
+  (player/update-player-sprite! state))
 
 (defn update-state
   "Main loop, starting with updating animations.  Eventually, this will include
@@ -34,7 +34,7 @@
   [state]
   (.update-scene (all-scenes/scenes (:scene @state)) state)
   (update-animations state)
-  (player/update-move-offsets state)
+  (player/update-move-offsets! state)
   (player/check-exits state)
   (player/check-start-moving state)
   state)
@@ -79,13 +79,13 @@
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
   (q/defsketch game
-    :title constants/title
-    :setup setup
-    :size constants/window
-    :update update-state
-    :draw draw
-    :key-pressed input/check-key-press
-    :key-released input/check-key-released
-    :middleware [m/fun-mode]
-    :features [:exit-on-close
+               :title constants/title
+               :setup setup
+               :size constants/window
+               :update update-state
+               :draw draw
+               :key-pressed input/check-key-press!
+               :key-released input/check-key-released!
+               :middleware [m/fun-mode]
+               :features [:exit-on-close
                :keep-on-top]))

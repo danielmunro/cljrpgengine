@@ -12,7 +12,7 @@
   {:type :has-grants
    :grants grants})
 
-(defn create-dialog-event
+(defn create-dialog-event!
   [state conditions mob dialog grants]
   (dosync (alter state update-in [:events] conj {:type :dialog
                                                  :conditions conditions
@@ -29,7 +29,7 @@
              (empty? (difference (:grants %) (:grants @state))))
           conditions))
 
-(defn get-dialog-event
+(defn get-dialog-event!
   [state target-mob]
   (let [event (util/filter-first
                #(and

@@ -18,7 +18,7 @@
   [state]
   (get-in @state [:player :party 0]))
 
-(defn start-moving
+(defn start-moving!
   [state key new-x new-y]
   (if
    (and
@@ -63,15 +63,15 @@
          (= nil (:dialog @state)))
       (do
         (if (= last-key :up)
-          (start-moving state :up x (- y tile-height))
+          (start-moving! state :up x (- y tile-height))
           (if (= last-key :down)
-            (start-moving state :down x (+ y tile-height))
+            (start-moving! state :down x (+ y tile-height))
             (if (= last-key :left)
-              (start-moving state :left (- x tile-width) y)
+              (start-moving! state :left (- x tile-width) y)
               (if (= last-key :right)
-                (start-moving state :right (+ x tile-width) y)))))))))
+                (start-moving! state :right (+ x tile-width) y)))))))))
 
-(defn update-player-sprite
+(defn update-player-sprite!
   [state]
   (let [mob (get-player-first-mob state)
         sprite (:sprite mob)
@@ -87,7 +87,7 @@
           (= 0 (:y-offset mob)))
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
-(defn update-move-offsets
+(defn update-move-offsets!
   [state]
   (let [mob (get-player-first-mob state)
         x-offset (:x-offset mob)
@@ -102,7 +102,7 @@
            (if (< 0 y-offset)
              (alter state update-in [:player :party 0 :y-offset] dec))))))))
 
-(defn change-map
+(defn change-map!
   [state area-name room entrance-name]
   (let [new-map (map/load-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
@@ -122,12 +122,12 @@
              (= 0 x-offset))
       (let [exit (map/get-exit-warp-from-coords (:map @state) (:x mob) (:y mob))]
         (if exit
-          (change-map state (:scene exit) (:room exit) (:to exit)))))))
+          (change-map! state (:scene exit) (:room exit) (:to exit)))))))
 
 (defn create-engagement!
   [state mob]
   (dosync (alter state assoc
-                 :engagement {:dialog (:dialog (event/get-dialog-event state (:identifier mob)))
+                 :engagement {:dialog (:dialog (event/get-dialog-event! state (:identifier mob)))
                               :dialog-index 0
                               :mob (:identifier mob)
                               :mob-direction (get-in mob [:sprite :current-animation])})

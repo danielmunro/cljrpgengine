@@ -3,7 +3,7 @@
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]))
 
-(defn add-if-missing
+(defn add-if-missing!
   [state mob]
   (if (not (util/filter-first #(= (:name mob) (:name %)) (:mobs @state)))
     (dosync
@@ -31,7 +31,7 @@
   [state mobs]
   (let [room (get-in @state [:map :room])]
     (if (contains? mobs room)
-      (dorun (map #(add-if-missing state %) (mobs room))))))
+      (dorun (map #(add-if-missing! state %) (mobs room))))))
 
 (defn blocked-by-mob?
   [mob mobs new-x new-y tile-size]

@@ -12,7 +12,7 @@
         :draw (fn []
                 (let [state (state/create-new-state)
                       mob (player/get-player-first-mob state)]
-                  (player/start-moving
+                  (player/start-moving!
                    state
                    :left
                    (+ (:x mob) 16)
@@ -28,12 +28,12 @@
         :draw (fn []
                 (let [state (state/create-new-state)
                       mob (player/get-player-first-mob state)]
-                  (player/start-moving
+                  (player/start-moving!
                    state
                    :right
                    (- (:x mob) 16)
                    (:y mob))
-                  (input/check-key-released state {:key :right})
+                  (input/check-key-released! state {:key :right})
                   (is (empty? (:keys @state)))
                   (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))
                 (q/exit))
