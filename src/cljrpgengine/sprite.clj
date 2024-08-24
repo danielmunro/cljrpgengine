@@ -51,7 +51,7 @@
     (q/image g player-x (- player-y y-diff) width height)))
 
 (defn create-from-name
-  [name]
+  [name direction]
   (cond
     (= :fireas name)
     (create
@@ -59,7 +59,7 @@
      "fireas.png"
      (constants/character-dimensions 0)
      (constants/character-dimensions 1)
-     :down
+     direction
      {:down  {:frames   4
               :delay    8
               :y-offset 0}

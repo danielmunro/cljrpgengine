@@ -9,9 +9,9 @@
 (defn initialize-scene
   [state]
   (swap! mobs
-         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas))]
-                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas))
-                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas))]}))
+         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))]
+                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
+                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))]}))
   (event/create-dialog-event state
                              [(event/speak-to-condition :sordna)]
                              :sordna

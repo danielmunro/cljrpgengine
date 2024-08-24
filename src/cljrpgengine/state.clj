@@ -23,6 +23,7 @@
      :player {:party (into [] (map (fn [p] {:name (:name p)
                                             :x (:x p)
                                             :y (:y p)
+                                            :direction (:direction p)
                                             :sprite (get-in p [:sprite :name])}) party))}
      :map {:name (name (get-in @state [:map :name]))
            :room (name (get-in @state [:map :room]))}}))
@@ -45,12 +46,13 @@
        :grants (:grants data)
        :player (player/create-new-player
                 (get-in data [:player :party 0 :x])
-                (get-in data [:player :party 0 :y]))
+                (get-in data [:player :party 0 :y])
+                (get-in data [:player :party 0 :direction]))
        :map (map/load-map (get-in data [:map :name]) (get-in data [:map :room]))}))))
 
 (defn create-new-state
   []
-  (let [player (player/create-new-player 0 0)
+  (let [player (player/create-new-player 0 0 :down)
         state (ref
                (merge
                 initial-state

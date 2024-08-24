@@ -6,13 +6,13 @@
             [cljrpgengine.util :as util]))
 
 (defn create-new-player
-  [x y]
+  [x y direction]
   {:party [(mob/create-mob
             :fireas
             "Fireas"
-            :down
+            direction
             x y
-            (sprite/create-from-name :fireas))]})
+            (sprite/create-from-name :fireas direction))]})
 
 (defn get-player-first-mob
   [state]
