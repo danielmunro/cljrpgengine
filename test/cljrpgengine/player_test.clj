@@ -1,5 +1,6 @@
 (ns cljrpgengine.player-test
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.input :as input]
+            [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [clojure.test :refer :all]
             [quil.core :as q]))
@@ -32,7 +33,7 @@
                    :right
                    (- (:x mob) 16)
                    (:y mob))
-                  (player/reset-moving state :right)
+                  (input/check-key-released state {:key :right})
                   (is (empty? (:keys @state)))
                   (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))
                 (q/exit))
