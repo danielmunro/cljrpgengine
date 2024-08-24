@@ -59,7 +59,7 @@
     (dosync
      (let [map (map/load-map "tinytown" "main")
            start (map/get-warp map "start")]
-       (alter state update-in [:map] (constantly map))
+       (alter state assoc-in [:map] map)
        (alter state update-in [:player :party 0] assoc
               :x (:x start)
               :y (:y start))))

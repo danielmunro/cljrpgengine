@@ -36,8 +36,8 @@
       new-x
       new-y)))
     (dosync (alter state update :keys conj key)
-            (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
-            (alter state update-in [:player :party 0 :sprite :animations (keyword key) :is-playing] (constantly true))
+            (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+            (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
             (alter state update-in [:player :party 0] assoc
                    :x-offset (- (get-in @state [:player :party 0 :x]) new-x)
                    :y-offset (- (get-in @state [:player :party 0 :y]) new-y)
@@ -45,8 +45,8 @@
                    :y new-y
                    :direction key))
     (dosync
-     (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
-     (alter state update-in [:player :party 0 :direction] (constantly key)))))
+     (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+     (alter state assoc-in [:player :party 0 :direction] key))))
 
 (defn check-start-moving
   [state]
@@ -85,7 +85,7 @@
      (if (and
           (= 0 (:x-offset mob))
           (= 0 (:y-offset mob)))
-       (alter state update-in [:player :party 0 :sprite :animations current-animation :is-playing] (constantly false))))))
+       (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets
   [state]
@@ -107,11 +107,11 @@
   (let [new-map (map/load-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
     (dosync
-     (alter state update-in [:map] (constantly new-map))
+     (alter state assoc-in [:map] new-map)
      (alter state update-in [:player :party 0] assoc
             :x (:x entrance)
             :y (:y entrance))
-     (alter state update-in [:mobs] (constantly #{})))))
+     (alter state assoc-in [:mobs] #{}))))
 
 (defn check-exits
   [state]
