@@ -84,8 +84,8 @@
                :size constants/window
                :update update-state
                :draw draw
-               :key-pressed input/check-key-press!
-               :key-released input/check-key-released!
+               :key-pressed input/key-pressed!
+               :key-released input/key-released!
                :middleware [m/fun-mode]
                :features [:exit-on-close
                :keep-on-top]))

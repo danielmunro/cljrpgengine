@@ -33,7 +33,7 @@
                    :right
                    (- (:x mob) 16)
                    (:y mob))
-                  (input/check-key-released! state {:key :right})
+                  (input/key-released! state {:key :right})
                   (is (empty? (:keys @state)))
                   (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))
                 (q/exit))
