@@ -12,8 +12,22 @@
          (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas))]
                       :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas))
                              (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas))]}))
-  (event/create-dialog-event state :default :sordna "Hola")
-  (event/create-dialog-event state :default :andros "Hello traveller"))
+  (event/create-dialog-event state
+                             [(event/speak-to-condition :sordna)]
+                             :sordna
+                             "Hola"
+                             #{})
+  (event/create-dialog-event state
+                             [(event/speak-to-condition :andros)
+                              (event/grants-condition #{:intro-andros})]
+                             :andros
+                             "It was a pleasure to meet you."
+                             #{})
+  (event/create-dialog-event state
+                             [(event/speak-to-condition :andros)]
+                             :andros
+                             "Hello traveller"
+                             #{:intro-andros}))
 
 (defn update-scene
   [state]

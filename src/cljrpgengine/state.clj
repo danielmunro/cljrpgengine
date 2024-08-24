@@ -9,7 +9,7 @@
                     :keys #{}
                     :mobs #{}
                     :events #{}
-                    :potential-events #{}
+                    :grants #{}
                     :scene :tinytown
                     :player nil
                     :map nil})
@@ -19,6 +19,7 @@
   (let [party (get-in @state [:player :party])]
     {:save-name (:save-name @state)
      :scene (name (:scene @state))
+     :grants (:grants @state)
      :player {:party (into [] (map (fn [p] {:name (:name p)
                                             :x (:x p)
                                             :y (:y p)
@@ -41,7 +42,7 @@
       initial-state
       {:scene (keyword (:scene data))
        :save-name (:save-name data)
-       :events (:events data)
+       :grants (:grants data)
        :player (player/create-new-player
                 (get-in data [:player :party 0 :x])
                 (get-in data [:player :party 0 :y]))
