@@ -15,18 +15,20 @@
   (event/create-dialog-event state
                              [(event/speak-to-condition :sordna)]
                              :sordna
-                             "Hola"
+                             ["Hola"]
                              #{})
   (event/create-dialog-event state
                              [(event/speak-to-condition :andros)
                               (event/grants-condition #{:intro-andros})]
                              :andros
-                             "It was a pleasure to meet you."
+                             ["It was a pleasure to meet you."
+                              "This is a test."]
                              #{})
   (event/create-dialog-event state
                              [(event/speak-to-condition :andros)]
                              :andros
-                             "Hello traveller"
+                             ["Hello traveller"
+                              "Please, take a seat.  I must tell you a story."]
                              #{:intro-andros}))
 
 (defn update-scene

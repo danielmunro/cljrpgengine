@@ -127,7 +127,9 @@
 (defn action-engaged
   [state]
   (if (:dialog @state)
-    (dosync (alter state update :dialog (constantly nil)))
+    (if (= (:dialog-index @state) (- (count (:dialog @state)) 1))
+      (dosync (alter state dissoc :dialog :dialog-index))
+      (dosync (alter state update :dialog-index inc)))
     (let [tile-size (get-in @state [:map :tileset :tilewidth])
           direction (get-in @state [:player :party 0 :direction])
           x (get-in @state [:player :party 0 :x])
@@ -145,4 +147,6 @@
           mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
       (if mob
         (dosync
-         (alter state update :dialog (constantly (:dialog (event/get-dialog-event state (:identifier mob))))))))))
+         (alter state assoc
+                :dialog (:dialog (event/get-dialog-event state (:identifier mob)))
+                :dialog-index 0))))))

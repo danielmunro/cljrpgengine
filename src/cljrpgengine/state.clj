@@ -8,7 +8,7 @@
 (def initial-state {:save-name nil
                     :keys #{}
                     :mobs #{}
-                    :events #{}
+                    :events []
                     :grants #{}
                     :scene :tinytown
                     :player nil
