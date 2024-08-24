@@ -60,15 +60,15 @@
                         (/ 2))
         adjusted-x (- offset-x character-x)
         adjusted-y (- offset-y character-y)
-        dialog (:dialog @state)]
+        engagement (:engagement @state)]
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
      (for [m (sort-by :y (conj (:mobs @state) player-mob))]
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)
-    (if dialog
-      (ui/dialog (dialog (:dialog-index @state))))))
+    (if engagement
+      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))))
 
 (defn -main
   "Start the game."

@@ -124,12 +124,37 @@
         (if exit
           (change-map state (:scene exit) (:room exit) (:to exit)))))))
 
+(defn create-engagement!
+  [state mob]
+  (dosync (alter state assoc
+                 :engagement {:dialog (:dialog (event/get-dialog-event state (:identifier mob)))
+                              :dialog-index 0
+                              :mob (:identifier mob)
+                              :mob-direction (get-in mob [:sprite :current-animation])})
+          (alter state assoc-in
+                 [:mobs (.indexOf (:mobs @state) mob) :sprite :current-animation]
+                 (util/opposite-direction (get-in @state [:player :party 0 :direction])))))
+
+(defn engagement-done?
+  [engagement]
+  (< (:dialog-index engagement) (- (count (:dialog engagement)) 1)))
+
+(defn inc-engagement!
+  [state]
+  (dosync (alter state update-in [:engagement :dialog-index] inc)))
+
+(defn clear-engagement!
+  [state engagement]
+  (let [index (util/get-index-of #(= (:mob engagement) (:identifier (% 1))) (:mobs @state))]
+    (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
+    (dosync (alter state dissoc :engagement))))
+
 (defn action-engaged
   [state]
-  (if (:dialog @state)
-    (if (= (:dialog-index @state) (- (count (:dialog @state)) 1))
-      (dosync (alter state dissoc :dialog :dialog-index))
-      (dosync (alter state update :dialog-index inc)))
+  (if-let [engagement (:engagement @state)]
+    (if (engagement-done? engagement)
+      (inc-engagement! state)
+      (clear-engagement! state engagement))
     (let [tile-size (get-in @state [:map :tileset :tilewidth])
           direction (get-in @state [:player :party 0 :direction])
           x (get-in @state [:player :party 0 :x])
@@ -146,7 +171,4 @@
                         y))
           mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
       (if mob
-        (dosync
-         (alter state assoc
-                :dialog (:dialog (event/get-dialog-event state (:identifier mob)))
-                :dialog-index 0))))))
+        (create-engagement! state mob)))))
