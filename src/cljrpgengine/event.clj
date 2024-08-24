@@ -11,8 +11,8 @@
 (defn get-dialog-event
   [state mob]
   (util/filter-first
-    #(and
-       (= (:type %) :dialog)
-       (= (:condition %) :default)
-       (= (:mob %) mob))
-    (:potential-events @state)))
+   #(and
+     (= (:type %) :dialog)
+     (= (:condition %) :default)
+     (= (:mob %) mob))
+   (:potential-events @state)))

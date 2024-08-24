@@ -8,11 +8,11 @@
 (defn create-new-player
   [x y]
   {:party [(mob/create-mob
-             :fireas
-             "Fireas"
-             :down
-             x y
-             (sprite/create-from-name :fireas))]})
+            :fireas
+            "Fireas"
+            :down
+            x y
+            (sprite/create-from-name :fireas))]})
 
 (defn get-player-first-mob
   [state]
@@ -45,8 +45,8 @@
                    :y new-y
                    :direction key))
     (dosync
-      (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
-      (alter state update-in [:player :party 0 :direction] (constantly key)))))
+     (alter state update-in [:player :party 0 :sprite :current-animation] (constantly key))
+     (alter state update-in [:player :party 0 :direction] (constantly key)))))
 
 (defn check-start-moving
   [state]
@@ -145,4 +145,4 @@
           mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
       (if mob
         (dosync
-          (alter state update :dialog (constantly (:dialog (event/get-dialog-event state (:identifier mob))))))))))
+         (alter state update :dialog (constantly (:dialog (event/get-dialog-event state (:identifier mob))))))))))
