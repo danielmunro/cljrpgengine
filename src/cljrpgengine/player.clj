@@ -102,7 +102,7 @@
            (if (< 0 y-offset)
              (alter state update-in [:player :party 0 :y-offset] dec))))))))
 
-(defn change-map!
+(defn- change-map!
   [state area-name room entrance-name]
   (let [new-map (map/load-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
@@ -124,7 +124,7 @@
         (if exit
           (change-map! state (:scene exit) (:room exit) (:to exit)))))))
 
-(defn create-engagement!
+(defn- create-engagement!
   [state mob]
   (dosync (alter state assoc
                  :engagement {:dialog (:dialog (event/get-dialog-event! state (:identifier mob)))
@@ -135,15 +135,15 @@
                  [:mobs (.indexOf (:mobs @state) mob) :sprite :current-animation]
                  (util/opposite-direction (get-in @state [:player :party 0 :direction])))))
 
-(defn engagement-done?
+(defn- engagement-done?
   [engagement]
   (< (:dialog-index engagement) (- (count (:dialog engagement)) 1)))
 
-(defn inc-engagement!
+(defn- inc-engagement!
   [state]
   (dosync (alter state update-in [:engagement :dialog-index] inc)))
 
-(defn clear-engagement!
+(defn- clear-engagement!
   [state engagement]
   (let [index (util/get-index-of #(= (:mob engagement) (:identifier (% 1))) (:mobs @state))]
     (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
