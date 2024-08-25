@@ -68,7 +68,8 @@
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
-      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))))
+      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
+    (ui/draw-menus (:menus @state))))
 
 (defn -main
   "Start the game."

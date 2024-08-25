@@ -60,7 +60,8 @@
     (if (and
          (= 0 (:x-offset mob))
          (= 0 (:y-offset mob))
-         (= nil (:dialog @state)))
+         (= nil (:dialog @state))
+         (= 0 (count (:menus @state))))
       (do
         (if (= last-key :up)
           (start-moving! state :up x (- y tile-height))
