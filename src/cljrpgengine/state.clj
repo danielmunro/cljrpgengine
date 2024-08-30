@@ -9,6 +9,7 @@
                     :keys #{}
                     :mobs []
                     :events []
+                    :menus []
                     :grants #{}
                     :scene :tinytown
                     :player nil

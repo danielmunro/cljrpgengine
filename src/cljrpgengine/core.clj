@@ -15,6 +15,7 @@
 (defn setup
   "Setup function for the game."
   []
+  (ui/init)
   (q/frame-rate constants/target-fps)
   (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file
@@ -68,7 +69,8 @@
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
-      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))))
+      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
+    (ui/draw-menus state)))
 
 (defn -main
   "Start the game."

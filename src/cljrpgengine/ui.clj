@@ -1,11 +1,139 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.sprite :as sprite]
+            [clojure.string :as str]
             [quil.core :as q]))
+
+(def panel (atom nil))
+(def ui-pack (atom nil))
+
+(defn init
+  []
+  (swap! panel (fn [_] (q/load-image "panel.png")))
+  (swap! ui-pack (fn [_] (q/load-image "ui.png"))))
+
+(defn draw-window
+  [x y width height]
+  (q/with-fill (:blue constants/colors)
+    (q/rect x y width height))
+  (let [f 48
+        h (/ f 2)
+        q (/ h 2)
+        g (sprite/create-graphics h h)]
+    ; upper left
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel 0 0))
+    (q/image g x y)
+
+    ; top
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- q) 0))
+    (q/image g (+ x h) y (- width f) h)
+
+    ; left
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel 0 (- q)))
+    (q/image g x (+ y h) (+ x h) (- height f))
+
+    ; upper right
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- h) 0))
+    (q/image g (- width h) y)
+
+    ; right
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- h) (- q)))
+    (q/image g (- width h) (+ y h) h (- height f))
+
+    ; lower left
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel 0 (- h)))
+    (q/image g x (-> (- height h)
+                     (+ y)))
+
+    ; lower right
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- h) (- h)))
+    (q/image g (- width h) (-> (- height h)
+                               (+ y)))
+
+    ; bottom
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- q) (- h)))
+    (q/image g h (-> (- height h)
+                     (+ y)) (- width f) h)
+
+    ; middle
+    (q/with-graphics g
+      (.clear g)
+      (q/image @panel (- q) (- q)))
+    (q/image g h h  (- width f) (- height f))))
+
+(defn string-break
+  [message]
+  (let [words (str/split message #" ")]
+    (loop [w 0
+           l 0
+           text ""]
+      (if (< w (count words))
+        (recur
+         (inc w)
+         (if (> l constants/dialog-text-width)
+           (+ 1 (count (words w)))
+           (+ 1 l (count (words w))))
+         (if (> l constants/dialog-text-width)
+           (str text (words w) "\n")
+           (str text (words w) " ")))
+        text))))
 
 (defn dialog
   [message]
-  (let [y (* (constants/window 1) 2/3)]
-    (q/fill 0 0 255)
-    (q/rect 0 y (constants/window 0) (* (constants/window 1) 1/3))
-    (q/fill 255 255 255)
-    (q/text message 10 (+ 20 y))))
+  (let [y (* (second constants/window) 2/3)
+        text (string-break message)]
+    (draw-window 0 y (first constants/window) (* (second constants/window) 1/3))
+    (q/with-fill (:white constants/colors)
+      (q/text text 20 (+ 30 y)))))
+
+(defn draw-menus
+  [state]
+  (dorun
+   (for [m (:menus @state)]
+     (cond
+       (:open m)
+       (.draw (:menu m) state)))))
+
+(defn open-menu!
+  [state menu]
+  (dosync
+   (alter state update :menus conj {:menu menu
+                                    :open true
+                                    :cursor 0})))
+
+(defn close-menu!
+  [state]
+  (dosync (alter state update-in [:menus] pop)))
+
+(defn move-cursor!
+  [state key]
+  (let [m (dec (count (:menus @state)))]
+    (cond
+      (= key :up)
+      (dosync (alter state update-in [:menus m :cursor] dec))
+      (= key :down)
+      (dosync (alter state update-in [:menus m :cursor] inc)))
+    (if (> 0 (get-in @state [:menus m :cursor]))
+      (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu]) state))))
+      (if (= (.cursor-length (get-in @state [:menus m :menu]) state) (get-in @state [:menus m :cursor]))
+        (dosync (alter state assoc-in [:menus m :cursor] 0))))))
+
+(defn is-menu-open?
+  [state]
+  (> (count (:menus @state)) 0))
