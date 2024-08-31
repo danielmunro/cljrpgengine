@@ -5,15 +5,15 @@
             [quil.core :as q]))
 
 (defprotocol Menu
-  (draw [menu state])
-  (cursor-length [menu state])
+  (draw [menu])
+  (cursor-length [menu])
   (cursor-orientation [menu])
   (menu-type [menu])
-  (key-pressed [menu state]))
+  (key-pressed [menu]))
 
-(deftype ItemsMenu []
+(deftype ItemsMenu [state]
   Menu
-  (draw [_ state]
+  (draw [_]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
     (ui/draw-cursor 5 (+ 12 (* (ui/get-menu-cursor state :items) 20)))
     (q/with-fill (:white constants/colors)
@@ -21,21 +21,21 @@
         (q/text (get-in item/items [(:name ((:items @state) i)) :name]) 20 (+ 25 (* i 20)))
         (if (< i (dec (count (:items @state))))
           (recur (inc i))))))
-  (cursor-length [_ state] (count (:items @state)))
+  (cursor-length [_] (count (:items @state)))
   (cursor-orientation [_] :vertical)
   (menu-type [_] :items)
-  (key-pressed [_ state]
+  (key-pressed [_]
     (cond
       (= 0 (ui/get-menu-cursor state :items))
       (ui/open-menu! state))))
 
 (defn create-items-menu
-  []
-  (ItemsMenu.))
+  [state]
+  (ItemsMenu. state))
 
-(deftype QuitMenu []
+(deftype QuitMenu [state]
   Menu
-  (draw [_ state]
+  (draw [_]
     (let [w (/ (first constants/window) 2)
           h (/ (second constants/window) 2)
           x (/ w 2)
@@ -51,10 +51,10 @@
         (ui/draw-cursor (+ x 10) (+ y 36))
         (= 1 cursor)
         (ui/draw-cursor (+ x 70) (+ y 36)))))
-  (cursor-length [_ _] 2)
+  (cursor-length [_] 2)
   (cursor-orientation [_] :horizontal)
   (menu-type [_] :quit)
-  (key-pressed [_ state]
+  (key-pressed [_]
     (let [cursor (ui/get-menu-cursor state :quit)]
       (cond
         (= 0 cursor)
@@ -63,12 +63,12 @@
         (System/exit 0)))))
 
 (defn create-quit-menu
-  []
-  (QuitMenu.))
+  [state]
+  (QuitMenu. state))
 
-(deftype PartyMenu []
+(deftype PartyMenu [state]
   Menu
-  (draw [_ state]
+  (draw [_]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
     (let [cursor (ui/get-menu-cursor state :party)
           x (* 3/4 (first constants/window))]
@@ -81,17 +81,17 @@
         (q/text "Quests" x 60)
         (q/text "Save" x 80)
         (q/text "Quit" x 100))))
-  (cursor-length [_ _] 5)
+  (cursor-length [_] 5)
   (cursor-orientation [_] :vertical)
   (menu-type [_] :party)
-  (key-pressed [_ state]
+  (key-pressed [_]
     (let [cursor (ui/get-menu-cursor state :party)]
       (cond
         (= 0 cursor)
-        (ui/open-menu! state (create-items-menu))
+        (ui/open-menu! state (create-items-menu state))
         (= 4 cursor)
-        (ui/open-menu! state (create-quit-menu))))))
+        (ui/open-menu! state (create-quit-menu state))))))
 
 (defn create-party-menu
-  []
-  (PartyMenu.))
+  [state]
+  (PartyMenu. state))

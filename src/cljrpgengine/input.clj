@@ -43,7 +43,7 @@
     (should-quit-menu? state key)
     (ui/close-menu! state)
     (evaluate-menu-action? state key)
-    (.key-pressed (get-in @state [:menus (ui/last-menu-index state) :menu]) state)
+    (.key-pressed (get-in @state [:menus (ui/last-menu-index state) :menu]))
     (= key :up)
     (dosync (alter state update-in [:keys] conj :up))
     (= key :down)
@@ -57,7 +57,7 @@
     (= key :space)
     (player/action-engaged state)
     (= key :m)
-    (ui/open-menu! state (menu/create-party-menu))
+    (ui/open-menu! state (menu/create-party-menu state))
     (= key-code 27)
     (println "escape key pressed")
     ;(dosync

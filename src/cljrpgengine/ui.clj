@@ -112,7 +112,7 @@
    (for [m (:menus @state)]
      (cond
        (:open m)
-       (.draw (:menu m) state)))))
+       (.draw (:menu m))))))
 
 (defn open-menu!
   [state menu]
@@ -138,8 +138,8 @@
       (= key :down)
       (dosync (alter state update-in [:menus m :cursor] inc)))
     (if (> 0 (get-in @state [:menus m :cursor]))
-      (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu]) state))))
-      (if (= (.cursor-length (get-in @state [:menus m :menu]) state) (get-in @state [:menus m :cursor]))
+      (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu])))))
+      (if (= (.cursor-length (get-in @state [:menus m :menu])) (get-in @state [:menus m :cursor]))
         (dosync (alter state assoc-in [:menus m :cursor] 0))))))
 
 (defn is-menu-open?
