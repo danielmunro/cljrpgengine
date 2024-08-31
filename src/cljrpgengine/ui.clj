@@ -1,6 +1,7 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.util :as util]
             [clojure.string :as str]
             [quil.core :as q]))
 
@@ -153,6 +154,6 @@
       (q/image @ui-pack -342 -468))
     (q/image g x y)))
 
-(defn get-last-menu-cursor
-  [state]
-  (get-in @state [:menus (last-menu-index state) :cursor]))
+(defn get-menu-cursor
+  [state menu]
+  (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state))))

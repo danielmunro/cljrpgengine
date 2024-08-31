@@ -14,7 +14,7 @@
   Menu
   (draw [_ state]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (ui/draw-cursor 5 (+ 12 (* (ui/get-last-menu-cursor state) 20)))
+    (ui/draw-cursor 5 (+ 12 (* (ui/get-menu-cursor state :items) 20)))
     (q/with-fill (:white constants/colors)
       (loop [i 0]
         (q/text (get-in item/items [(:name ((:items @state) i)) :name]) 20 (+ 25 (* i 20)))
@@ -24,7 +24,7 @@
   (menu-type [_] :items)
   (key-pressed [_ state]
     (cond
-      (= 0 (ui/get-last-menu-cursor state))
+      (= 0 (ui/get-menu-cursor state :items))
       (ui/open-menu! state))))
 
 (defn create-items-menu
@@ -37,25 +37,27 @@
     (let [w (/ (first constants/window) 2)
           h (/ (second constants/window) 2)
           x (/ w 2)
-          y (/ h 2)]
+          y (/ h 2)
+          cursor (ui/get-menu-cursor state :quit)]
       (ui/draw-window x y w h)
       (q/with-fill (:white constants/colors)
         (q/text "Are you sure?" (+ x 30) (+ y 30))
         (q/text "No" (+ x 30) (+ y 50))
         (q/text "Yes" (+ x 90) (+ y 50)))
       (cond
-        (= 0 (ui/get-last-menu-cursor state))
+        (= 0 cursor)
         (ui/draw-cursor (+ x 10) (+ y 36))
-        (= 1 (ui/get-last-menu-cursor state))
+        (= 1 cursor)
         (ui/draw-cursor (+ x 70) (+ y 36)))))
   (cursor-length [_ _] 2)
   (menu-type [_] :quit)
   (key-pressed [_ state]
-    (cond
-      (= 0 (ui/get-last-menu-cursor state))
-      (ui/close-menu! state)
-      (= 1 (ui/get-last-menu-cursor state))
-      (System/exit 0))))
+    (let [cursor (ui/get-menu-cursor state :quit)]
+      (cond
+        (= 0 cursor)
+        (ui/close-menu! state)
+        (= 1 cursor)
+        (System/exit 0)))))
 
 (defn create-quit-menu
   []
@@ -65,8 +67,9 @@
   Menu
   (draw [_ state]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (let [x (* 3/4 (constants/window 0))]
-      (ui/draw-cursor (- x 20) (-> (ui/get-last-menu-cursor state)
+    (let [cursor (ui/get-menu-cursor state :party)
+          x (* 3/4 (first constants/window))]
+      (ui/draw-cursor (- x 20) (-> cursor
                                    (* 20)
                                    (+ 5)))
       (q/with-fill (:white constants/colors)
@@ -78,11 +81,12 @@
   (cursor-length [_ _] 5)
   (menu-type [_] :party)
   (key-pressed [_ state]
-    (cond
-      (= 0 (ui/get-last-menu-cursor state))
-      (ui/open-menu! state (create-items-menu))
-      (= 4 (ui/get-last-menu-cursor state))
-      (ui/open-menu! state (create-quit-menu)))))
+    (let [cursor (ui/get-menu-cursor state :party)]
+      (cond
+        (= 0 cursor)
+        (ui/open-menu! state (create-items-menu))
+        (= 4 cursor)
+        (ui/open-menu! state (create-quit-menu))))))
 
 (defn create-party-menu
   []
