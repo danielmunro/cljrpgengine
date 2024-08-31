@@ -38,8 +38,8 @@
 
 (deftype TinytownScene []
   scene/Scene
-  (initialize-scene [scene state] (initialize-scene state))
-  (update-scene [scene state] (update-scene state)))
+  (initialize-scene [_ state] (initialize-scene state))
+  (update-scene [_ state] (update-scene state)))
 
 (defn create-tinytown-scene
   []

@@ -65,12 +65,20 @@
   [objects]
   (map (fn
          [object]
-         (merge
-          {:name (object "name")
-           :x (object "x")
-           :y (object "y")
-           :width (object "width")
-           :height (object "height")}))
+         {:name (object "name")
+          :x (object "x")
+          :y (object "y")
+          :width (object "width")
+          :height (object "height")})
+       objects))
+
+(defn- transform-shops
+  [objects]
+  (map (fn
+         [object]
+         {:name (object "name")
+          :x (object "x")
+          :y (object "y")})
        objects))
 
 (defn- load-tilemap
@@ -78,14 +86,19 @@
   (let [data (-> (str "resources/" area-name "/" room "/" room "-tilemap.tmj")
                  (slurp)
                  (json/read-str))
-        arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))]
+        arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))
+        warps (util/filter-first #(= "warps" (% "name")) (data "layers"))
+        shops (util/filter-first #(= "shops" (% "name")) (data "layers"))]
     {:height (data "height")
      :width (data "width")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
-     :warps (transform-warps ((util/filter-first #(= "warps" (% "name")) (data "layers")) "objects"))
-     :arrive_at (transform-arrive-at (if arrive-at
-                                       (arrive-at "objects")
-                                       []))}))
+     :warps (transform-warps (warps "objects"))
+     :arrive_at (if arrive-at
+                  (transform-arrive-at (arrive-at "objects"))
+                  [])
+     :shops (if shops
+              (transform-shops shops)
+              [])}))
 
 (defn is-blocking?
   [tile-map tile-set x y]

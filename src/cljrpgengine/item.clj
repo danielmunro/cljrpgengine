@@ -18,4 +18,4 @@
                            :worth 12
                            :attributes {:pierce 1
                                         :slash 1
-                                        :pierce 1}}})
+                                        :bash 1}}})
