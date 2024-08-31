@@ -21,7 +21,7 @@
   [state]
   (let [party (get-in @state [:player :party])]
     {:save-name (:save-name @state)
-     :scene (name (:scene @state))
+     :scene (.scene-name (:scene @state))
      :grants (:grants @state)
      :items (:items @state)
      :player {:party (into [] (map (fn [p] {:name (:name p)
@@ -45,7 +45,7 @@
     (ref
      (merge
       initial-state
-      {:scene (keyword (:scene data))
+      {:scene (:scene data)
        :save-name (:save-name data)
        :grants (:grants data)
        :items (:items data)

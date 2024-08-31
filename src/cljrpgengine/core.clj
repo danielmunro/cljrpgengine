@@ -2,7 +2,7 @@
   (:require [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [cljrpgengine.all-scenes :as all-scenes]
+            [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.ui :as ui]
             [quil.core :as q]
             [quil.middleware :as m]
@@ -20,8 +20,10 @@
   (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file
                 (state/create-from-latest-save @save-file)
-                (state/create-new-state))]
-    (.initialize-scene (all-scenes/scenes (:scene @state)) state)
+                (state/create-new-state))
+        scene (create-scene/create state (:scene @state))]
+    (dosync (alter state assoc :scene scene))
+    (.initialize-scene scene)
     state))
 
 (defn update-animations
@@ -33,7 +35,7 @@
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state]
-  (.update-scene (all-scenes/scenes (:scene @state)) state)
+  (.update-scene (:scene @state))
   (update-animations state)
   (player/update-move-offsets! state)
   (player/check-exits state)

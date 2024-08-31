@@ -36,11 +36,12 @@
   [state]
   (mob/update-room-mobs state @mobs))
 
-(deftype TinytownScene []
+(deftype TinytownScene [state]
   scene/Scene
-  (initialize-scene [_ state] (initialize-scene state))
-  (update-scene [_ state] (update-scene state)))
+  (initialize-scene [_] (initialize-scene state))
+  (update-scene [_] (update-scene state))
+  (scene-name [_] :tinytown))
 
 (defn create-tinytown-scene
-  []
-  (TinytownScene.))
+  [state]
+  (TinytownScene. state))
