@@ -10,25 +10,40 @@
    (alter state update :keys disj key))
   state)
 
+(defn- move-menu-cursor?
+  [state key-pressed key-check orientation]
+  (and
+   (= key-pressed key-check)
+   (ui/is-menu-open? state)
+   (= orientation (.cursor-orientation (:menu (last (:menus @state)))))))
+
+(defn- should-quit-menu?
+  [state key]
+  (and
+   (= key :q)
+   (ui/is-menu-open? state)))
+
+(defn- evaluate-menu-action?
+  [state key]
+  (and
+   (= key :space)
+   (ui/is-menu-open? state)))
+
 (defn key-pressed!
   [state {:keys [key key-code]}]
   (cond
-    (and
-     (= key :up)
-     (ui/is-menu-open? state))
+    (move-menu-cursor? state key :up :vertical)
     (ui/move-cursor! state :up)
-    (and
-     (= key :down)
-     (ui/is-menu-open? state))
+    (move-menu-cursor? state key :down :vertical)
     (ui/move-cursor! state :down)
-    (and
-     (= key :q)
-     (ui/is-menu-open? state))
+    (move-menu-cursor? state key :left :horizontal)
+    (ui/move-cursor! state :up)
+    (move-menu-cursor? state key :right :horizontal)
+    (ui/move-cursor! state :down)
+    (should-quit-menu? state key)
     (ui/close-menu! state)
-    (and
-     (= key :space)
-     (ui/is-menu-open? state))
-    (.key-pressed (get-in @state [:menus (- (count (:menus @state)) 1) :menu]) state)
+    (evaluate-menu-action? state key)
+    (.key-pressed (get-in @state [:menus (ui/last-menu-index state) :menu]) state)
     (= key :up)
     (dosync (alter state update-in [:keys] conj :up))
     (= key :down)

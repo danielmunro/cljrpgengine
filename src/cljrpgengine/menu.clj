@@ -7,6 +7,7 @@
 (defprotocol Menu
   (draw [menu state])
   (cursor-length [menu state])
+  (cursor-orientation [menu])
   (menu-type [menu])
   (key-pressed [menu state]))
 
@@ -21,6 +22,7 @@
         (if (< i (dec (count (:items @state))))
           (recur (inc i))))))
   (cursor-length [_ state] (count (:items @state)))
+  (cursor-orientation [_] :vertical)
   (menu-type [_] :items)
   (key-pressed [_ state]
     (cond
@@ -50,6 +52,7 @@
         (= 1 cursor)
         (ui/draw-cursor (+ x 70) (+ y 36)))))
   (cursor-length [_ _] 2)
+  (cursor-orientation [_] :horizontal)
   (menu-type [_] :quit)
   (key-pressed [_ state]
     (let [cursor (ui/get-menu-cursor state :quit)]
@@ -79,6 +82,7 @@
         (q/text "Save" x 80)
         (q/text "Quit" x 100))))
   (cursor-length [_ _] 5)
+  (cursor-orientation [_] :vertical)
   (menu-type [_] :party)
   (key-pressed [_ state]
     (let [cursor (ui/get-menu-cursor state :party)]

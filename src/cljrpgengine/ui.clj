@@ -125,7 +125,7 @@
   [state]
   (dosync (alter state update-in [:menus] pop)))
 
-(defn- last-menu-index
+(defn last-menu-index
   [state]
   (dec (count (:menus @state))))
 
