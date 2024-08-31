@@ -28,8 +28,8 @@
 
     ; lower left
     (q/with-graphics g
-                     (.clear g)
-                     (q/image @panel 0 (- h)))
+      (.clear g)
+      (q/image @panel 0 (- h)))
     (q/image g x (-> (- height h)
                      (+ y)))
 
@@ -41,8 +41,8 @@
 
     ; top
     (q/with-graphics g
-                     (.clear g)
-                     (q/image @panel (- q) 0))
+      (.clear g)
+      (q/image @panel (- q) 0))
     (q/image g (+ x h) y (- width f) h)
 
     ; upper right
@@ -54,11 +54,11 @@
 
     ; lower right
     (q/with-graphics g
-                     (.clear g)
-                     (q/image @panel (- h) (- h)))
+      (.clear g)
+      (q/image @panel (- h) (- h)))
     (q/image g (-> (- width h)
                    (+ x)) (-> (- height h)
-                               (+ y)))
+                              (+ y)))
 
     ; right
     (q/with-graphics g
@@ -72,7 +72,7 @@
       (.clear g)
       (q/image @panel (- q) (- h)))
     (q/image g (+ x h) (-> (- height h)
-                     (+ y)) (- width f) h)
+                           (+ y)) (- width f) h)
 
     ; middle
     (q/with-graphics g

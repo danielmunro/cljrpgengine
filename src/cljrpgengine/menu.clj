@@ -40,9 +40,9 @@
           y (/ h 2)]
       (ui/draw-window x y w h)
       (q/with-fill (:white constants/colors)
-                   (q/text "Are you sure?" (+ x 30) (+ y 30))
-                   (q/text "No" (+ x 30) (+ y 50))
-                   (q/text "Yes" (+ x 90) (+ y 50)))
+        (q/text "Are you sure?" (+ x 30) (+ y 30))
+        (q/text "No" (+ x 30) (+ y 50))
+        (q/text "Yes" (+ x 90) (+ y 50)))
       (cond
         (= 0 (ui/get-last-menu-cursor state))
         (ui/draw-cursor (+ x 10) (+ y 36))
