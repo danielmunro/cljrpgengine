@@ -146,8 +146,8 @@
   [x y]
   (let [g (sprite/create-graphics 16 16)]
     (q/with-graphics g
-                     (.clear g)
-                     (q/image @ui-pack -342 -468))
+      (.clear g)
+      (q/image @ui-pack -342 -468))
     (q/image g x y)))
 
 (defn get-last-menu-cursor

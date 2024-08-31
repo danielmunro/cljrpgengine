@@ -22,12 +22,12 @@
      (ui/is-menu-open? state))
     (ui/move-cursor! state :down)
     (and
-      (= key :q)
-      (ui/is-menu-open? state))
+     (= key :q)
+     (ui/is-menu-open? state))
     (ui/close-menu! state)
     (and
-      (= key :space)
-      (ui/is-menu-open? state))
+     (= key :space)
+     (ui/is-menu-open? state))
     (.key-pressed (get-in @state [:menus (- (count (:menus @state)) 1) :menu]) state)
     (= key :up)
     (dosync (alter state update-in [:keys] conj :up))
