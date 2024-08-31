@@ -36,7 +36,7 @@
     (q/with-graphics g
       (.clear g)
       (q/image @panel 0 (- q)))
-    (q/image g x (+ y h) (+ x h) (- height f))
+    (q/image g x (+ y h) h (- height f))
 
     ; upper right
     (q/with-graphics g
