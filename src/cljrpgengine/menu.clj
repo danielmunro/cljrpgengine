@@ -31,6 +31,36 @@
   []
   (ItemsMenu.))
 
+(deftype QuitMenu []
+  Menu
+  (draw [_ state]
+    (let [w (/ (first constants/window) 2)
+          h (/ (second constants/window) 2)
+          x (/ w 2)
+          y (/ h 2)]
+      (ui/draw-window x y w h)
+      (q/with-fill (:white constants/colors)
+                   (q/text "Are you sure?" (+ x 30) (+ y 30))
+                   (q/text "No" (+ x 30) (+ y 50))
+                   (q/text "Yes" (+ x 90) (+ y 50)))
+      (cond
+        (= 0 (ui/get-last-menu-cursor state))
+        (ui/draw-cursor (+ x 10) (+ y 36))
+        (= 1 (ui/get-last-menu-cursor state))
+        (ui/draw-cursor (+ x 70) (+ y 36)))))
+  (cursor-length [_ _] 2)
+  (menu-type [_] :quit)
+  (key-pressed [_ state]
+    (cond
+      (= 0 (ui/get-last-menu-cursor state))
+      (ui/close-menu! state)
+      (= 1 (ui/get-last-menu-cursor state))
+      (System/exit 0))))
+
+(defn create-quit-menu
+  []
+  (QuitMenu.))
+
 (deftype PartyMenu []
   Menu
   (draw [_ state]
@@ -50,7 +80,9 @@
   (key-pressed [_ state]
     (cond
       (= 0 (ui/get-last-menu-cursor state))
-      (ui/open-menu! state (create-items-menu)))))
+      (ui/open-menu! state (create-items-menu))
+      (= 4 (ui/get-last-menu-cursor state))
+      (ui/open-menu! state (create-quit-menu)))))
 
 (defn create-party-menu
   []
