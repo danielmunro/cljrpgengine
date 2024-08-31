@@ -49,26 +49,29 @@
     (q/with-graphics g
       (.clear g)
       (q/image @panel (- h) 0))
-    (q/image g (- width h) y)
+    (q/image g (-> (- width h)
+                   (+ x)) y)
 
     ; lower right
     (q/with-graphics g
                      (.clear g)
                      (q/image @panel (- h) (- h)))
-    (q/image g (- width h) (-> (- height h)
+    (q/image g (-> (- width h)
+                   (+ x)) (-> (- height h)
                                (+ y)))
 
     ; right
     (q/with-graphics g
       (.clear g)
       (q/image @panel (- h) (- q)))
-    (q/image g (- width h) (+ y h) h (- height f))
+    (q/image g (-> (- width h)
+                   (+ x)) (+ y h) h (- height f))
 
     ; bottom
     (q/with-graphics g
       (.clear g)
       (q/image @panel (- q) (- h)))
-    (q/image g h (-> (- height h)
+    (q/image g (+ x h) (-> (- height h)
                      (+ y)) (- width f) h)
 
     ; middle
