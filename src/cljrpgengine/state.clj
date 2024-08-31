@@ -8,6 +8,8 @@
 (def initial-state {:save-name nil
                     :keys #{}
                     :mobs []
+                    :items [{:name :light-health-potion :quantity 1}
+                            {:name :practice-sword :quantity 1}]
                     :events []
                     :menus []
                     :grants #{}
@@ -21,6 +23,7 @@
     {:save-name (:save-name @state)
      :scene (name (:scene @state))
      :grants (:grants @state)
+     :items (:items @state)
      :player {:party (into [] (map (fn [p] {:name (:name p)
                                             :x (:x p)
                                             :y (:y p)
@@ -45,6 +48,7 @@
       {:scene (keyword (:scene data))
        :save-name (:save-name data)
        :grants (:grants data)
+       :items (:items data)
        :player (player/create-new-player
                 (get-in data [:player :party 0 :x])
                 (get-in data [:player :party 0 :y])

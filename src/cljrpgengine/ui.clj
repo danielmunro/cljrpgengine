@@ -121,9 +121,13 @@
   [state]
   (dosync (alter state update-in [:menus] pop)))
 
+(defn- last-menu-index
+  [state]
+  (dec (count (:menus @state))))
+
 (defn move-cursor!
   [state key]
-  (let [m (dec (count (:menus @state)))]
+  (let [m (last-menu-index state)]
     (cond
       (= key :up)
       (dosync (alter state update-in [:menus m :cursor] dec))
@@ -137,3 +141,15 @@
 (defn is-menu-open?
   [state]
   (> (count (:menus @state)) 0))
+
+(defn draw-cursor
+  [x y]
+  (let [g (sprite/create-graphics 16 16)]
+    (q/with-graphics g
+                     (.clear g)
+                     (q/image @ui-pack -342 -468))
+    (q/image g x y)))
+
+(defn get-last-menu-cursor
+  [state]
+  (get-in @state [:menus (last-menu-index state) :cursor]))
