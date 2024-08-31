@@ -15,7 +15,7 @@
 (defn setup
   "Setup function for the game."
   []
-  (ui/init)
+  (ui/init!)
   (q/frame-rate constants/target-fps)
   (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file

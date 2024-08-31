@@ -8,7 +8,7 @@
 (def panel (atom nil))
 (def ui-pack (atom nil))
 
-(defn init
+(defn init!
   []
   (swap! panel (fn [_] (q/load-image "panel.png")))
   (swap! ui-pack (fn [_] (q/load-image "ui.png"))))
@@ -81,7 +81,7 @@
       (q/image @panel (- q) (- q)))
     (q/image g h h  (- width f) (- height f))))
 
-(defn string-break
+(defn- string-break
   [message]
   (let [words (str/split message #" ")]
     (loop [w 0
