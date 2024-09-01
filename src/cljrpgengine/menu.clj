@@ -89,9 +89,74 @@
       (cond
         (= 0 cursor)
         (ui/open-menu! state (create-items-menu state))
+        (= 1 cursor)
+        (println "magic")
+        (= 2 cursor)
+        (println "quests")
+        (= 3 cursor)
+        (println "save")
         (= 4 cursor)
         (ui/open-menu! state (create-quit-menu state))))))
 
 (defn create-party-menu
   [state]
   (PartyMenu. state))
+
+(deftype BuyMenu [state shop]
+  Menu
+  (draw [_]
+    (let [x (/ (first constants/window) 10)
+          y (/ (second constants/window) 10)
+          w (* x 8)
+          h (* y 8)
+          cursor (ui/get-menu-cursor state :buy)]
+      (ui/draw-window x y w h)
+      (q/with-fill (:white constants/colors)
+        (let [items ((.shops (:scene @state)) shop)]
+          (loop [i 0]
+            (q/text (:name (item/items (items i))) (+ x 30) (+ (+ y (* i 20)) 25))
+            (if (< i (dec (count items)))
+              (recur (inc i))))))
+      (ui/draw-cursor (+ x 10) (+ (* cursor 20) 12 y))))
+  (cursor-length [_] (count ((.shops (:scene @state)) shop)))
+  (cursor-orientation [_] :vertical)
+  (menu-type [_] :buy)
+  (key-pressed [_]))
+
+(defn create-buy-menu
+  [state shop]
+  (BuyMenu. state shop))
+
+(deftype ShopMenu [state shop]
+  Menu
+  (draw [_]
+    (let [x (/ (first constants/window) 10)
+          y (/ (second constants/window) 10)
+          w (* x 8)
+          h (* y 8)
+          cursor (ui/get-menu-cursor state :shop)]
+      (ui/draw-window x y w h)
+      (q/with-fill (:white constants/colors)
+        (q/text "Buy" (+ x 30) (+ y 30))
+        (q/text "Sell" (+ x 30) (+ y 50))
+        (q/text "Leave" (+ x 30) (+ y 70)))
+      (ui/draw-cursor (+ x 10) (-> cursor
+                                   (* 20)
+                                   (+ y)
+                                   (+ 15)))))
+  (cursor-length [_] 3)
+  (cursor-orientation [_] :vertical)
+  (menu-type [_] :shop)
+  (key-pressed [_]
+    (let [cursor (ui/get-menu-cursor state :shop)]
+      (cond
+        (= 0 cursor)
+        (ui/open-menu! state (create-buy-menu state shop))
+        (= 1 cursor)
+        (println "sell")
+        (= 2 cursor)
+        (ui/close-menu! state)))))
+
+(defn create-shop-menu
+  [state shop]
+  (ShopMenu. state shop))

@@ -1,8 +1,10 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
+            [cljrpgengine.menu :as menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]))
 
 (defn create-new-player
@@ -121,7 +123,7 @@
         y-offset (:y-offset mob)]
     (if (and (= 0 y-offset)
              (= 0 x-offset))
-      (let [exit (map/get-exit-warp-from-coords (:map @state) (:x mob) (:y mob))]
+      (let [exit (map/get-interaction-from-coords (:map @state) map/get-exits (:x mob) (:y mob))]
         (if exit
           (change-map! state (:scene exit) (:room exit) (:to exit)))))))
 
@@ -150,7 +152,7 @@
     (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
     (dosync (alter state dissoc :engagement))))
 
-(defn action-engaged
+(defn action-engaged!
   [state]
   (if-let [engagement (:engagement @state)]
     (if (engagement-done? engagement)
@@ -172,4 +174,11 @@
                         y))
           mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
       (if mob
-        (create-engagement! state mob)))))
+        (create-engagement! state mob))))
+  (if-let [shop (:name (map/get-interaction-from-coords
+                        (:map @state)
+                        map/get-shops
+                        (get-in @state [:player :party 0 :x])
+                        (get-in @state [:player :party 0 :y])))]
+    (do
+      (ui/open-menu! state (menu/create-shop-menu state shop)))))

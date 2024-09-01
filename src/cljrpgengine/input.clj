@@ -55,7 +55,7 @@
     (= key :s)
     (state/save state)
     (= key :space)
-    (player/action-engaged state)
+    (player/action-engaged! state)
     (= key :m)
     (ui/open-menu! state (menu/create-party-menu state))
     (= key-code 27)

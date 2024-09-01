@@ -49,37 +49,37 @@
 
 (defn- transform-warps
   [objects]
-  (map (fn
-         [object]
-         (merge
-          {:name (object "name")
-           :type (object "type")
-           :x (object "x")
-           :y (object "y")
-           :width (object "width")
-           :height (object "height")}
-          (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
-       objects))
+  (mapv (fn
+          [object]
+          (merge
+           {:name (object "name")
+            :type (object "type")
+            :x (object "x")
+            :y (object "y")
+            :width (object "width")
+            :height (object "height")}
+           (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
+        objects))
 
 (defn- transform-arrive-at
   [objects]
-  (map (fn
-         [object]
-         {:name (object "name")
-          :x (object "x")
-          :y (object "y")
-          :width (object "width")
-          :height (object "height")})
-       objects))
+  (mapv (fn
+          [object]
+          (merge {:name (object "name")
+                  :x (object "x")
+                  :y (object "y")
+                  :width (object "width")
+                  :height (object "height")}))
+        objects))
 
 (defn- transform-shops
   [objects]
-  (map (fn
-         [object]
-         {:name (object "name")
-          :x (object "x")
-          :y (object "y")})
-       objects))
+  (mapv (fn
+          [object]
+          (merge {:name (keyword (object "name"))
+                  :x (object "x")
+                  :y (object "y")}))
+        objects))
 
 (defn- load-tilemap
   [area-name room]
@@ -97,7 +97,7 @@
                   (transform-arrive-at (arrive-at "objects"))
                   [])
      :shops (if shops
-              (transform-shops shops)
+              (transform-shops (shops "objects"))
               [])}))
 
 (defn is-blocking?
@@ -195,17 +195,21 @@
   [map]
   (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
 
-(defn get-exit-warp-from-coords
-  [map x y]
-  (let [cw (constants/character-dimensions 0)
-        ch (constants/character-dimensions 1)
+(defn get-shops
+  [map]
+  (get-in map [:tilemap :shops]))
+
+(defn get-interaction-from-coords
+  [map interaction x y]
+  (let [cw (first constants/character-dimensions)
+        ch (second constants/character-dimensions)
         tw (get-in map [:tileset :tilewidth])
         th (get-in map [:tileset :tileheight])]
     (util/filter-first
      #(util/collision-detected?
        x y (+ x cw) (+ y ch)
        (:x %) (:y %) (+ (:x %) tw) (+ (:y %) th))
-     (get-exits map))))
+     (interaction map))))
 
 (defn get-entrance
   [map entrance-name]

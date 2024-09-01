@@ -40,7 +40,9 @@
   scene/Scene
   (initialize-scene [_] (initialize-scene state))
   (update-scene [_] (update-scene state))
-  (scene-name [_] :tinytown))
+  (scene-name [_] :tinytown)
+  (shops [_] {:tinytown-item-shop [:light-health-potion
+                                   :practice-sword]}))
 
 (defn create-tinytown-scene
   [state]
