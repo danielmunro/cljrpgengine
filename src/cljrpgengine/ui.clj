@@ -13,6 +13,11 @@
   (swap! panel (fn [_] (q/load-image "panel.png")))
   (swap! ui-pack (fn [_] (q/load-image "ui.png"))))
 
+(defn draw-line
+  [x y line-number text]
+  (q/with-fill (:white constants/colors)
+               (q/text text (+ x 30) (+ y 20 (* 20 line-number)))))
+
 (defn draw-window
   [x y width height]
   (q/with-fill (:blue constants/colors)
@@ -145,6 +150,14 @@
 (defn is-menu-open?
   [state]
   (> (count (:menus @state)) 0))
+
+(defn draw-cursor-line
+  [x y line]
+  (let [g (sprite/create-graphics 16 16)]
+    (q/with-graphics g
+                     (.clear g)
+                     (q/image @ui-pack -342 -468))
+    (q/image g (+ x 10) (+ y 5 (* 20 line)))))
 
 (defn draw-cursor
   [x y]

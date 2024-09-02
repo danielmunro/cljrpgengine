@@ -11,11 +11,10 @@
   state)
 
 (defn- move-menu-cursor?
-  [state key-pressed key-check orientation]
+  [state key-pressed key-check]
   (and
    (= key-pressed key-check)
-   (ui/is-menu-open? state)
-   (= orientation (.cursor-orientation (:menu (last (:menus @state)))))))
+   (ui/is-menu-open? state)))
 
 (defn- should-quit-menu?
   [state key]
@@ -32,13 +31,9 @@
 (defn key-pressed!
   [state {:keys [key key-code]}]
   (cond
-    (move-menu-cursor? state key :up :vertical)
+    (move-menu-cursor? state key :up)
     (ui/move-cursor! state :up)
-    (move-menu-cursor? state key :down :vertical)
-    (ui/move-cursor! state :down)
-    (move-menu-cursor? state key :left :horizontal)
-    (ui/move-cursor! state :up)
-    (move-menu-cursor? state key :right :horizontal)
+    (move-menu-cursor? state key :down)
     (ui/move-cursor! state :down)
     (should-quit-menu? state key)
     (ui/close-menu! state)

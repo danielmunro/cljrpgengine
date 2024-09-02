@@ -7,27 +7,23 @@
 (defprotocol Menu
   (draw [menu])
   (cursor-length [menu])
-  (cursor-orientation [menu])
   (menu-type [menu])
   (key-pressed [menu]))
 
 (deftype ItemsMenu [state]
   Menu
-  (draw [_]
+  (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (ui/draw-cursor 5 (+ 12 (* (ui/get-menu-cursor state :items) 20)))
+    (ui/draw-cursor-line 0 0 (ui/get-menu-cursor state (.menu-type menu)))
     (q/with-fill (:white constants/colors)
       (loop [i 0]
-        (q/text (get-in item/items [(:name ((:items @state) i)) :name]) 20 (+ 25 (* i 20)))
+        (ui/draw-line 0 0 i (get-in item/items [(:name ((:items @state) i)) :name]))
         (if (< i (dec (count (:items @state))))
           (recur (inc i))))))
   (cursor-length [_] (count (:items @state)))
-  (cursor-orientation [_] :vertical)
   (menu-type [_] :items)
   (key-pressed [_]
-    (cond
-      (= 0 (ui/get-menu-cursor state :items))
-      (ui/open-menu! state))))
+    (println "item key pressed")))
 
 (defn create-items-menu
   [state]
@@ -42,17 +38,11 @@
           y (/ h 2)
           cursor (ui/get-menu-cursor state :quit)]
       (ui/draw-window x y w h)
-      (q/with-fill (:white constants/colors)
-        (q/text "Are you sure?" (+ x 30) (+ y 30))
-        (q/text "No" (+ x 30) (+ y 50))
-        (q/text "Yes" (+ x 90) (+ y 50)))
-      (cond
-        (= 0 cursor)
-        (ui/draw-cursor (+ x 10) (+ y 36))
-        (= 1 cursor)
-        (ui/draw-cursor (+ x 70) (+ y 36)))))
+      (ui/draw-line x y 0 "Are you sure?")
+      (ui/draw-line x y 2 "No")
+      (ui/draw-line x y 3 "Yes")
+      (ui/draw-cursor-line x y (if (= cursor 0) 2 3))))
   (cursor-length [_] 2)
-  (cursor-orientation [_] :horizontal)
   (menu-type [_] :quit)
   (key-pressed [_]
     (let [cursor (ui/get-menu-cursor state :quit)]
@@ -68,24 +58,20 @@
 
 (deftype PartyMenu [state]
   Menu
-  (draw [_]
+  (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (let [cursor (ui/get-menu-cursor state :party)
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
           x (* 3/4 (first constants/window))]
-      (ui/draw-cursor (- x 20) (-> cursor
-                                   (* 20)
-                                   (+ 5)))
-      (q/with-fill (:white constants/colors)
-        (q/text "Items" x 20)
-        (q/text "Magic" x 40)
-        (q/text "Quests" x 60)
-        (q/text "Save" x 80)
-        (q/text "Quit" x 100))))
+      (ui/draw-cursor-line x 0 cursor)
+      (ui/draw-line x 0 0 "Items")
+      (ui/draw-line x 0 1 "Magic")
+      (ui/draw-line x 0 2 "Quests")
+      (ui/draw-line x 0 3 "Save")
+      (ui/draw-line x 0 4 "Quit")))
   (cursor-length [_] 5)
-  (cursor-orientation [_] :vertical)
   (menu-type [_] :party)
-  (key-pressed [_]
-    (let [cursor (ui/get-menu-cursor state :party)]
+  (key-pressed [menu]
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= 0 cursor)
         (ui/open-menu! state (create-items-menu state))
@@ -104,22 +90,21 @@
 
 (deftype BuyMenu [state shop]
   Menu
-  (draw [_]
+  (draw [menu]
     (let [x (/ (first constants/window) 10)
           y (/ (second constants/window) 10)
           w (* x 8)
           h (* y 8)
-          cursor (ui/get-menu-cursor state :buy)]
+          cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
       (q/with-fill (:white constants/colors)
         (let [items ((.shops (:scene @state)) shop)]
           (loop [i 0]
-            (q/text (:name (item/items (items i))) (+ x 30) (+ (+ y (* i 20)) 25))
+            (ui/draw-line x y i (:name (item/items (items i))))
             (if (< i (dec (count items)))
               (recur (inc i))))))
-      (ui/draw-cursor (+ x 10) (+ (* cursor 20) 12 y))))
+      (ui/draw-cursor-line x y cursor)))
   (cursor-length [_] (count ((.shops (:scene @state)) shop)))
-  (cursor-orientation [_] :vertical)
   (menu-type [_] :buy)
   (key-pressed [_]))
 
@@ -129,26 +114,21 @@
 
 (deftype ShopMenu [state shop]
   Menu
-  (draw [_]
+  (draw [menu]
     (let [x (/ (first constants/window) 10)
           y (/ (second constants/window) 10)
           w (* x 8)
           h (* y 8)
-          cursor (ui/get-menu-cursor state :shop)]
+          cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
-      (q/with-fill (:white constants/colors)
-        (q/text "Buy" (+ x 30) (+ y 30))
-        (q/text "Sell" (+ x 30) (+ y 50))
-        (q/text "Leave" (+ x 30) (+ y 70)))
-      (ui/draw-cursor (+ x 10) (-> cursor
-                                   (* 20)
-                                   (+ y)
-                                   (+ 15)))))
+      (ui/draw-cursor-line x y cursor)
+      (ui/draw-line x y 0 "Buy")
+      (ui/draw-line x y 1 "Sell")
+      (ui/draw-line x y 2 "Leave")))
   (cursor-length [_] 3)
-  (cursor-orientation [_] :vertical)
   (menu-type [_] :shop)
-  (key-pressed [_]
-    (let [cursor (ui/get-menu-cursor state :shop)]
+  (key-pressed [menu]
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= 0 cursor)
         (ui/open-menu! state (create-buy-menu state shop))
