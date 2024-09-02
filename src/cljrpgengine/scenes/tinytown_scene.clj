@@ -42,7 +42,8 @@
   (update-scene [_] (update-scene state))
   (scene-name [_] :tinytown)
   (shops [_] {:tinytown-item-shop [:light-health-potion
-                                   :practice-sword]}))
+                                   :practice-sword
+                                   :cotton-tunic]}))
 
 (defn create-tinytown-scene
   [state]

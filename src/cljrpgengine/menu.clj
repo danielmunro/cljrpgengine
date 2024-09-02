@@ -7,10 +7,12 @@
 
 (defn text-fixed-width
   [text spaces]
-  (loop [t text]
-    (if (>= spaces (count t))
-      (recur (str t " "))
-      t)))
+  (if (> (count text) spaces)
+    (str (subs text 0 (- spaces 3)) "... ")
+    (loop [t text]
+      (if (>= spaces (count t))
+        (recur (str t " "))
+        t))))
 
 (defprotocol Menu
   (draw [menu])
