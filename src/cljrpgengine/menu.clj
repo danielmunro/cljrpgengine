@@ -35,7 +35,7 @@
 (defn- reset-quantity!
   [state min max]
   (dosync
-    (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
+   (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
 
 (defprotocol Menu
   (draw [menu])
@@ -47,12 +47,13 @@
   Menu
   (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (ui/draw-cursor 0 0 (ui/get-menu-cursor state (.menu-type menu)))
-    (q/with-fill (:white constants/colors)
-      (loop [i 0]
-        (ui/draw-line 0 0 i (get-in item/items [(:name ((:items @state) i)) :name]))
-        (if (< i (dec (count (:items @state))))
-          (recur (inc i))))))
+    (ui/draw-cursor 0 0 (inc (ui/get-menu-cursor state (.menu-type menu))))
+    (ui/draw-line 0 0 0 (str (text-fixed-width "Item" constants/item-name-width) " Quantity"))
+    (loop [i 0]
+      (let [item ((:items @state) i)]
+        (ui/draw-line 0 0 (inc i) (str (text-fixed-width (get-in item/items [(:name item) :name]) constants/item-name-width) " " (:quantity item))))
+      (if (< i (dec (count (:items @state))))
+        (recur (inc i)))))
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :items)
   (key-pressed [_]
