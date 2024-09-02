@@ -2,9 +2,11 @@
 
 (def target-fps 60)
 
-(def font-family "pixel-font.ttf")
+(def font-family "natural-mono-bold.ttf")
 
-(def text-size 14)
+(def text-size 16)
+
+(def line-spacing 24)
 
 (def window [640 400])
 
@@ -17,4 +19,4 @@
 (def colors {:blue [0 0 255]
              :white [255 255 255]})
 
-(def dialog-text-width 42)
+(def dialog-text-width 62)

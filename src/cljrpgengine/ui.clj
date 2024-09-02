@@ -16,7 +16,7 @@
 (defn draw-line
   [x y line-number text]
   (q/with-fill (:white constants/colors)
-    (q/text text (+ x 30) (+ y 20 (* 20 line-number)))))
+    (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
 
 (defn draw-window
   [x y width height]
@@ -94,12 +94,14 @@
            text ""]
       (if (< w (count words))
         (recur
-         (inc w)
-         (if (> l constants/dialog-text-width)
-           (+ 1 (count (words w)))
+         (if (> (+ l (count (words w)) 1) constants/dialog-text-width)
+           w
+           (inc w))
+         (if (> (+ l (count (words w)) 1) constants/dialog-text-width)
+           0
            (+ 1 l (count (words w))))
-         (if (> l constants/dialog-text-width)
-           (str text (words w) "\n")
+         (if (> (+ l (count (words w)) 1) constants/dialog-text-width)
+           (str text "\n")
            (str text (words w) " ")))
         text))))
 
@@ -109,7 +111,7 @@
     (q/with-graphics g
       (.clear g)
       (q/image @ui-pack -342 -468))
-    (q/image g (+ x 10) (+ y 5 (* 20 line)))))
+    (q/image g (+ x 10) (+ y 17 (* constants/line-spacing line)))))
 
 (defn get-menu-cursor
   [state menu]

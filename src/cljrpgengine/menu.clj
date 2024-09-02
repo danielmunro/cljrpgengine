@@ -2,7 +2,15 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.item :as item]
+            [cljrpgengine.util :as util]
             [quil.core :as q]))
+
+(defn text-fixed-width
+  [text spaces]
+  (loop [t text]
+    (if (>= spaces (count t))
+      (recur (str t " "))
+      t)))
 
 (defprotocol Menu
   (draw [menu])
@@ -97,13 +105,14 @@
           h (* y 8)
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
-      (q/with-fill (:white constants/colors)
-        (let [items ((.shops (:scene @state)) shop)]
-          (loop [i 0]
-            (ui/draw-line x y i (:name (item/items (items i))))
-            (if (< i (dec (count items)))
-              (recur (inc i))))))
-      (ui/draw-cursor x y cursor)))
+      (ui/draw-line x y 0 (str (text-fixed-width "Name" 35) "Cost"))
+      (let [items ((.shops (:scene @state)) shop)]
+        (loop [i 0]
+          (let [item (item/items (items i))]
+            (ui/draw-line x y (+ i 2) (str (text-fixed-width (:name item) 35) (:worth item))))
+          (if (< i (dec (count items)))
+            (recur (inc i)))))
+      (ui/draw-cursor x y (+ 2 cursor))))
   (cursor-length [_] (count ((.shops (:scene @state)) shop)))
   (menu-type [_] :buy)
   (key-pressed [_]))
@@ -121,10 +130,11 @@
           h (* y 8)
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
-      (ui/draw-cursor x y cursor)
-      (ui/draw-line x y 0 "Buy")
-      (ui/draw-line x y 1 "Sell")
-      (ui/draw-line x y 2 "Leave")))
+      (ui/draw-cursor x y (+ 2 cursor))
+      (ui/draw-line x y 0 "Welcome to my shop!")
+      (ui/draw-line x y 2 "Buy")
+      (ui/draw-line x y 3 "Sell")
+      (ui/draw-line x y 4 "Leave")))
   (cursor-length [_] 3)
   (menu-type [_] :shop)
   (key-pressed [menu]
