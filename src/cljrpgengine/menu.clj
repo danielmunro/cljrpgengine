@@ -33,8 +33,9 @@
   (add-item! state item-keyword quantity))
 
 (defn- reset-quantity!
-  [state]
-  (dosync (alter state assoc :quantity 1)))
+  [state min max]
+  (dosync
+    (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
 
 (defprotocol Menu
   (draw [menu])
@@ -170,7 +171,7 @@
 
 (defn create-confirm-buy-menu
   [state shop item]
-  (reset-quantity! state)
+  (reset-quantity! state 1 (Math/floor (/ (:money @state) (:worth (item/items item)))))
   (ConfirmBuyMenu. state shop item))
 
 (deftype BuyMenu [state shop]

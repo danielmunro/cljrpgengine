@@ -156,10 +156,12 @@
       (= key :down)
       (dosync (alter state update-in [:menus m :cursor] inc))
       (and
-       (< 1 (:quantity @state))
+       (< (:quantity-min @state) (:quantity @state))
        (= key :left))
       (dosync (alter state update :quantity dec))
-      (= key :right)
+      (and
+       (> (:quantity-max @state) (:quantity @state))
+       (= key :right))
       (dosync (alter state update :quantity inc)))
     (if (> 0 (get-in @state [:menus m :cursor]))
       (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu])))))
