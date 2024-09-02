@@ -105,10 +105,11 @@
           x (* 3/4 (first constants/window))]
       (ui/draw-cursor x 0 cursor)
       (ui/draw-line x 0 0 "Items")
-      (ui/draw-line x 0 1 "Magic")
-      (ui/draw-line x 0 2 "Quests")
-      (ui/draw-line x 0 3 "Save")
-      (ui/draw-line x 0 4 "Quit")))
+      (ui/draw-line x 0 1 "Equipment")
+      (ui/draw-line x 0 2 "Magic")
+      (ui/draw-line x 0 3 "Quests")
+      (ui/draw-line x 0 4 "Save")
+      (ui/draw-line x 0 5 "Quit")))
   (cursor-length [_] 5)
   (menu-type [_] :party)
   (key-pressed [menu]
@@ -117,12 +118,14 @@
         (= 0 cursor)
         (ui/open-menu! state (create-items-menu state))
         (= 1 cursor)
-        (println "magic")
+        (println "equipment")
         (= 2 cursor)
-        (println "quests")
+        (println "magic")
         (= 3 cursor)
-        (println "save")
+        (println "quests")
         (= 4 cursor)
+        (println "save")
+        (= 5 cursor)
         (ui/open-menu! state (create-quit-menu state))))))
 
 (defn create-party-menu
