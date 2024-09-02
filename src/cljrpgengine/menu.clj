@@ -13,7 +13,7 @@
         (recur (str t " "))
         t))))
 
-(defn add-item
+(defn add-item!
   [state item quantity]
   (let [added (atom false)]
     (loop [i 0]
@@ -24,15 +24,17 @@
         (if (> (dec (count (:items @state))) i)
           (recur (inc i)))))
     (if (not @added)
-      (dosync (alter state update :items conj {:name item :quantity 1})))))
+      (dosync (alter state update :items conj {:name item :quantity quantity})))))
 
-(defn- complete-purchase
+(defn- complete-purchase!
   [state item-keyword quantity purchase-price]
   (dosync
    (alter state update :money - purchase-price))
-  (add-item state item-keyword quantity)
-  (println (:money @state))
-  (println (:items @state)))
+  (add-item! state item-keyword quantity))
+
+(defn- reset-quantity!
+  [state]
+  (dosync (alter state assoc :quantity 1)))
 
 (defprotocol Menu
   (draw [menu])
@@ -144,28 +146,31 @@
           y (/ (second constants/window) 5)
           w (* x 3)
           h (* y 3)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor state (.menu-type menu))
+          quantity (:quantity @state)]
       (ui/draw-window x y w h)
       (ui/draw-line x y 0 (str "Purchasing " (:name (item/items item))))
-      (ui/draw-line x y 1 (str "Cost " (* 1 (:worth (item/items item)))))
-      (ui/draw-line x y 3 "Quantity 1")
+      (ui/draw-line x y 1 (str "Cost " (* quantity (:worth (item/items item)))))
+      (ui/draw-line x y 3 (str "Quantity " quantity))
       (ui/draw-line x y 4 "Yes")
       (ui/draw-line x y 5 "No")
       (ui/draw-cursor x y (+ cursor 3))))
   (cursor-length [_] 3)
   (menu-type [_] :confirm-buy)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+          quantity (:quantity @state)]
       (cond
         (= 1 cursor)
         (do
-          (complete-purchase state item 1 (* (:worth (item/items item)) 1))
-          (ui/open-menu! state (create-purchase-complete-menu state shop item 1)))
+          (complete-purchase! state item quantity (* (:worth (item/items item)) quantity))
+          (ui/open-menu! state (create-purchase-complete-menu state shop item quantity)))
         (= 2 cursor)
         (ui/close-menu! state)))))
 
 (defn create-confirm-buy-menu
   [state shop item]
+  (reset-quantity! state)
   (ConfirmBuyMenu. state shop item))
 
 (deftype BuyMenu [state shop]
@@ -177,11 +182,11 @@
           h (* y 8)
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
-      (ui/draw-line x y 0 (str (text-fixed-width "Name" 35) "Cost"))
+      (ui/draw-line x y 0 (str (text-fixed-width "Name" constants/item-name-width) "Cost"))
       (let [items ((.shops (:scene @state)) shop)]
         (loop [i 0]
           (let [item (item/items (items i))]
-            (ui/draw-line x y (+ i 2) (str (text-fixed-width (:name item) 35) (:worth item))))
+            (ui/draw-line x y (+ i 2) (str (text-fixed-width (:name item) constants/item-name-width) (:worth item))))
           (if (< i (dec (count items)))
             (recur (inc i)))))
       (ui/draw-cursor x y (+ 2 cursor))))

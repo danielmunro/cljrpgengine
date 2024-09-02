@@ -21,4 +21,6 @@
 
 (def dialog-text-width 62)
 
+(def item-name-width 35)
+
 (def starting-money 100)
