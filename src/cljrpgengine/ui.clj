@@ -103,13 +103,24 @@
            (str text (words w) " ")))
         text))))
 
+(defn draw-cursor
+  [x y line]
+  (let [g (sprite/create-graphics 16 16)]
+    (q/with-graphics g
+      (.clear g)
+      (q/image @ui-pack -342 -468))
+    (q/image g (+ x 10) (+ y 5 (* 20 line)))))
+
+(defn get-menu-cursor
+  [state menu]
+  (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state))))
+
 (defn dialog
   [message]
   (let [y (* (second constants/window) 2/3)
         text (string-break message)]
     (draw-window 0 y (first constants/window) (* (second constants/window) 1/3))
-    (q/with-fill (:white constants/colors)
-      (q/text text 20 (+ 30 y)))))
+    (draw-line 0 y 0 text)))
 
 (defn draw-menus
   [state]
@@ -150,15 +161,3 @@
 (defn is-menu-open?
   [state]
   (> (count (:menus @state)) 0))
-
-(defn draw-cursor
-  [x y line]
-  (let [g (sprite/create-graphics 16 16)]
-    (q/with-graphics g
-      (.clear g)
-      (q/image @ui-pack -342 -468))
-    (q/image g (+ x 10) (+ y 5 (* 20 line)))))
-
-(defn get-menu-cursor
-  [state menu]
-  (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state))))
