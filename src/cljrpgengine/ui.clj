@@ -173,3 +173,17 @@
 (defn is-menu-open?
   [state]
   (> (count (:menus @state)) 0))
+
+(defn text-fixed-width
+  [text spaces]
+  (if (> (count text) spaces)
+    (str (subs text 0 (- spaces 4)) "... ")
+    (loop [t text]
+      (if (> spaces (count t))
+        (recur (str t " "))
+        t))))
+
+(defn reset-quantity!
+  [state min max]
+  (dosync
+    (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))

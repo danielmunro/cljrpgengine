@@ -1,7 +1,7 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
-            [cljrpgengine.menu :as menu]
+            [cljrpgengine.menus.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
@@ -181,4 +181,4 @@
                         (get-in @state [:player :party 0 :x])
                         (get-in @state [:player :party 0 :y])))]
     (do
-      (ui/open-menu! state (menu/create-shop-menu state shop)))))
+      (ui/open-menu! state (shop-menu/create-menu state shop)))))

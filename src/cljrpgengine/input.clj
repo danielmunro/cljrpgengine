@@ -2,7 +2,7 @@
   (:require [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menu :as menu]))
+            [cljrpgengine.menus.party-menu :as party-menu]))
 
 (defn key-released!
   [state {:keys [key]}]
@@ -56,7 +56,7 @@
     (= key :space)
     (player/action-engaged! state)
     (= key :m)
-    (ui/open-menu! state (menu/create-party-menu state))
+    (ui/open-menu! state (party-menu/create-menu state))
     (= key-code 27)
     (println "escape key pressed")
     ;(dosync
