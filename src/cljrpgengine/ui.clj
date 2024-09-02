@@ -14,9 +14,11 @@
   (swap! ui-pack (fn [_] (q/load-image "ui.png"))))
 
 (defn draw-line
-  [x y line-number text]
-  (q/with-fill (:font-default constants/colors)
-    (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
+  ([x y line-number text font-color]
+   (q/with-fill (font-color constants/colors)
+     (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
+  ([x y line-number text]
+   (draw-line x y line-number text :font-default)))
 
 (defn draw-window
   [x y width height]
