@@ -14,7 +14,7 @@
   Menu
   (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (ui/draw-cursor-line 0 0 (ui/get-menu-cursor state (.menu-type menu)))
+    (ui/draw-cursor 0 0 (ui/get-menu-cursor state (.menu-type menu)))
     (q/with-fill (:white constants/colors)
       (loop [i 0]
         (ui/draw-line 0 0 i (get-in item/items [(:name ((:items @state) i)) :name]))
@@ -41,7 +41,7 @@
       (ui/draw-line x y 0 "Are you sure?")
       (ui/draw-line x y 2 "No")
       (ui/draw-line x y 3 "Yes")
-      (ui/draw-cursor-line x y (if (= cursor 0) 2 3))))
+      (ui/draw-cursor x y (if (= cursor 0) 2 3))))
   (cursor-length [_] 2)
   (menu-type [_] :quit)
   (key-pressed [_]
@@ -62,7 +62,7 @@
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
           x (* 3/4 (first constants/window))]
-      (ui/draw-cursor-line x 0 cursor)
+      (ui/draw-cursor x 0 cursor)
       (ui/draw-line x 0 0 "Items")
       (ui/draw-line x 0 1 "Magic")
       (ui/draw-line x 0 2 "Quests")
@@ -103,7 +103,7 @@
             (ui/draw-line x y i (:name (item/items (items i))))
             (if (< i (dec (count items)))
               (recur (inc i))))))
-      (ui/draw-cursor-line x y cursor)))
+      (ui/draw-cursor x y cursor)))
   (cursor-length [_] (count ((.shops (:scene @state)) shop)))
   (menu-type [_] :buy)
   (key-pressed [_]))
@@ -121,7 +121,7 @@
           h (* y 8)
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
-      (ui/draw-cursor-line x y cursor)
+      (ui/draw-cursor x y cursor)
       (ui/draw-line x y 0 "Buy")
       (ui/draw-line x y 1 "Sell")
       (ui/draw-line x y 2 "Leave")))

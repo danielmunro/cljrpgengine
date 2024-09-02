@@ -151,21 +151,13 @@
   [state]
   (> (count (:menus @state)) 0))
 
-(defn draw-cursor-line
+(defn draw-cursor
   [x y line]
   (let [g (sprite/create-graphics 16 16)]
     (q/with-graphics g
       (.clear g)
       (q/image @ui-pack -342 -468))
     (q/image g (+ x 10) (+ y 5 (* 20 line)))))
-
-(defn draw-cursor
-  [x y]
-  (let [g (sprite/create-graphics 16 16)]
-    (q/with-graphics g
-      (.clear g)
-      (q/image @ui-pack -342 -468))
-    (q/image g x y)))
 
 (defn get-menu-cursor
   [state menu]
