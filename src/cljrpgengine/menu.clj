@@ -2,15 +2,14 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.item :as item]
-            [cljrpgengine.util :as util]
             [quil.core :as q]))
 
-(defn text-fixed-width
+(defn- text-fixed-width
   [text spaces]
   (if (> (count text) spaces)
-    (str (subs text 0 (- spaces 3)) "... ")
+    (str (subs text 0 (- spaces 4)) "... ")
     (loop [t text]
-      (if (>= spaces (count t))
+      (if (> spaces (count t))
         (recur (str t " "))
         t))))
 
