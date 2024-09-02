@@ -97,6 +97,29 @@
   [state]
   (PartyMenu. state))
 
+(deftype ConfirmBuyMenu [state shop item]
+  Menu
+  (draw [menu]
+    (let [x (/ (first constants/window) 5)
+          y (/ (second constants/window) 5)
+          w (* x 3)
+          h (* y 3)
+          cursor (ui/get-menu-cursor state (.menu-type menu))]
+      (ui/draw-window x y w h)
+      (ui/draw-line x y 0 (str "Purchasing " (:name (item/items item))))
+      (ui/draw-line x y 1 (str "Cost " (* 1 (:worth (item/items item)))))
+      (ui/draw-line x y 3 "Quantity 1")
+      (ui/draw-line x y 4 "Yes")
+      (ui/draw-line x y 5 "No")
+      (ui/draw-cursor x y (+ cursor 3))))
+  (cursor-length [_] 3)
+  (menu-type [_] :confirm-buy)
+  (key-pressed [_]))
+
+(defn create-confirm-buy-menu
+  [state shop item]
+  (ConfirmBuyMenu. state shop item))
+
 (deftype BuyMenu [state shop]
   Menu
   (draw [menu]
@@ -116,7 +139,13 @@
       (ui/draw-cursor x y (+ 2 cursor))))
   (cursor-length [_] (count ((.shops (:scene @state)) shop)))
   (menu-type [_] :buy)
-  (key-pressed [_]))
+  (key-pressed [menu]
+    (ui/open-menu!
+      state
+      (create-confirm-buy-menu
+        state
+        shop
+        (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
 
 (defn create-buy-menu
   [state shop]
