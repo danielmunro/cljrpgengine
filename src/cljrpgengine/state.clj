@@ -1,34 +1,37 @@
 (ns cljrpgengine.state
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
-                    :keys #{}
-                    :mobs []
-                    :items [{:name :light-health-potion :quantity 1}
-                            {:name :practice-sword :quantity 1}]
-                    :events []
-                    :menus []
-                    :grants #{}
-                    :scene :tinytown
-                    :player nil
-                    :map nil})
+                    :keys      #{}
+                    :mobs      []
+                    :items     [{:name :light-health-potion :quantity 1}
+                                {:name :practice-sword :quantity 1}]
+                    :events    []
+                    :menus     []
+                    :grants    #{}
+                    :scene     :tinytown
+                    :player    nil
+                    :money     constants/starting-money
+                    :map       nil})
 
 (defn- transform-to-save
   [state]
   (let [party (get-in @state [:player :party])]
     {:save-name (:save-name @state)
-     :scene (.scene-name (:scene @state))
-     :grants (:grants @state)
-     :items (:items @state)
-     :player {:party (into [] (map (fn [p] {:name (:name p)
-                                            :x (:x p)
-                                            :y (:y p)
-                                            :direction (:direction p)
-                                            :sprite (get-in p [:sprite :name])}) party))}
+     :scene     (.scene-name (:scene @state))
+     :grants    (:grants @state)
+     :items     (:items @state)
+     :money     (:money @state)
+     :player    {:party (into [] (map (fn [p] {:name   (:name p)
+                                               :x      (:x p)
+                                               :y (:y p)
+                                               :direction (:direction p)
+                                               :sprite (get-in p [:sprite :name])}) party))}
      :map {:name (name (get-in @state [:map :name]))
            :room (name (get-in @state [:map :room]))}}))
 
@@ -49,6 +52,7 @@
        :save-name (:save-name data)
        :grants (:grants data)
        :items (:items data)
+       :money (:money data)
        :player (player/create-new-player
                 (get-in data [:player :party 0 :x])
                 (get-in data [:player :party 0 :y])

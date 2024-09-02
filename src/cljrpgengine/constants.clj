@@ -20,3 +20,5 @@
              :white [255 255 255]})
 
 (def dialog-text-width 62)
+
+(def starting-money 100)

@@ -13,6 +13,27 @@
         (recur (str t " "))
         t))))
 
+(defn add-item
+  [state item quantity]
+  (let [added (atom false)]
+    (loop [i 0]
+      (if (= item (:name ((:items @state) i)))
+        (do
+          (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
+          (swap! added (constantly true)))
+        (if (> (dec (count (:items @state))) i)
+          (recur (inc i)))))
+    (if (not @added)
+      (dosync (alter state update :items conj {:name item :quantity 1})))))
+
+(defn- complete-purchase
+  [state item-keyword quantity purchase-price]
+  (dosync
+   (alter state update :money - purchase-price))
+  (add-item state item-keyword quantity)
+  (println (:money @state))
+  (println (:items @state)))
+
 (defprotocol Menu
   (draw [menu])
   (cursor-length [menu])
@@ -97,6 +118,25 @@
   [state]
   (PartyMenu. state))
 
+(deftype PurchaseCompleteMenu [state shop item quantity]
+  Menu
+  (draw [_]
+    (let [x (/ (first constants/window) 5)
+          y (/ (second constants/window) 5)
+          w (* x 3)
+          h (* y 3)]
+      (ui/draw-window x y w h)
+      (ui/draw-line x y 0 "Purchase complete!")))
+  (cursor-length [_] 0)
+  (menu-type [_] :purchase-complete)
+  (key-pressed [_]
+    (ui/close-menu! state)
+    (ui/close-menu! state)))
+
+(defn create-purchase-complete-menu
+  [state shop item quantity]
+  (PurchaseCompleteMenu. state shop item quantity))
+
 (deftype ConfirmBuyMenu [state shop item]
   Menu
   (draw [menu]
@@ -114,7 +154,15 @@
       (ui/draw-cursor x y (+ cursor 3))))
   (cursor-length [_] 3)
   (menu-type [_] :confirm-buy)
-  (key-pressed [_]))
+  (key-pressed [menu]
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+      (cond
+        (= 1 cursor)
+        (do
+          (complete-purchase state item 1 (* (:worth (item/items item)) 1))
+          (ui/open-menu! state (create-purchase-complete-menu state shop item 1)))
+        (= 2 cursor)
+        (ui/close-menu! state)))))
 
 (defn create-confirm-buy-menu
   [state shop item]
@@ -141,11 +189,11 @@
   (menu-type [_] :buy)
   (key-pressed [menu]
     (ui/open-menu!
+     state
+     (create-confirm-buy-menu
       state
-      (create-confirm-buy-menu
-        state
-        shop
-        (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
+      shop
+      (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
 
 (defn create-buy-menu
   [state shop]
