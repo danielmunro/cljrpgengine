@@ -15,12 +15,12 @@
 
 (defn draw-line
   [x y line-number text]
-  (q/with-fill (:white constants/colors)
+  (q/with-fill (:font-default constants/colors)
     (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
 
 (defn draw-window
   [x y width height]
-  (q/with-fill (:blue constants/colors)
+  (q/with-fill (:window constants/colors)
     (q/rect x y width height))
   (let [f 48
         h (/ f 2)

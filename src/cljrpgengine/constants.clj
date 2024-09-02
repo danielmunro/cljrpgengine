@@ -16,8 +16,9 @@
 
 (def title "Wheel of Fate")
 
-(def colors {:blue [0 0 255]
-             :white [255 255 255]})
+(def colors {:window       [0 0 255]
+             :font-default [255 255 255]
+             :font-disabled [155 155 155]})
 
 (def dialog-text-width 62)
 
