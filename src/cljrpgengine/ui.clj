@@ -16,7 +16,7 @@
 (defn draw-line
   [x y line-number text]
   (q/with-fill (:white constants/colors)
-               (q/text text (+ x 30) (+ y 20 (* 20 line-number)))))
+    (q/text text (+ x 30) (+ y 20 (* 20 line-number)))))
 
 (defn draw-window
   [x y width height]
@@ -155,8 +155,8 @@
   [x y line]
   (let [g (sprite/create-graphics 16 16)]
     (q/with-graphics g
-                     (.clear g)
-                     (q/image @ui-pack -342 -468))
+      (.clear g)
+      (q/image @ui-pack -342 -468))
     (q/image g (+ x 10) (+ y 5 (* 20 line)))))
 
 (defn draw-cursor
