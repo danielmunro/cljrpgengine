@@ -186,4 +186,4 @@
 (defn reset-quantity!
   [state min max]
   (dosync
-    (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
+   (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))

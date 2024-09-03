@@ -2,7 +2,8 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.menus.buy-menu :as buy-menu]))
+            [cljrpgengine.menus.buy-menu :as buy-menu]
+            [cljrpgengine.menus.sell-menu :as sell-menu]))
 
 (deftype ShopMenu [state shop]
   menu/Menu
@@ -26,7 +27,7 @@
         (= 0 cursor)
         (ui/open-menu! state (buy-menu/create-menu state shop))
         (= 1 cursor)
-        (println "sell")
+        (ui/open-menu! state (sell-menu/create-menu state))
         (= 2 cursor)
         (ui/close-menu! state)))))
 

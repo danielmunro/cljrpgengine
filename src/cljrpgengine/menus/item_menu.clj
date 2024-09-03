@@ -13,13 +13,13 @@
     (loop [i 0]
       (let [item ((:items @state) i)]
         (ui/draw-line
-          0
-          0
-          (inc i)
-          (str (ui/text-fixed-width (get-in item/items [(:name item) :name]) constants/item-name-width) " " (:quantity item))
-          (if (= :consumable (get-in item/items [(:name item) :type]))
-            :font-default
-            :font-disabled)))
+         0
+         0
+         (inc i)
+         (str (ui/text-fixed-width (get-in item/items [(:name item) :name]) constants/item-name-width) " " (:quantity item))
+         (if (= :consumable (get-in item/items [(:name item) :type]))
+           :font-default
+           :font-disabled)))
       (if (< i (dec (count (:items @state))))
         (recur (inc i)))))
   (cursor-length [_] (count (:items @state)))

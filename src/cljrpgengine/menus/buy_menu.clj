@@ -26,11 +26,11 @@
   (menu-type [_] :buy)
   (key-pressed [menu]
     (ui/open-menu!
+     state
+     (confirm-buy-menu/create-menu
       state
-      (confirm-buy-menu/create-menu
-        state
-        shop
-        (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
+      shop
+      (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
 
 (defn create-menu
   [state shop]

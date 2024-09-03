@@ -9,11 +9,11 @@
   [state item quantity]
   (let [added (atom false)]
     (loop [i 0]
-      (if (= item (:name ((:items @state) i)))
-        (do
-          (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
-          (swap! added (constantly true)))
-        (if (> (dec (count (:items @state))) i)
+      (if (> (dec (count (:items @state))) i)
+        (if (= item (:name ((:items @state) i)))
+          (do
+            (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
+            (swap! added (constantly true)))
           (recur (inc i)))))
     (if (not @added)
       (dosync (alter state update :items conj {:name item :quantity quantity})))))
@@ -21,7 +21,7 @@
 (defn- complete-purchase!
   [state item-keyword quantity purchase-price]
   (dosync
-    (alter state update :money - purchase-price))
+   (alter state update :money - purchase-price))
   (add-item! state item-keyword quantity))
 
 (deftype ConfirmBuyMenu [state shop item]
