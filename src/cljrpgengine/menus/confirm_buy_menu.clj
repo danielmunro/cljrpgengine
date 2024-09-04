@@ -10,13 +10,13 @@
   (let [added (atom false)]
     (loop [i 0]
       (if (> (count (:items @state)) i)
-        (if (= item (:name ((:items @state) i)))
+        (if (= item (:key ((:items @state) i)))
           (do
             (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
             (swap! added (constantly true)))
           (recur (inc i)))))
     (if (not @added)
-      (dosync (alter state update :items conj {:name item :quantity quantity})))))
+      (dosync (alter state update :items conj {:key item :quantity quantity})))))
 
 (defn- complete-purchase!
   [state item-keyword quantity purchase-price]

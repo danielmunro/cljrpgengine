@@ -22,4 +22,4 @@
 
 (defn item-quantity-map
   [items]
-  (apply merge (map #(hash-map (:name %) (:quantity %)) items)))
+  (apply merge (map #(hash-map (:key %) (:quantity %)) items)))

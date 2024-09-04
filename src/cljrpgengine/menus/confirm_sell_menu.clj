@@ -8,7 +8,7 @@
 (defn- remove-item!
   [state item quantity]
   (loop [i 0]
-    (if (= item (:name ((:items @state) i)))
+    (if (= item (:key ((:items @state) i)))
       (dosync
        (alter state update-in [:items i :quantity] (fn [q] (- q quantity)))
        (if (= 0 (get-in @state [:items i :quantity]))
@@ -31,8 +31,8 @@
           cursor (ui/get-menu-cursor state (.menu-type menu))
           quantity (:quantity @state)]
       (ui/draw-window x y w h)
-      (ui/draw-line x y 0 (str "Selling " (:name (item/items (:name item)))))
-      (ui/draw-line x y 1 (str "Price " (* quantity (:worth (item/items (:name item))))))
+      (ui/draw-line x y 0 (str "Selling " (:name (item/items (:key item)))))
+      (ui/draw-line x y 1 (str "Price " (* quantity (:worth (item/items (:key item))))))
       (ui/draw-line x y 3 (str "Quantity " quantity))
       (ui/draw-line x y 4 "Yes")
       (ui/draw-line x y 5 "No")
@@ -42,7 +42,7 @@
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
           quantity (:quantity @state)
-          item-keyword (:name item)]
+          item-keyword (:key item)]
       (cond
         (= 0 cursor)
         (do

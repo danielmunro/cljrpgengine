@@ -27,7 +27,7 @@
         (loop [i 0]
           (if (< i (count items))
             (do
-              (let [item (item/items (:name (items i)))]
+              (let [item (item/items (:key (items i)))]
                 (ui/draw-line
                  x
                  y
@@ -35,7 +35,7 @@
                  (str
                   (ui/text-fixed-width (:name item) constants/item-name-width)
                   (ui/text-fixed-width (int (Math/floor (/ (:worth item) 2))) constants/cost-width)
-                  ((:name (items i)) item-map))))
+                  ((:key (items i)) item-map))))
               (recur (inc i))))))
       (ui/draw-cursor x y (+ cursor 2))))
   (cursor-length [_] (count (:items @state)))

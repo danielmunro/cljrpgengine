@@ -16,8 +16,8 @@
          0
          0
          (inc i)
-         (str (ui/text-fixed-width (get-in item/items [(:name item) :name]) constants/item-name-width) " " (:quantity item))
-         (if (= :consumable (get-in item/items [(:name item) :type]))
+         (str (ui/text-fixed-width (get-in item/items [(:key item) :name]) constants/item-name-width) " " (:quantity item))
+         (if (= :consumable (get-in item/items [(:key item) :type]))
            :font-default
            :font-disabled)))
       (if (< i (dec (count (:items @state))))

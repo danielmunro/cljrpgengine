@@ -9,8 +9,8 @@
 (def initial-state {:save-name nil
                     :keys      #{}
                     :mobs      []
-                    :items     [{:name :light-health-potion :quantity 1}
-                                {:name :practice-sword :quantity 1}]
+                    :items     [{:key :light-health-potion :quantity 1}
+                                {:key :practice-sword :quantity 1}]
                     :events    []
                     :menus     []
                     :grants    #{}
