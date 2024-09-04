@@ -16,9 +16,9 @@
 (deftest collision-detected?
   (testing "can detect a collision"
     (is (util/collision-detected?
-          0 0 10 10
-          9 9 11 11)))
+         0 0 10 10
+         9 9 11 11)))
   (testing "can detect no collision"
     (is (not (util/collision-detected?
-          0 0 10 10
-          11 11 12 12)))))
+              0 0 10 10
+              11 11 12 12)))))

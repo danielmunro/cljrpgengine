@@ -8,10 +8,10 @@
 (deftype ShopMenu [state shop]
   menu/Menu
   (draw [menu]
-    (let [x (/ (first constants/window) 10)
-          y (/ (second constants/window) 10)
-          w (* x 8)
-          h (* y 8)
+    (let [x (/ (first constants/window) 8)
+          y (/ (second constants/window) 8)
+          w (* x 6)
+          h (* y 6)
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
       (ui/draw-cursor x y (+ 2 cursor))

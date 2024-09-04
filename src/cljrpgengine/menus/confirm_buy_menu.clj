@@ -9,7 +9,7 @@
   [state item quantity]
   (let [added (atom false)]
     (loop [i 0]
-      (if (> (dec (count (:items @state))) i)
+      (if (> (count (:items @state)) i)
         (if (= item (:name ((:items @state) i)))
           (do
             (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
