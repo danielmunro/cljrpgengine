@@ -176,12 +176,13 @@
 
 (defn text-fixed-width
   [text spaces]
-  (if (> (count text) spaces)
-    (str (subs text 0 (- spaces 4)) "... ")
-    (loop [t text]
-      (if (> spaces (count t))
-        (recur (str t " "))
-        t))))
+  (let [text-str (str text)]
+    (if (> (count text-str) spaces)
+      (str (subs text-str 0 (- spaces 4)) "... ")
+      (loop [t text-str]
+        (if (> spaces (count t))
+          (recur (str t " "))
+          t)))))
 
 (defn reset-quantity!
   [state min max]

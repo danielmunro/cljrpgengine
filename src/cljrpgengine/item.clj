@@ -19,3 +19,7 @@
                            :attributes {:pierce 1
                                         :slash 1
                                         :bash 1}}})
+
+(defn item-quantity-map
+  [items]
+  (apply merge (map #(hash-map (:name %) (:quantity %)) items)))

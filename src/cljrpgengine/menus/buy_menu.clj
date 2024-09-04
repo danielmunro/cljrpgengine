@@ -13,7 +13,7 @@
           w (* x 6)
           h (* y 5)
           cursor (ui/get-menu-cursor state (.menu-type menu))
-          item-map (apply merge (map #(hash-map (:name %) (:quantity %)) (:items @state)))]
+          item-map (item/item-quantity-map (:items @state))]
       (ui/draw-window x y w h)
       (ui/draw-line
        x
@@ -32,7 +32,7 @@
              (+ i 2)
              (str
               (ui/text-fixed-width (:name item) constants/item-name-width)
-              (ui/text-fixed-width (str (:worth item)) constants/cost-width)
+              (ui/text-fixed-width (:worth item) constants/cost-width)
               ((items i) item-map))))
           (if (< i (dec (count items)))
             (recur (inc i)))))
