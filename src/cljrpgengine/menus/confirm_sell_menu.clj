@@ -12,7 +12,9 @@
       (dosync
        (alter state update-in [:items i :quantity] (fn [q] (- q quantity)))
        (if (= 0 (get-in @state [:items i :quantity]))
-         (alter state assoc-in [:items] (into [] (filter #(< 0 (:quantity %)) (:items @state))))))
+         (do
+           (alter state assoc-in [:items] (into [] (filter #(< 0 (:quantity %)) (:items @state))))
+           (alter state update-in [:menus (ui/get-menu-index state :sell) :cursor] dec))))
       (if (> (dec (count (:items @state))) i)
         (recur (inc i))))))
 

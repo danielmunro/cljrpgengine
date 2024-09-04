@@ -145,6 +145,14 @@
   [state]
   (dosync (alter state update-in [:menus] pop)))
 
+(defn get-menu-index
+  [state menu]
+  (loop [i 0]
+    (if (= menu (.menu-type (:menu ((:menus @state) i))))
+      i
+      (if (< i (count (:menus @state)))
+        (recur (inc i))))))
+
 (defn last-menu-index
   [state]
   (dec (count (:menus @state))))
