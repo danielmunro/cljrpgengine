@@ -14,7 +14,9 @@
        (if (= 0 (get-in @state [:items i :quantity]))
          (do
            (alter state assoc-in [:items] (into [] (filter #(< 0 (:quantity %)) (:items @state))))
-           (alter state update-in [:menus (ui/get-menu-index state :sell) :cursor] dec))))
+           (let [menu-index (ui/get-menu-index state :sell)]
+             (if (= (get-in @state [:menus menu-index :cursor]) (count (:items @state)))
+               (alter state update-in [:menus menu-index :cursor] dec))))))
       (if (> (dec (count (:items @state))) i)
         (recur (inc i))))))
 
