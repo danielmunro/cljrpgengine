@@ -161,9 +161,13 @@
   [state key]
   (let [m (last-menu-index state)]
     (cond
-      (= key :up)
+      (and
+        (= key :up)
+        (> (.cursor-length (get-in @state [:menus m :menu])) 0))
       (dosync (alter state update-in [:menus m :cursor] dec))
-      (= key :down)
+      (and
+        (= key :down)
+        (> (.cursor-length (get-in @state [:menus m :menu])) 0))
       (dosync (alter state update-in [:menus m :cursor] inc))
       (and
        (< (:quantity-min @state) (:quantity @state))
