@@ -178,6 +178,16 @@
   [state]
   (change-cursor! state inc))
 
+(defn- above-min-quantity?
+  [state]
+  (let [[quantity-min quantity] ((juxt :quantity-min :quantity) @state)]
+    (< quantity-min quantity)))
+
+(defn- below-max-quantity?
+  [state]
+  (let [[quantity-max quantity] ((juxt :quantity-max :quantity) @state)]
+    (> quantity-max quantity)))
+
 (defn move-cursor!
   [state key]
   (cond
@@ -190,12 +200,12 @@
      (cursor-can-move? state))
     (inc-cursor! state)
     (and
-     (< (:quantity-min @state) (:quantity @state))
-     (= key :left))
+     (= key :left)
+     (above-min-quantity? state))
     (dosync (alter state update :quantity dec))
     (and
-     (> (:quantity-max @state) (:quantity @state))
-     (= key :right))
+     (= key :right)
+     (below-max-quantity? state))
     (dosync (alter state update :quantity inc))))
 
 (defn is-menu-open?
