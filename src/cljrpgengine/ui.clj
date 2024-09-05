@@ -147,11 +147,12 @@
 
 (defn get-menu-index
   [state menu]
-  (loop [i 0]
-    (if (= menu (.menu-type (:menu ((:menus @state) i))))
-      i
-      (if (< i (count (:menus @state)))
-        (recur (inc i))))))
+  (let [menus (:menus @state)]
+    (loop [i 0]
+      (if (= menu (.menu-type (:menu (menus i))))
+        i
+        (if (< i (count menus))
+          (recur (inc i)))))))
 
 (defn last-menu-index
   [state]
@@ -188,6 +189,14 @@
   (let [[quantity-max quantity] ((juxt :quantity-max :quantity) @state)]
     (> quantity-max quantity)))
 
+(defn- inc-quantity!
+  [state]
+  (dosync (alter state update :quantity inc)))
+
+(defn- dec-quantity!
+  [state]
+  (dosync (alter state update :quantity dec)))
+
 (defn move-cursor!
   [state key]
   (cond
@@ -202,11 +211,11 @@
     (and
      (= key :left)
      (above-min-quantity? state))
-    (dosync (alter state update :quantity dec))
+    (dec-quantity! state)
     (and
      (= key :right)
      (below-max-quantity? state))
-    (dosync (alter state update :quantity inc))))
+    (inc-quantity! state)))
 
 (defn is-menu-open?
   [state]
