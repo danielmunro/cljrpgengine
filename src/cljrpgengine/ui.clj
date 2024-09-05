@@ -157,30 +157,46 @@
   [state]
   (dec (count (:menus @state))))
 
+(defn- cursor-can-move?
+  [state]
+  (> (.cursor-length (get-in @state [:menus (last-menu-index state) :menu])) 0))
+
+(defn- change-cursor!
+  [state f]
+  (dosync (alter state update-in [:menus (last-menu-index state) :cursor] f))
+  (let [m (last-menu-index state)]
+    (if (= (.cursor-length (get-in @state [:menus m :menu])) (get-in @state [:menus m :cursor]))
+      (dosync (alter state assoc-in [:menus m :cursor] 0))
+      (if (< (get-in @state [:menus m :cursor]) 0)
+        (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu])))))))))
+
+(defn- dec-cursor!
+  [state]
+  (change-cursor! state dec))
+
+(defn- inc-cursor!
+  [state]
+  (change-cursor! state inc))
+
 (defn move-cursor!
   [state key]
-  (let [m (last-menu-index state)]
-    (cond
-      (and
-        (= key :up)
-        (> (.cursor-length (get-in @state [:menus m :menu])) 0))
-      (dosync (alter state update-in [:menus m :cursor] dec))
-      (and
-        (= key :down)
-        (> (.cursor-length (get-in @state [:menus m :menu])) 0))
-      (dosync (alter state update-in [:menus m :cursor] inc))
-      (and
-       (< (:quantity-min @state) (:quantity @state))
-       (= key :left))
-      (dosync (alter state update :quantity dec))
-      (and
-       (> (:quantity-max @state) (:quantity @state))
-       (= key :right))
-      (dosync (alter state update :quantity inc)))
-    (if (> 0 (get-in @state [:menus m :cursor]))
-      (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu])))))
-      (if (= (.cursor-length (get-in @state [:menus m :menu])) (get-in @state [:menus m :cursor]))
-        (dosync (alter state assoc-in [:menus m :cursor] 0))))))
+  (cond
+    (and
+     (= key :up)
+     (cursor-can-move? state))
+    (dec-cursor! state)
+    (and
+     (= key :down)
+     (cursor-can-move? state))
+    (inc-cursor! state)
+    (and
+     (< (:quantity-min @state) (:quantity @state))
+     (= key :left))
+    (dosync (alter state update :quantity dec))
+    (and
+     (> (:quantity-max @state) (:quantity @state))
+     (= key :right))
+    (dosync (alter state update :quantity inc))))
 
 (defn is-menu-open?
   [state]
