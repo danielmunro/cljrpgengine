@@ -23,3 +23,15 @@
 (defn item-quantity-map
   [items]
   (apply merge (map #(hash-map (:key %) (:quantity %)) items)))
+
+(defn item-type
+  [key]
+  (get-in items [key :type]))
+
+(defn item-name
+  [key]
+  (get-in items [key :name]))
+
+(defn is-consumable?
+  [key]
+  (= :consumable (item-type key)))

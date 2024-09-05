@@ -10,18 +10,21 @@
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
     (ui/draw-cursor 0 0 (inc (ui/get-menu-cursor state (.menu-type menu))))
     (ui/draw-line 0 0 0 (str (ui/text-fixed-width "Item" constants/item-name-width) " Quantity"))
-    (loop [i 0]
-      (let [item ((:items @state) i)]
-        (ui/draw-line
-         0
-         0
-         (inc i)
-         (str (ui/text-fixed-width (get-in item/items [(:key item) :name]) constants/item-name-width) " " (:quantity item))
-         (if (= :consumable (get-in item/items [(:key item) :type]))
-           :font-default
-           :font-disabled)))
-      (if (< i (dec (count (:items @state))))
-        (recur (inc i)))))
+    (let [items (:items @state)
+          item-count (count items)]
+      (loop [i 0]
+        (if (< i item-count)
+          (let [item (items i)
+                key (:key item)]
+            (ui/draw-line
+             0
+             0
+             (inc i)
+             (str (ui/text-fixed-width (item/item-name key) constants/item-name-width) " " (:quantity item))
+             (if (item/is-consumable? key)
+               :font-default
+               :font-disabled))
+            (recur (inc i)))))))
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :items)
   (key-pressed [_]
