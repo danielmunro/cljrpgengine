@@ -13,7 +13,9 @@
           w (* x 6)
           h (* y 5)
           cursor (ui/get-menu-cursor state (.menu-type menu))
-          item-map (item/item-quantity-map (:items @state))]
+          item-map (item/item-quantity-map (:items @state))
+          items ((.shops (:scene @state)) shop)
+          item-count (count items)]
       (ui/draw-window x y w h)
       (ui/draw-line
        x
@@ -23,8 +25,8 @@
         (ui/text-fixed-width "Name" constants/item-name-width)
         (ui/text-fixed-width "Cost" constants/cost-width)
         "Owned"))
-      (let [items ((.shops (:scene @state)) shop)]
-        (loop [i 0]
+      (loop [i 0]
+        (if (< i item-count)
           (let [item (item/items (items i))]
             (ui/draw-line
              x
@@ -33,8 +35,7 @@
              (str
               (ui/text-fixed-width (:name item) constants/item-name-width)
               (ui/text-fixed-width (:worth item) constants/cost-width)
-              ((items i) item-map))))
-          (if (< i (dec (count items)))
+              ((items i) item-map)))
             (recur (inc i)))))
       (ui/draw-cursor x y (+ 2 cursor))
       (ui/draw-window x (+ y h) w y)
