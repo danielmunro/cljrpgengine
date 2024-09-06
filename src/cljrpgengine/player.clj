@@ -140,7 +140,7 @@
 
 (defn- engagement-done?
   [engagement]
-  (< (:dialog-index engagement) (- (count (:dialog engagement)) 1)))
+  (= (:dialog-index engagement) (dec (count (:dialog engagement)))))
 
 (defn- inc-engagement!
   [state]
@@ -154,30 +154,29 @@
 
 (defn action-engaged!
   [state]
-  (if-let [engagement (:engagement @state)]
-    (if (engagement-done? engagement)
-      (inc-engagement! state)
-      (clear-engagement! state engagement))
-    (let [tile-size (get-in @state [:map :tileset :tilewidth])
-          direction (get-in @state [:player :party 0 :direction])
-          x (get-in @state [:player :party 0 :x])
-          y (get-in @state [:player :party 0 :y])
-          inspect-x (if (= :left direction)
-                      (- x  tile-size)
-                      (if (= :right direction)
-                        (+ x tile-size)
-                        x))
-          inspect-y (if (= :up direction)
-                      (- y tile-size)
-                      (if (= :down direction)
-                        (+ y tile-size)
-                        y))
-          mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (:mobs @state))]
+  (let [{:keys [engagement mobs map]
+         {[{:keys [direction x y]}] :party} :player
+         {{:keys [tilewidth tileheight]} :tileset} :map} @state
+        inspect-x (if (= :left direction)
+                    (- x  tilewidth)
+                    (if (= :right direction)
+                      (+ x tilewidth)
+                      x))
+        inspect-y (if (= :up direction)
+                    (- y tileheight)
+                    (if (= :down direction)
+                      (+ y tileheight)
+                      y))
+        mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
+    (if engagement
+      (if (engagement-done? engagement)
+        (clear-engagement! state engagement)
+        (inc-engagement! state))
       (if mob
-        (create-engagement! state mob))))
-  (if-let [shop (:name (map/get-interaction-from-coords
-                        (:map @state)
-                        map/get-shops
-                        (get-in @state [:player :party 0 :x])
-                        (get-in @state [:player :party 0 :y])))]
-    (ui/open-menu! state (shop-menu/create-menu state shop))))
+        (create-engagement! state mob)
+        (if-let [shop (:name (map/get-interaction-from-coords
+                               map
+                               map/get-shops
+                               x
+                               y))]
+          (ui/open-menu! state (shop-menu/create-menu state shop)))))))
