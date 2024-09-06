@@ -180,5 +180,4 @@
                         map/get-shops
                         (get-in @state [:player :party 0 :x])
                         (get-in @state [:player :party 0 :y])))]
-    (do
-      (ui/open-menu! state (shop-menu/create-menu state shop)))))
+    (ui/open-menu! state (shop-menu/create-menu state shop))))
