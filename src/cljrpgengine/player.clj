@@ -152,21 +152,25 @@
     (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
     (dosync (alter state dissoc :engagement))))
 
+(defn- get-inspect
+  [tile-position dir-1 dir-2 direction-facing tile-size]
+  (if (= dir-1 direction-facing)
+    (- tile-position tile-size)
+    (if (= dir-2 direction-facing)
+      (+ tile-position tile-size)
+      tile-position)))
+
+(defn- get-inspect-coords
+  [x y direction tilewidth tileheight]
+  [(get-inspect x :left :right direction tilewidth)
+   (get-inspect y :up :down direction tileheight)])
+
 (defn action-engaged!
   [state]
   (let [{:keys [engagement mobs map]
          {[{:keys [direction x y]}] :party} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        inspect-x (if (= :left direction)
-                    (- x  tilewidth)
-                    (if (= :right direction)
-                      (+ x tilewidth)
-                      x))
-        inspect-y (if (= :up direction)
-                    (- y tileheight)
-                    (if (= :down direction)
-                      (+ y tileheight)
-                      y))
+        [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)
         mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
     (if engagement
       (if (engagement-done? engagement)
