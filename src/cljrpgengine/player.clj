@@ -175,8 +175,8 @@
       (if mob
         (create-engagement! state mob)
         (if-let [shop (:name (map/get-interaction-from-coords
-                               map
-                               map/get-shops
-                               x
-                               y))]
+                              map
+                              map/get-shops
+                              x
+                              y))]
           (ui/open-menu! state (shop-menu/create-menu state shop)))))))
