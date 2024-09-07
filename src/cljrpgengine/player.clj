@@ -22,33 +22,36 @@
 
 (defn start-moving!
   [state key new-x new-y]
-  (if
-   (and
-    (not
-     (mob/blocked-by-mob?
-      (get-in @state [:player :party 0])
-      (:mobs @state)
-      new-x
-      new-y
-      (get-in @state [:map :tileset :tilewidth])))
-    (not
-     (map/is-blocking?
-      (get-in @state [:map :tilemap])
-      (get-in @state [:map :tileset])
-      new-x
-      new-y)))
-    (dosync (alter state update :keys conj key)
-            (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-            (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
-            (alter state update-in [:player :party 0] assoc
-                   :x-offset (- (get-in @state [:player :party 0 :x]) new-x)
-                   :y-offset (- (get-in @state [:player :party 0 :y]) new-y)
-                   :x new-x
-                   :y new-y
-                   :direction key))
-    (dosync
-     (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-     (alter state assoc-in [:player :party 0 :direction] key))))
+  (let [{:keys [mobs]
+         {[mob] :party} :player
+         {:keys [tileset tilemap]} :map} @state]
+    (if
+      (and
+        (not
+          (mob/blocked-by-mob?
+            mob
+            mobs
+            new-x
+            new-y
+            (:tilewidth tileset)))
+        (not
+          (map/is-blocking?
+            tilemap
+            tileset
+            new-x
+            new-y)))
+      (dosync (alter state update :keys conj key)
+              (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+              (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
+              (alter state update-in [:player :party 0] assoc
+                     :x-offset (- (:x mob) new-x)
+                     :y-offset (- (:y mob) new-y)
+                     :x new-x
+                     :y new-y
+                     :direction key))
+      (dosync
+        (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+        (alter state assoc-in [:player :party 0 :direction] key)))))
 
 (defn check-start-moving
   [state]
