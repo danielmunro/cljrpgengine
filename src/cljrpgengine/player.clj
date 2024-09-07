@@ -26,20 +26,20 @@
          {[mob] :party} :player
          {:keys [tileset tilemap]} :map} @state]
     (if
-      (and
-        (not
-          (mob/blocked-by-mob?
-            mob
-            mobs
-            new-x
-            new-y
-            (:tilewidth tileset)))
-        (not
-          (map/is-blocking?
-            tilemap
-            tileset
-            new-x
-            new-y)))
+     (and
+      (not
+       (mob/blocked-by-mob?
+        mob
+        mobs
+        new-x
+        new-y
+        (:tilewidth tileset)))
+      (not
+       (map/is-blocking?
+        tilemap
+        tileset
+        new-x
+        new-y)))
       (dosync (alter state update :keys conj key)
               (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
               (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
@@ -50,8 +50,8 @@
                      :y new-y
                      :direction key))
       (dosync
-        (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-        (alter state assoc-in [:player :party 0 :direction] key)))))
+       (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+       (alter state assoc-in [:player :party 0 :direction] key)))))
 
 (defn check-start-moving
   [state]
@@ -76,8 +76,7 @@
 
 (defn update-player-sprite!
   [state]
-  (let [mob (get-player-first-mob state)
-        sprite (:sprite mob)
+  (let [{{[{:keys [sprite x-offset y-offset]}] :party} :player} @state
         current-animation (:current-animation sprite)]
     (dosync
      (alter
@@ -86,8 +85,8 @@
       [:player :party 0 :sprite :animations current-animation :frame]
       (fn [frame] (sprite/get-sprite-frame sprite frame)))
      (if (and
-          (= 0 (:x-offset mob))
-          (= 0 (:y-offset mob)))
+          (= 0 x-offset)
+          (= 0 y-offset))
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets!
