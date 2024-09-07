@@ -92,18 +92,16 @@
 
 (defn update-move-offsets!
   [state]
-  (let [mob (get-player-first-mob state)
-        x-offset (:x-offset mob)
-        y-offset (:y-offset mob)]
-    (dosync
-     (if (> 0 x-offset)
-       (alter state update-in [:player :party 0 :x-offset] inc)
-       (if (< 0 x-offset)
-         (alter state update-in [:player :party 0 :x-offset] dec)
-         (if (> 0 y-offset)
-           (alter state update-in [:player :party 0 :y-offset] inc)
-           (if (< 0 y-offset)
-             (alter state update-in [:player :party 0 :y-offset] dec))))))))
+  (let [{{[{:keys [x-offset y-offset]}] :party} :player} @state]
+    (cond
+      (< x-offset 0)
+      (dosync (alter state update-in [:player :party 0 :x-offset] inc))
+      (< 0 x-offset)
+      (dosync (alter state update-in [:player :party 0 :x-offset] dec))
+      (< y-offset 0)
+      (dosync (alter state update-in [:player :party 0 :y-offset] inc))
+      (< 0 y-offset)
+      (dosync (alter state update-in [:player :party 0 :y-offset] dec)))))
 
 (defn- change-map!
   [state area-name room entrance-name]
@@ -118,14 +116,12 @@
 
 (defn check-exits
   [state]
-  (let [mob (get-player-first-mob state)
-        x-offset (:x-offset mob)
-        y-offset (:y-offset mob)]
+  (let [{:keys [map]
+         {[{:keys [x y x-offset y-offset]}] :party} :player} @state]
     (if (and (= 0 y-offset)
              (= 0 x-offset))
-      (let [exit (map/get-interaction-from-coords (:map @state) map/get-exits (:x mob) (:y mob))]
-        (if exit
-          (change-map! state (:scene exit) (:room exit) (:to exit)))))))
+      (if-let [exit (map/get-interaction-from-coords map map/get-exits x y)]
+        (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
 (defn- create-engagement!
   [state mob]

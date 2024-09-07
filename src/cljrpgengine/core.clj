@@ -45,29 +45,28 @@
 (defn draw
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
-  (let [scene-map (:map @state)
-        player-mob (player/get-player-first-mob state)
-        x (-> (:x player-mob)
-              (+ (:x-offset player-mob)))
-        y (-> (:y player-mob)
-              (+ (:y-offset player-mob)))
-        offset-x (-> (first constants/window)
-                     (/ 2)
-                     (- x))
-        offset-y (-> (second constants/window)
-                     (/ 2)
-                     (- y))
+  (let [{scene-map :map
+         :keys [engagement mobs]
+         {[player] :party} :player} @state
+        {:keys [x y x-offset y-offset]} player
+        x-plus-offset (+ x x-offset)
+        y-plus-offset (+ y y-offset)
+        x-window-offset (-> (first constants/window)
+                            (/ 2)
+                            (- x-plus-offset))
+        y-window-offset (-> (second constants/window)
+                            (/ 2)
+                            (- y-plus-offset))
         character-x (-> (first constants/character-dimensions)
                         (/ 2))
         character-y (-> (second constants/character-dimensions)
                         (/ 2))
-        adjusted-x (- offset-x character-x)
-        adjusted-y (- offset-y character-y)
-        engagement (:engagement @state)]
+        adjusted-x (- x-window-offset character-x)
+        adjusted-y (- y-window-offset character-y)]
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
-     (for [m (sort-by :y (conj (:mobs @state) player-mob))]
+     (for [m (sort-by :y (conj mobs player))]
        (mob/draw-mob m adjusted-x adjusted-y)))
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
