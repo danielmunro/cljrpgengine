@@ -52,27 +52,24 @@
 
 (defn check-start-moving
   [state]
-  (let [mob (get-player-first-mob state)
-        x (:x mob)
-        y (:y mob)
-        keys (:keys @state)
-        last-key (first keys)
-        tile-width (get-in @state [:map :tileset :tilewidth])
-        tile-height (get-in @state [:map :tileset :tileheight])]
+  (let [{:keys [keys engagement menus]
+         {[{:keys [x y x-offset y-offset]}] :party} :player
+         {{:keys [tilewidth tileheight]} :tileset} :map} @state
+        last-key (first keys)]
     (if (and
-         (= 0 (:x-offset mob))
-         (= 0 (:y-offset mob))
-         (not (:engagement @state))
-         (= 0 (count (:menus @state))))
-      (do
-        (if (= last-key :up)
-          (start-moving! state :up x (- y tile-height))
-          (if (= last-key :down)
-            (start-moving! state :down x (+ y tile-height))
-            (if (= last-key :left)
-              (start-moving! state :left (- x tile-width) y)
-              (if (= last-key :right)
-                (start-moving! state :right (+ x tile-width) y)))))))))
+         (= 0 x-offset)
+         (= 0 y-offset)
+         (not engagement)
+         (= 0 (count menus)))
+      (cond
+        (= last-key :up)
+        (start-moving! state :up x (- y tileheight))
+        (= last-key :down)
+        (start-moving! state :down x (+ y tileheight))
+        (= last-key :left)
+        (start-moving! state :left (- x tilewidth) y)
+        (= last-key :right)
+        (start-moving! state :right (+ x tilewidth) y)))))
 
 (defn update-player-sprite!
   [state]
