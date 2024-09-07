@@ -161,13 +161,12 @@
   (let [{:keys [engagement mobs map]
          {[{:keys [direction x y]}] :party} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)
-        mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
+        [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement
       (if (engagement-done? engagement)
         (clear-engagement! state engagement)
         (inc-engagement! state))
-      (if mob
+      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
         (create-engagement! state mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               map
