@@ -11,7 +11,7 @@
       (q/defsketch start-moving
         :draw (fn []
                 (let [state (state/create-new-state)
-                      mob (player/get-player-first-mob state)]
+                      {{[mob] :party} :player} @state]
                   (player/start-moving!
                    state
                    :left
@@ -27,7 +27,7 @@
       (q/defsketch reset-moving
         :draw (fn []
                 (let [state (state/create-new-state)
-                      mob (player/get-player-first-mob state)]
+                      {{[mob] :party} :player} @state]
                   (player/start-moving!
                    state
                    :right

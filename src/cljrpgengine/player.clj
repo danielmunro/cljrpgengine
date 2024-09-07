@@ -16,10 +16,6 @@
             x y
             (sprite/create-from-name :fireas direction))]})
 
-(defn get-player-first-mob
-  [state]
-  (get-in @state [:player :party 0]))
-
 (defn start-moving!
   [state key new-x new-y]
   (let [{:keys [mobs]
