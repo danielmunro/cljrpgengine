@@ -107,7 +107,7 @@
      (alter state update-in [:player :party 0] assoc
             :x (:x entrance)
             :y (:y entrance))
-     (alter state assoc-in [:mobs] #{}))))
+     (alter state assoc-in [:mobs] []))))
 
 (defn check-exits
   [state]
@@ -115,7 +115,7 @@
          {[{:keys [x y x-offset y-offset]}] :party} :player} @state]
     (if (and (= 0 y-offset)
              (= 0 x-offset))
-      (if-let [exit (map/get-interaction-from-coords map map/get-exits x y)]
+      (if-let [exit (map/get-interaction-from-coords map (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps]))) x y)]
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
 (defn- create-engagement!
@@ -171,7 +171,7 @@
         (create-engagement! state mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               map
-                              map/get-shops
+                              #(get-in % [:tilemap :shops])
                               x
                               y))]
           (ui/open-menu! state (shop-menu/create-menu state shop)))))))

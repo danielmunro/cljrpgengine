@@ -191,14 +191,6 @@
       (throw (AssertionError. (str "no warp found: " warp-name))))
     warp))
 
-(defn get-exits
-  [map]
-  (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
-
-(defn get-shops
-  [map]
-  (get-in map [:tilemap :shops]))
-
 (defn get-interaction-from-coords
   [map interaction x y]
   (let [cw (first constants/character-dimensions)
