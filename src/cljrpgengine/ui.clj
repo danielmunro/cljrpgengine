@@ -10,8 +10,8 @@
 
 (defn init!
   []
-  (swap! panel (fn [_] (q/load-image "panel.png")))
-  (swap! ui-pack (fn [_] (q/load-image "ui.png"))))
+  (swap! panel (fn [_] (q/load-image "sprites/panel.png")))
+  (swap! ui-pack (fn [_] (q/load-image "sprites/ui.png"))))
 
 (defn draw-line
   ([x y line-number text font-color]

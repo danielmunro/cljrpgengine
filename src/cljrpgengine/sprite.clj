@@ -15,7 +15,7 @@
   [name filename width height current-animation animations]
   {:name name
    :filename filename
-   :image (q/load-image filename)
+   :image (q/load-image (str "sprites/" filename))
    :width width
    :height height
    :current-animation current-animation
