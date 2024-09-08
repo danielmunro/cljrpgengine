@@ -181,13 +181,15 @@
 
 (defn- above-min-quantity?
   [state]
-  (let [[quantity-min quantity] ((juxt :quantity-min :quantity) @state)]
-    (< quantity-min quantity)))
+  (let [{:keys [quantity-min quantity]} @state]
+    (if (and quantity-min quantity)
+      (< quantity-min quantity))))
 
 (defn- below-max-quantity?
   [state]
-  (let [[quantity-max quantity] ((juxt :quantity-max :quantity) @state)]
-    (> quantity-max quantity)))
+  (let [{:keys [quantity-max quantity]} @state]
+    (if (and quantity-max quantity)
+      (< quantity quantity-max))))
 
 (defn- inc-quantity!
   [state]
