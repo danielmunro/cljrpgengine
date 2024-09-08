@@ -49,6 +49,7 @@
         (= 1 cursor)
         (do
           (complete-purchase! state item quantity (* (:worth (item/items item)) quantity))
+          (ui/close-menu! state)
           (ui/open-menu! state (purchase-complete-menu/create-menu state shop item quantity)))
         (= 2 cursor)
         (ui/close-menu! state)))))

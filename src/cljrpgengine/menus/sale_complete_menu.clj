@@ -15,7 +15,6 @@
   (cursor-length [_] 0)
   (menu-type [_] :sale-complete)
   (key-pressed [_]
-    (ui/close-menu! state)
     (ui/close-menu! state)))
 
 (defn create-menu

@@ -53,6 +53,7 @@
         (= 0 cursor)
         (do
           (complete-sale! state item-keyword quantity (* (:worth (item/items item-keyword)) quantity))
+          (ui/close-menu! state)
           (ui/open-menu! state (sale-complete-menu/create-menu state item quantity)))
         (= 1 cursor)
         (ui/close-menu! state)))))
