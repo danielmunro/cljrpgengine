@@ -16,7 +16,7 @@
 (defn draw-line
   ([x y line-number text font-color]
    (q/with-fill (font-color constants/colors)
-     (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
+     (q/text text (+ x constants/padding) (+ y constants/padding (* constants/line-spacing line-number)))))
   ([x y line-number text]
    (draw-line x y line-number text :font-default)))
 
@@ -235,3 +235,20 @@
   [state min max]
   (dosync
    (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
+
+(defn scrollable-area
+  [x y cursor max-lines-on-screen start-line lines]
+  (let [offset (max 0 (- cursor max-lines-on-screen))
+        line-count (count lines)]
+    (draw-cursor x y (- (inc cursor) offset))
+    (loop [i 0]
+      (if (< i line-count)
+        (let [line (get lines i)
+              line-number (+ start-line i)]
+          (if (< offset line-number)
+            (draw-line
+             x
+             y
+             (- line-number offset)
+             line))
+          (recur (inc i)))))))

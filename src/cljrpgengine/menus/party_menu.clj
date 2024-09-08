@@ -18,7 +18,7 @@
       (ui/draw-line x 0 3 "Quests")
       (ui/draw-line x 0 4 "Save")
       (ui/draw-line x 0 5 "Quit")))
-  (cursor-length [_] 5)
+  (cursor-length [_] 6)
   (menu-type [_] :party)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]

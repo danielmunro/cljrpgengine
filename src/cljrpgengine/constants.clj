@@ -8,6 +8,8 @@
 
 (def line-spacing 24)
 
+(def padding 30)
+
 (def window [640 400])
 
 (def draw-blocking false)
@@ -23,6 +25,7 @@
 (def dialog-text-width 62)
 
 (def item-name-width 30)
+
 (def cost-width 6)
 
 (def starting-money 100)
