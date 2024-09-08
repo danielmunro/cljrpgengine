@@ -164,8 +164,8 @@
 
 (defn- change-cursor!
   [state f]
-  (dosync (alter state update-in [:menus (last-menu-index state) :cursor] f))
   (let [m (last-menu-index state)]
+    (dosync (alter state update-in [:menus m :cursor] f))
     (if (= (.cursor-length (get-in @state [:menus m :menu])) (get-in @state [:menus m :cursor]))
       (dosync (alter state assoc-in [:menus m :cursor] 0))
       (if (< (get-in @state [:menus m :cursor]) 0)
