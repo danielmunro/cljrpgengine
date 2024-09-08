@@ -9,7 +9,7 @@
              :worth 5}
             :practice-sword
             {:name "a wooden practice sword"
-             :description "A worn wooden practice sword.  It looks like it's been used by many cadets."
+             :description "A worn wooden practice sword."
              :type :equipment
              :position :weapon
              :material :wood
@@ -17,7 +17,7 @@
              :attributes {:slash 1}}
             :cotton-tunic
             {:name "a cotton tunic"
-             :description "A worn cotton tunic."
+             :description "A warm cotton tunic."
              :type :equipment
              :position :torso
              :material :cotton
