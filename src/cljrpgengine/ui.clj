@@ -16,7 +16,7 @@
 (defn draw-line
   ([x y line-number text font-color]
    (q/with-fill (font-color constants/colors)
-     (q/text text (+ x 30) (+ y 30 (* constants/line-spacing line-number)))))
+     (q/text text (+ x constants/padding) (+ y constants/padding (* constants/line-spacing line-number)))))
   ([x y line-number text]
    (draw-line x y line-number text :font-default)))
 
