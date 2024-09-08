@@ -5,26 +5,53 @@
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.util :as util]))
+            [cljrpgengine.util :as util]
+            [quil.core :as q]))
 
 (defn create-new-player
   [x y direction]
   {:party [(mob/create-mob
-            :fireas
-            "Fireas"
-            direction
-            x y
-            (sprite/create-from-name :fireas direction))]})
+             :fireas
+             "Fireas"
+             :warrior 1
+             direction
+             x y
+             (sprite/create-from-name :fireas direction)
+             (q/load-image "portraits/fireas.png"))
+           (mob/create-mob
+             :fireas
+             "Dingus"
+             :mage 1
+             direction
+             x y
+             (sprite/create-from-name :fireas direction)
+             (q/load-image "portraits/fireas.png"))
+           (mob/create-mob
+             :fireas
+             "Prabble"
+             :rogue 1
+             direction
+             x y
+             (sprite/create-from-name :fireas direction)
+             (q/load-image "portraits/fireas.png"))
+           (mob/create-mob
+             :fireas
+             "Floodlegor"
+             :cleric 1
+             direction
+             x y
+             (sprite/create-from-name :fireas direction)
+             (q/load-image "portraits/fireas.png"))]})
 
 (defn start-moving!
   [state key new-x new-y]
-  (let [{:keys [mobs]
-         {[mob] :party} :player
+  (let [{:keys                     [mobs]
+         {[mob] :party}            :player
          {:keys [tileset tilemap]} :map} @state]
     (if
-     (and
-      (not
-       (mob/blocked-by-mob?
+      (and
+        (not
+          (mob/blocked-by-mob?
         mob
         mobs
         new-x

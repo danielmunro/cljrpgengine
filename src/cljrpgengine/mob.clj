@@ -15,17 +15,62 @@
         y (+ (:y mob) (:y-offset mob))]
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
+(defn hp-for-level
+  [class]
+  (cond
+    (= class :warrior)
+    (-> (* (rand-int 15))
+        (+ 10))
+    (= class :mage)
+    (-> (* (rand-int 7))
+        (+ 3))
+    (= class :rogue)
+    (-> (* (rand-int 12))
+        (+ 7))
+    (= class :cleric)
+    (-> (* (rand-int 9))
+        (+ 5))))
+
+(defn mana-for-level
+  [class]
+  (cond
+    (= class :warrior)
+    (-> (* (rand-int 3))
+        (+ 3))
+    (= class :mage)
+    (-> (* (rand-int 25))
+        (+ 10))
+    (= class :rogue)
+    (-> (* (rand-int 10))
+        (+ 6))
+    (= class :cleric)
+    (-> (* (rand-int 20))
+        (+ 9))))
+
 (defn create-mob
-  [identifier name direction x y sprite]
-  (println "creating mob" name)
-  {:identifier identifier
-   :name name
-   :direction direction
-   :x x
-   :y y
-   :x-offset 0
-   :y-offset 0
-   :sprite sprite})
+  ([identifier name class level direction x y sprite portrait]
+   (println "creating mob" name)
+   (let [hp (reduce + (repeatedly level #(hp-for-level class)))
+         mana (reduce + (repeatedly level #(mana-for-level class)))]
+     {:identifier identifier
+      :name name
+      :direction direction
+      :x x
+      :y y
+      :x-offset 0
+      :y-offset 0
+      :sprite sprite
+      :portrait portrait
+      :class class
+      :level level
+      :hp hp
+      :max-hp hp
+      :mana mana
+      :max-mana mana}))
+  ([identifier name class level direction x y sprite]
+   (create-mob identifier name class level direction x y sprite nil))
+  ([identifier name direction x y sprite]
+   (create-mob identifier name :none 0 direction x y sprite nil)))
 
 (defn update-room-mobs
   [state mobs]

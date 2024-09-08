@@ -29,3 +29,5 @@
 (def cost-width 6)
 
 (def starting-money 100)
+
+(def portrait-size [40 40])
