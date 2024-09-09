@@ -17,16 +17,14 @@
           portrait (sprite/create-graphics (first constants/portrait-size) (second constants/portrait-size))]
       (loop [i 0]
         (let [portrait-x 50
-              portrait-y (-> 10
+              portrait-y (-> (* 10 i)
                              (+ (* (second constants/portrait-size) i))
                              (+ (* constants/padding i)))
               mob (get mobs i)]
           (q/with-graphics portrait
                            (.clear portrait)
                            (q/image (:portrait mob) 0 0))
-          (q/image portrait constants/padding (-> constants/padding
-                                                  (+ (* (second constants/portrait-size) i))
-                                                  (+ (* constants/padding i))))
+          (q/image portrait constants/padding (+ 20 portrait-y))
           (ui/draw-line portrait-x portrait-y 0 (:name mob))
           (ui/draw-line portrait-x portrait-y 1 (format "%d/%d HP" (:hp mob) (:max-hp mob)))
           (ui/draw-line portrait-x portrait-y 2 (format "%d/%d Mana" (:mana mob) (:max-mana mob))))
