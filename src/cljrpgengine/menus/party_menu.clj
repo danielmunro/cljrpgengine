@@ -22,8 +22,8 @@
                              (+ (* constants/padding i)))
               mob (get mobs i)]
           (q/with-graphics portrait
-                           (.clear portrait)
-                           (q/image (:portrait mob) 0 0))
+            (.clear portrait)
+            (q/image (:portrait mob) 0 0))
           (q/image portrait constants/padding (+ 20 portrait-y))
           (ui/draw-line portrait-x portrait-y 0 (:name mob))
           (ui/draw-line portrait-x portrait-y 1 (format "%d/%d HP" (:hp mob) (:max-hp mob)))

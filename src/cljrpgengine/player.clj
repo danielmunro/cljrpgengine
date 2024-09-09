@@ -11,37 +11,37 @@
 (defn create-new-player
   [x y direction]
   {:party [(mob/create-mob
-             :fireas
-             "Fireas"
-             :warrior 1
-             direction
-             x y
-             (sprite/create-from-name :fireas direction)
-             (q/load-image "portraits/fireas.png"))
+            :fireas
+            "Fireas"
+            :warrior 1
+            direction
+            x y
+            (sprite/create-from-name :fireas direction)
+            (q/load-image "portraits/fireas.png"))
            (mob/create-mob
-             :fireas
-             "Dingus"
-             :mage 1
-             direction
-             x y
-             (sprite/create-from-name :fireas direction)
-             (q/load-image "portraits/fireas.png"))
+            :fireas
+            "Dingus"
+            :mage 1
+            direction
+            x y
+            (sprite/create-from-name :fireas direction)
+            (q/load-image "portraits/fireas.png"))
            (mob/create-mob
-             :fireas
-             "Prabble"
-             :rogue 1
-             direction
-             x y
-             (sprite/create-from-name :fireas direction)
-             (q/load-image "portraits/fireas.png"))
+            :fireas
+            "Prabble"
+            :rogue 1
+            direction
+            x y
+            (sprite/create-from-name :fireas direction)
+            (q/load-image "portraits/fireas.png"))
            (mob/create-mob
-             :fireas
-             "Floodlegor"
-             :cleric 1
-             direction
-             x y
-             (sprite/create-from-name :fireas direction)
-             (q/load-image "portraits/fireas.png"))]})
+            :fireas
+            "Floodlegor"
+            :cleric 1
+            direction
+            x y
+            (sprite/create-from-name :fireas direction)
+            (q/load-image "portraits/fireas.png"))]})
 
 (defn start-moving!
   [state key new-x new-y]
@@ -49,9 +49,9 @@
          {[mob] :party}            :player
          {:keys [tileset tilemap]} :map} @state]
     (if
-      (and
-        (not
-          (mob/blocked-by-mob?
+     (and
+      (not
+       (mob/blocked-by-mob?
         mob
         mobs
         new-x
