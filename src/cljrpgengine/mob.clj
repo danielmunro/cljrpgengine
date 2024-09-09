@@ -1,7 +1,8 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.sprite :as sprite]
-            [cljrpgengine.util :as util]))
+            [cljrpgengine.util :as util]
+            [cljrpgengine.class :as class]))
 
 (defn add-if-missing!
   [state mob]
@@ -15,43 +16,11 @@
         y (+ (:y mob) (:y-offset mob))]
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
-(defn hp-for-level
-  [class]
-  (cond
-    (= class :warrior)
-    (-> (* (rand-int 15))
-        (+ 10))
-    (= class :mage)
-    (-> (* (rand-int 7))
-        (+ 3))
-    (= class :rogue)
-    (-> (* (rand-int 12))
-        (+ 7))
-    (= class :cleric)
-    (-> (* (rand-int 9))
-        (+ 5))))
-
-(defn mana-for-level
-  [class]
-  (cond
-    (= class :warrior)
-    (-> (* (rand-int 3))
-        (+ 3))
-    (= class :mage)
-    (-> (* (rand-int 25))
-        (+ 10))
-    (= class :rogue)
-    (-> (* (rand-int 10))
-        (+ 6))
-    (= class :cleric)
-    (-> (* (rand-int 20))
-        (+ 9))))
-
 (defn create-mob
   ([identifier name class level direction x y sprite portrait]
    (println "creating mob" name)
-   (let [hp (reduce + (repeatedly level #(hp-for-level class)))
-         mana (reduce + (repeatedly level #(mana-for-level class)))]
+   (let [hp (reduce + (repeatedly level #(class/hp-for-level class)))
+         mana (reduce + (repeatedly level #(class/mana-for-level class)))]
      {:identifier identifier
       :name name
       :direction direction
