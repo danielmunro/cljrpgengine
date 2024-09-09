@@ -24,8 +24,17 @@
        max-lines-on-screen
        1
        (into []
-             (map #(str
-                    (ui/text-fixed-width (item/item-name (:key %)) constants/item-name-width) " " (:quantity %))) items))
+             (map
+              (fn [item]
+                (fn [line-number]
+                  (ui/draw-line 0 0 line-number
+                                (str
+                                 (ui/text-fixed-width
+                                  (item/item-name (:key item))
+                                  constants/item-name-width) " " (:quantity item))
+                                (if (= :consumable (:type (item/items (:key item))))
+                                  :font-default
+                                  :font-disabled))))) items))
       (ui/draw-window 0 (* 9 y) (first constants/window) y)
       (ui/draw-line 0 (* 9 y) 0 (:description (item/items (:key (items cursor)))))))
   (cursor-length [_] (count (:items @state)))

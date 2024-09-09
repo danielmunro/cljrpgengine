@@ -248,9 +248,5 @@
         (let [line (get lines i)
               line-number (+ start-line i)]
           (if (< offset line-number)
-            (draw-line
-             x
-             y
-             (- line-number offset)
-             line))
+            (line (- line-number offset)))
           (recur (inc i)))))))

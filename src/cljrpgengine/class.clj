@@ -16,7 +16,7 @@
     (-> (* (rand-int 5))
         (+ 8))
     (= class :none)
-       0))
+    0))
 
 (defn mana-for-level
   [class]
@@ -34,4 +34,4 @@
     (-> (* (rand-int 10))
         (+ 12))
     (= class :none)
-       0))
+    0))
