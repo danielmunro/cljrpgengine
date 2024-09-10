@@ -10,6 +10,7 @@
                     :keys      #{}
                     :mobs      []
                     :items     [{:key :light-health-potion :quantity 1}
+                                {:key :light-mana-potion :quantity 1}
                                 {:key :practice-sword :quantity 1}]
                     :events    []
                     :menus     []

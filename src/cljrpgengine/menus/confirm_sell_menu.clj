@@ -5,27 +5,10 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.sale-complete-menu :as sale-complete-menu]))
 
-(defn- remove-item!
-  [state item quantity]
-  (loop [i 0]
-    (if (= item (:key ((:items @state) i)))
-      (dosync
-       (alter state update-in [:items i :quantity] (fn [q] (- q quantity)))
-       (if (= 0 (get-in @state [:items i :quantity]))
-         (do
-           (alter state assoc-in [:items] (into [] (filter #(< 0 (:quantity %)) (:items @state))))
-           (let [menu-index (ui/get-menu-index state :sell)]
-             (if (and
-                  (= (get-in @state [:menus menu-index :cursor]) (count (:items @state)))
-                  (> (get-in @state [:menus menu-index :cursor]) 0))
-               (alter state update-in [:menus menu-index :cursor] dec))))))
-      (if (> (dec (count (:items @state))) i)
-        (recur (inc i))))))
-
 (defn- complete-sale!
   [state item-keyword quantity sale-price]
   (dosync (alter state update :money + sale-price))
-  (remove-item! state item-keyword quantity))
+  (item/remove-item! state item-keyword quantity :sell))
 
 (deftype ConfirmSellMenu [state item]
   menu/Menu

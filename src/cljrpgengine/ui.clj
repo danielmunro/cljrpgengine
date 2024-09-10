@@ -108,12 +108,14 @@
         text))))
 
 (defn draw-cursor
-  [x y line]
-  (let [g (sprite/create-graphics 16 16)]
-    (q/with-graphics g
-      (.clear g)
-      (q/image @ui-pack -342 -468))
-    (q/image g (+ x 10) (+ y 17 (* constants/line-spacing line)))))
+  ([x y]
+   (let [g (sprite/create-graphics 16 16)]
+     (q/with-graphics g
+                      (.clear g)
+                      (q/image @ui-pack -342 -468))
+     (q/image g x y)))
+  ([x y line]
+   (draw-cursor (+ x 10) (+ y 17 (* constants/line-spacing line)))))
 
 (defn get-menu-cursor
   [state menu]
@@ -151,7 +153,7 @@
     (loop [i 0]
       (if (= menu (.menu-type (:menu (menus i))))
         i
-        (if (< i (count menus))
+        (if (< i (dec (count menus)))
           (recur (inc i)))))))
 
 (defn last-menu-index
@@ -250,3 +252,40 @@
           (if (< offset line-number)
             (line (- line-number offset)))
           (recur (inc i)))))))
+
+(defn draw-portraits
+  ([state item selected-mob]
+  (let [graphics (sprite/create-graphics (first constants/portrait-size) (second constants/portrait-size))]
+    (loop [i 0]
+      (let [portrait-x 50
+            portrait-y (-> (* 10 i)
+                           (+ (* (second constants/portrait-size) i))
+                           (+ (* constants/padding i)))
+            {:keys [affect amount]} item
+            {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name]} i} :party} :player} @state
+            amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
+            amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
+        (q/with-graphics graphics
+                         (.clear graphics)
+                         (q/image portrait 0 0))
+        (q/image graphics constants/padding (+ 20 portrait-y))
+        (draw-line portrait-x portrait-y 0 name)
+        (draw-line portrait-x
+                   portrait-y
+                   1
+                   (str (format "%d/%d HP" hp max-hp)
+                        (if (and (= i selected-mob)
+                                 (= :restore-hp affect))
+                          (format " +%d" amount-hp))))
+        (draw-line
+          portrait-x
+          portrait-y
+          2
+          (str (format "%d/%d Mana" mana max-mana)
+               (if (and (= i selected-mob)
+                        (= :restore-mana affect))
+                 (format " +%d" amount-mana))))
+      (if (< i (dec (count party)))
+        (recur (inc i)))))))
+  ([state]
+   (draw-portraits state nil -1)))

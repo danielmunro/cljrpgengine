@@ -26,3 +26,7 @@
     :down
     (= :down direction)
     :up))
+
+(defn restore-amount
+  [modifier amount max-amount]
+  (min modifier (- max-amount amount)))
