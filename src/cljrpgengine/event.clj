@@ -1,55 +1,56 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.util :as util])
-  (:require [cljrpgengine.item :as item]
-            [clojure.set :refer [union difference]]))
+  (:require [cljrpgengine.item :as item]))
 
-(defn speak-to-condition
+(defn speaking-to
   [mob]
   {:type :speak-to
    :mob mob})
 
-(defn granted-condition
+(defn granted
   [grant]
   {:type :has-grant
    :grant grant})
 
-(defn not-granted-condition
-  [grant]
-  {:type :not-has-grant
-   :grant grant})
+;(defn not-granted-condition
+;  [grant]
+;  {:type :not-has-grant
+;   :grant grant})
 
-(defn has-item-condition
+(defn has-item
   [item]
   {:type :has-item
    :item item})
 
-(defn not-has-item-condition
+(defn not-has-item
   [item]
   {:type :not-has-item
    :item item})
 
-(defn grant-outcome
+(defn grant
   [grant]
   {:type :grant
    :grant grant})
 
-(defn give-item-outcome
+(defn lose-item
   [item]
-  {:type  :give-item
+  {:type :lose-item
    :item item})
 
-(defn receive-item-outcome
+(defn gain-item
   [item]
-  {:type :receive-item
+  {:type :gain-item
    :item item})
 
 (defn create-dialog-event!
-  [state conditions mob dialog outcomes]
-  (dosync (alter state update-in [:events] conj {:type :dialog
-                                                 :conditions (conj conditions (speak-to-condition mob))
-                                                 :mob mob
-                                                 :dialog dialog
-                                                 :outcomes outcomes})))
+  ([state conditions mob dialog outcomes]
+   (dosync (alter state update-in [:events] conj {:type :dialog
+                                                  :conditions (conj conditions (speaking-to mob))
+                                                  :mob mob
+                                                  :dialog dialog
+                                                  :outcomes outcomes})))
+  ([state conditions mob dialog]
+   (create-dialog-event! state conditions mob dialog [])))
 
 (defn conditions-met
   [state conditions target-mob]
@@ -73,9 +74,9 @@
      (cond
        (= :grant (:type outcome))
        (dosync (alter state update-in [:grants] conj (:grant outcome)))
-       (= :give-item (:type outcome))
+       (= :lose-item (:type outcome))
        (item/remove-item! state (:item outcome))
-       (= :receive-item (:type outcome))
+       (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))))))
 
 (defn get-dialog-event!
