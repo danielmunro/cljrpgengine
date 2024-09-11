@@ -31,7 +31,7 @@
                   (ui/draw-line 0 0 line-number
                                 (str
                                  (ui/text-fixed-width
-                                   (:name (get item/items (:key item)))
+                                  (:name (get item/items (:key item)))
                                   constants/item-name-width) " " (:quantity item))
                                 (if (= :consumable (:type (item/items (:key item))))
                                   :font-default
@@ -47,8 +47,7 @@
           item-selected (get items cursor)
           item (item/items (:key item-selected))]
       (when (= :consumable (:type item))
-        (ui/open-menu! state (consume-item-menu/create state item-selected)))
-      )))
+        (ui/open-menu! state (consume-item-menu/create state item-selected))))))
 
 (defn create-menu
   [state]

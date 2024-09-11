@@ -13,8 +13,8 @@
           item-ref (item/items (:key item))]
       (ui/draw-portraits state item-ref cursor)
       (ui/draw-cursor
-        10 (-> (* 80 cursor)
-               (+ 20)))))
+       10 (-> (* 80 cursor)
+              (+ 20)))))
   (cursor-length [_] (count (get-in @state [:player :party])))
   (menu-type [_] :consume)
   (key-pressed [menu]

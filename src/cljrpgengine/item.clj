@@ -32,26 +32,48 @@
              :worth 12
              :attributes {:pierce 1
                           :slash 1
-                          :bash 1}}})
+                          :bash 1}}
+            :blemished-amulet
+            {:name "a blemished amulet"
+             :description "An amulet which has seen better days."
+             :type :other}
+            :brilliant-amulet
+            {:name "a brilliant amulet"
+             :description "A flawless, glistening amulet."
+             :type :other}})
 
 (defn item-quantity-map
   [items]
   (apply merge (map #(hash-map (:key %) (:quantity %)) items)))
 
 (defn remove-item!
-  [state item quantity menu]
-  (let [{:keys [items]} @state]
-    (loop [i 0]
-      (if (= item (:key (get items i)))
-        (dosync
+  ([state item-key quantity menu]
+   (let [menu-index (ui/get-menu-index state menu)
+         {:keys [items]
+          {{:keys [cursor]} menu-index} :menus} @state]
+     (loop [i 0]
+       (if (= item-key (:key (get items i)))
+         (dosync
           (alter state update-in [:items i :quantity] (fn [q] (- q quantity)))
           (if (= 0 (get-in @state [:items i :quantity]))
             (do
               (alter state assoc-in [:items] (into [] (filter #(< 0 (:quantity %))) (:items @state)))
-              (let [menu-index (ui/get-menu-index state menu)]
-                (if (and
-                      (= (get-in @state [:menus menu-index :cursor]) (count (:items @state)))
-                      (> (get-in @state [:menus menu-index :cursor]) 0))
-                  (alter state update-in [:menus menu-index :cursor] dec))))))
-        (if (> (dec (count items)) i)
-          (recur (inc i)))))))
+              (if (and
+                   menu
+                   (= cursor (count (:items @state)))
+                   (> cursor 0))
+                (alter state update-in [:menus menu-index :cursor] dec)))))
+         (if (> (dec (count items)) i)
+           (recur (inc i)))))))
+  ([state item-key]
+   (remove-item! state item-key 1 nil)))
+
+(defn add-item!
+  [state item-key]
+  (let [items (:items @state)]
+    (loop [i 0]
+      (if (< i (count items))
+        (if (= (:key (get items i)) item-key)
+          (dosync (alter state update-in [:items i :quantity] inc))
+          (recur (inc i)))
+        (dosync (alter state update :items conj {:key item-key :quantity 1}))))))
