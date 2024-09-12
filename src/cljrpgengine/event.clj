@@ -12,10 +12,10 @@
   {:type :has-grant
    :grant grant})
 
-;(defn not-granted-condition
-;  [grant]
-;  {:type :not-has-grant
-;   :grant grant})
+(defn not-granted
+  [grant]
+  {:type :not-has-grant
+   :grant grant})
 
 (defn has-item
   [item]
