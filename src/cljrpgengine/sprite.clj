@@ -57,8 +57,8 @@
     (create
      name
      "fireas.png"
-     (constants/character-dimensions 0)
-     (constants/character-dimensions 1)
+     (first constants/character-dimensions)
+     (second constants/character-dimensions)
      direction
      {:down  {:frames   4
               :delay    8
