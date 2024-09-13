@@ -1,19 +1,12 @@
 (ns cljrpgengine.event-test
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.item :as item]
-            [cljrpgengine.mob :as mob]
             [cljrpgengine.state :as state]
-            [cljrpgengine.util :as util]
             [clojure.test :refer :all]))
-
-(defn test-mob
-  []
-  (mob/create-mob :test-mob "test-mob" :down 0 0 nil))
 
 (deftest event
   (testing "can give a grant"
-    (let [state (ref state/initial-state)
-          mob (test-mob)]
+    (let [state (ref state/initial-state)]
       (event/create-dialog-event!
         state
         [(event/not-granted :test-outcome)]
@@ -21,7 +14,7 @@
         ["this is a test"]
         [(event/grant :test-outcome)])
       (let [event (first (:events @state))]
-        (is (false? (event/conditions-met state (:conditions event) mob)))
+        (is (event/conditions-met state (:conditions event) :test-mob))
         (event/apply-outcomes! state (:outcomes event))
         (is (contains? (:grants @state) :test-outcome)))))
   (testing "has grant"
@@ -36,8 +29,7 @@
         (dosync (alter state update :grants conj :test-outcome))
         (is (event/conditions-met state (:conditions event) :test-mob)))))
   (testing "can give an item"
-    (let [state (ref state/initial-state)
-          mob (test-mob)]
+    (let [state (ref state/initial-state)]
       (event/create-dialog-event!
         state
         [(event/not-has-item :blemished-amulet)]
@@ -45,12 +37,11 @@
         ["this is a test"]
         [(event/gain-item :blemished-amulet)])
       (let [event (first (:events @state))]
-        (is (false? (event/conditions-met state (:conditions event) mob)))
+        (is (event/conditions-met state (:conditions event) :test-mob))
         (event/apply-outcomes! state (:outcomes event))
         (is (= :blemished-amulet (:key (last (:items @state))))))))
   (testing "has item"
-    (let [state (ref state/initial-state)
-          mob (test-mob)]
+    (let [state (ref state/initial-state)]
       (event/create-dialog-event!
         state
         [(event/has-item :blemished-amulet)]
