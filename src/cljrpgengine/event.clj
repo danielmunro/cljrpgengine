@@ -1,6 +1,7 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.util :as util])
-  (:require [cljrpgengine.item :as item]))
+  (:require [cljrpgengine.item :as item]
+            [cljrpgengine.mob :as mob]))
 
 (defn speaking-to
   [mob]
@@ -42,6 +43,12 @@
   {:type :gain-item
    :item item})
 
+(defn move-mob
+  [mob coords]
+  {:type :move-mob
+   :mob mob
+   :coords coords})
+
 (defn create-dialog-event!
   ([state conditions mob dialog outcomes]
    (dosync (alter state update-in [:events] conj {:type :dialog
@@ -77,7 +84,11 @@
        (= :lose-item (:type outcome))
        (item/remove-item! state (:item outcome))
        (= :gain-item (:type outcome))
-       (item/add-item! state (:item outcome))))))
+       (item/add-item! state (:item outcome))
+       (= :move-mob (:type outcome))
+       (do
+         (println "move mob")
+         (println (mob/find-mob state (:mob outcome))))))))
 
 (defn get-dialog-event!
   [state target-mob]

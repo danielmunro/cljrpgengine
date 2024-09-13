@@ -8,11 +8,11 @@
   (testing "can give a grant"
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
-        state
-        [(event/not-granted :test-outcome)]
-        :test-mob
-        ["this is a test"]
-        [(event/grant :test-outcome)])
+       state
+       [(event/not-granted :test-outcome)]
+       :test-mob
+       ["this is a test"]
+       [(event/grant :test-outcome)])
       (let [event (first (:events @state))]
         (is (event/conditions-met state (:conditions event) :test-mob))
         (event/apply-outcomes! state (:outcomes event))
@@ -20,10 +20,10 @@
   (testing "has grant"
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
-        state
-        [(event/granted :test-outcome)]
-        :test-mob
-        ["this is a test"])
+       state
+       [(event/granted :test-outcome)]
+       :test-mob
+       ["this is a test"])
       (let [event (first (:events @state))]
         (is (false? (contains? (:grants @state) :test-outcome)))
         (dosync (alter state update :grants conj :test-outcome))
@@ -31,11 +31,11 @@
   (testing "can give an item"
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
-        state
-        [(event/not-has-item :blemished-amulet)]
-        :test-mob
-        ["this is a test"]
-        [(event/gain-item :blemished-amulet)])
+       state
+       [(event/not-has-item :blemished-amulet)]
+       :test-mob
+       ["this is a test"]
+       [(event/gain-item :blemished-amulet)])
       (let [event (first (:events @state))]
         (is (event/conditions-met state (:conditions event) :test-mob))
         (event/apply-outcomes! state (:outcomes event))
@@ -43,10 +43,10 @@
   (testing "has item"
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
-        state
-        [(event/has-item :blemished-amulet)]
-        :test-mob
-        ["this is a test"])
+       state
+       [(event/has-item :blemished-amulet)]
+       :test-mob
+       ["this is a test"])
       (let [event (first (:events @state))]
         (is (false? (event/conditions-met state (:conditions event) :test-mob)))
         (item/add-item! state :blemished-amulet)
@@ -55,11 +55,11 @@
     (let [state (ref state/initial-state)]
       (item/add-item! state :blemished-amulet)
       (event/create-dialog-event!
-        state
-        [(event/has-item :blemished-amulet)]
-        :test-mob
-        ["this is a test"]
-        [(event/lose-item :blemished-amulet)])
+       state
+       [(event/has-item :blemished-amulet)]
+       :test-mob
+       ["this is a test"]
+       [(event/lose-item :blemished-amulet)])
       (let [event (first (:events @state))]
         (event/apply-outcomes! state (:outcomes event))
         (is (false? (contains? (mapv #(:key %) (:items @state)) :blemished-amulet))))))
@@ -67,9 +67,9 @@
     (let [state (ref state/initial-state)]
       (is (false? (event/get-dialog-event! state :test-event)))
       (event/create-dialog-event!
-        state
-        []
-        :test-mob
-        ["this is a test"]
-        [])
+       state
+       []
+       :test-mob
+       ["this is a test"]
+       [])
       (is (event/get-dialog-event! state :test-mob)))))

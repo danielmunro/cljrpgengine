@@ -67,3 +67,7 @@
          (+ (% :x) tile-size)
          (+ (% :y) tile-size)))
       mobs-to-search))))
+
+(defn find-mob
+  [state mob]
+  (util/filter-first #(= (:identifier %) mob) (:mobs @state)))
