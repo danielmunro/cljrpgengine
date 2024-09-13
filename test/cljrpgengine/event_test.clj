@@ -62,4 +62,14 @@
         [(event/lose-item :blemished-amulet)])
       (let [event (first (:events @state))]
         (event/apply-outcomes! state (:outcomes event))
-        (is (false? (contains? (mapv #(:key %) (:items @state)) :blemished-amulet)))))))
+        (is (false? (contains? (mapv #(:key %) (:items @state)) :blemished-amulet))))))
+  (testing "can get an event"
+    (let [state (ref state/initial-state)]
+      (is (false? (event/get-dialog-event! state :test-event)))
+      (event/create-dialog-event!
+        state
+        []
+        :test-mob
+        ["this is a test"]
+        [])
+      (is (event/get-dialog-event! state :test-mob)))))
