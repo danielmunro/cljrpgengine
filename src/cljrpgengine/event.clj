@@ -86,9 +86,7 @@
        (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))
        (= :move-mob (:type outcome))
-       (do
-         (println "move mob")
-         (println (mob/find-mob state (:mob outcome))))))))
+       (mob/set-destination state (:mob outcome) (:coords outcome))))))
 
 (defn get-dialog-event!
   [state target-mob]

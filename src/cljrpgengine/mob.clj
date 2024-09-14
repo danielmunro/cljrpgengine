@@ -71,3 +71,12 @@
 (defn find-mob
   [state mob]
   (util/filter-first #(= (:identifier %) mob) (:mobs @state)))
+
+(defn set-destination
+  [state mob coords]
+  (let [mobs (:mobs @state)]
+    (loop [i 0]
+      (if (< i (count mobs))
+        (if (= mob (:identifier (get mobs i)))
+          (dosync (alter state assoc-in [:mobs i :destination] coords))
+          (recur (inc i)))))))

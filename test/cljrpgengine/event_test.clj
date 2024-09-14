@@ -1,6 +1,7 @@
 (ns cljrpgengine.event-test
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.item :as item]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.state :as state]
             [clojure.test :refer :all]))
 
@@ -63,6 +64,18 @@
       (let [event (first (:events @state))]
         (event/apply-outcomes! state (:outcomes event))
         (is (false? (contains? (:items @state) :blemished-amulet))))))
+  (testing "can set a destination"
+    (let [state (ref state/initial-state)]
+      (mob/add-if-missing! state (mob/create-mob :test-mob "test-mob" :down 0 0 nil))
+      (event/create-dialog-event!
+       state
+       []
+       :test-mob
+       ["this is a test"]
+       [(event/move-mob :test-mob [1 1])])
+      (let [event (first (:events @state))]
+        (event/apply-outcomes! state (:outcomes event))
+        (is (= [1 1] (get-in @state [:mobs 0 :destination]))))))
   (testing "can get an event"
     (let [state (ref state/initial-state)]
       (is (= nil (event/get-dialog-event! state :test-event)))
