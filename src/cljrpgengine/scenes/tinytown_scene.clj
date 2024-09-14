@@ -6,23 +6,21 @@
 
 (def mobs (atom {}))
 
-(defn initialize-scene
+(defn sordna-events
   [state]
-  (swap! mobs
-         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))]
-                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
-                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))
-                             (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create-from-name :fireas :down))]}))
   (event/create-dialog-event! state
                               []
                               :sordna
                               ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                                "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
-                              [(event/move-mob :sordna [352 176])])
+                              [(event/move-mob :sordna [352 176])]))
+
+(defn andros-events
+  [state]
   (event/create-dialog-event! state
                               [(event/has-item :blemished-amulet)]
                               :andros
-                              ["Oh, that amulet has true potential.  Let me clean it up for you."]
+                              ["Oh, that amulet has true potential. Let me clean it up for you."]
                               [(event/lose-item :blemished-amulet)
                                (event/grant :lose-blemished-amulet)])
   (event/create-dialog-event! state
@@ -38,12 +36,15 @@
   (event/create-dialog-event! state
                               []
                               :andros
-                              ["Hello traveller.  Please, take a seat.  I must tell you a story."]
-                              [(event/grant :intro-andros)])
+                              ["Hello traveller. Please, take a seat. I must tell you a story."]
+                              [(event/grant :intro-andros)]))
+
+(defn agnos-events
+  [state]
   (event/create-dialog-event! state
                               [(event/has-item :brilliant-amulet)]
                               :agnos
-                              ["Oh wow!  The amulet look amazing!"])
+                              ["Oh wow! The amulet look amazing!"])
   (event/create-dialog-event! state
                               [(event/has-item :blemished-amulet)]
                               :agnos
@@ -53,6 +54,17 @@
                               :agnos
                               ["Please, take this amulet."]
                               [(event/gain-item :blemished-amulet)]))
+
+(defn initialize-scene
+  [state]
+  (swap! mobs
+         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))]
+                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
+                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))
+                             (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create-from-name :fireas :down))]}))
+  (sordna-events state)
+  (andros-events state)
+  (agnos-events state))
 
 (defn update-scene
   [state]
