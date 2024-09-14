@@ -78,3 +78,7 @@
           (dosync (alter state update-in [:items i :quantity] inc))
           (recur (inc i)))
         (dosync (alter state update :items conj (create-inventory-item item-key)))))))
+
+(defn get-item-at-inventory-index
+  [items index]
+  (nth (keys items) index))
