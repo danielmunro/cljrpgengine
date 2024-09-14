@@ -9,11 +9,12 @@
           item-count (count (:items @state))]
       (item/add-item! state :cotton-tunic)
       (is (= (inc item-count) (count (:items @state))))
-      (is (= :cotton-tunic (get-in @state [:items item-count :key])))
-      (is (= 1 (get-in @state [:items 0 :quantity])))))
+      (is (contains? (:items @state) :cotton-tunic))
+      (is (= 1 (get-in @state [:items :cotton-tunic])))))
   (testing "can remove item"
     (let [state (ref state/initial-state)
           item-count (count (:items @state))]
-      (item/add-item! state :light-health-potion)
-      (item/remove-item! state :light-health-potion)
+      (item/add-item! state :blemished-amulet)
+      (is (= (inc item-count) (count (:items @state))))
+      (item/remove-item! state :blemished-amulet)
       (is (= item-count (count (:items @state)))))))

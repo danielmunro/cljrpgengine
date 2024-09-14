@@ -5,24 +5,13 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.purchase-complete-menu :as purchase-complete-menu]))
 
-(defn add-item!
-  [state item quantity]
-  (let [added (atom false)]
-    (loop [i 0]
-      (if (> (count (:items @state)) i)
-        (if (= item (:key ((:items @state) i)))
-          (do
-            (dosync (alter state update-in [:items i :quantity] (fn [q] (+ quantity q))))
-            (swap! added (constantly true)))
-          (recur (inc i)))))
-    (if (not @added)
-      (dosync (alter state update :items conj {:key item :quantity quantity})))))
-
 (defn- complete-purchase!
-  [state item-keyword quantity purchase-price]
+  [state item quantity purchase-price]
   (dosync
    (alter state update :money - purchase-price))
-  (add-item! state item-keyword quantity))
+  (if (contains? (:items @state) item)
+    (dosync (alter state update-in [:items item] #(+ % quantity)))
+    (dosync (alter state update-in [:items] assoc item quantity))))
 
 (deftype ConfirmBuyMenu [state shop item]
   menu/Menu

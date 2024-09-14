@@ -12,8 +12,7 @@
           y (/ (second constants/window) 10)
           w (* x 8)
           h (* y 8)
-          cursor (ui/get-menu-cursor state (.menu-type menu))
-          item-map (item/item-quantity-map (:items @state))]
+          cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window x y w h)
       (ui/draw-line
        x
@@ -27,7 +26,7 @@
         (loop [i 0]
           (if (< i (count items))
             (do
-              (let [item (item/items (:key (items i)))]
+              (let [item (get item/items (nth (keys items) i))]
                 (ui/draw-line
                  x
                  y
@@ -35,14 +34,14 @@
                  (str
                   (ui/text-fixed-width (:name item) constants/item-name-width)
                   (ui/text-fixed-width (int (Math/floor (/ (:worth item) 2))) constants/cost-width)
-                  ((:key (items i)) item-map))))
+                  (get items (nth (keys items) i)))))
               (recur (inc i))))))
       (ui/draw-cursor x y (+ cursor 2))))
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :sell)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
-      (ui/open-menu! state (confirm-sell-menu/create-menu state ((:items @state) cursor))))))
+      (ui/open-menu! state (confirm-sell-menu/create-menu state (nth (keys (:items @state)) cursor))))))
 
 (defn create-menu
   [state]

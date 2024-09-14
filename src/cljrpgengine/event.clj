@@ -69,9 +69,9 @@
              (= (:type %) :not-has-grant)
              (not (contains? (:grants @state) (:grant %)))
              (= (:type %) :has-item)
-             (util/filter-first (fn [item] (= (:key item) (:item %))) (:items @state))
+             (contains? (:items @state) (:item %))
              (= (:type %) :not-has-item)
-             (not (seq (filter (fn [item] (= (:key item) (:item %))) (:items @state)))))
+             (not (contains? (:items @state) (:item %))))
           conditions))
 
 (defn apply-outcomes!

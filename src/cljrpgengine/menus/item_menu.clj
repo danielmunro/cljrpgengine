@@ -26,26 +26,27 @@
        1
        (into []
              (map
-              (fn [item]
+              (fn [key]
                 (fn [line-number]
-                  (ui/draw-line 0 0 line-number
-                                (str
-                                 (ui/text-fixed-width
-                                  (:name (get item/items (:key item)))
-                                  constants/item-name-width) " " (:quantity item))
-                                (if (= :consumable (:type (item/items (:key item))))
-                                  :font-default
-                                  :font-disabled))))) items))
+                  (let [item-ref (get item/items key)]
+                    (ui/draw-line 0 0 line-number
+                                  (str
+                                   (ui/text-fixed-width
+                                    (:name item-ref)
+                                    constants/item-name-width) " " (get items key))
+                                  (if (= :consumable (:type item-ref))
+                                    :font-default
+                                    :font-disabled))))) (keys items))))
       (ui/draw-window 0 (* 9 y) (first constants/window) y)
-      (if-let [item-ref (get items cursor)]
-        (ui/draw-line 0 (* 9 y) 0 (:description (item/items (:key item-ref)))))))
+      (if-let [item (get item/items (nth (keys items) cursor))]
+        (ui/draw-line 0 (* 9 y) 0 (:description item)))))
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :items)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu_type menu))
           items (:items @state)
-          item-selected (get items cursor)
-          item (item/items (:key item-selected))]
+          item-selected (nth (keys items) cursor)
+          item (item/items item-selected)]
       (when (= :consumable (:type item))
         (ui/open-menu! state (consume-item-menu/create state item-selected))))))
 

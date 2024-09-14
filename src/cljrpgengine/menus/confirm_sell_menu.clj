@@ -20,8 +20,8 @@
           cursor (ui/get-menu-cursor state (.menu-type menu))
           quantity (:quantity @state)]
       (ui/draw-window x y w h)
-      (ui/draw-line x y 0 (str "Selling " (:name (item/items (:key item)))))
-      (ui/draw-line x y 1 (str "Price " (* quantity (:worth (item/items (:key item))))))
+      (ui/draw-line x y 0 (str "Selling " (:name (item/items item))))
+      (ui/draw-line x y 1 (str "Price " (* quantity (:worth (item/items item)))))
       (ui/draw-line x y 3 (str "Quantity " quantity))
       (ui/draw-line x y 4 "Yes")
       (ui/draw-line x y 5 "No")
@@ -30,12 +30,11 @@
   (menu-type [_] :confirm-sell)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
-          quantity (:quantity @state)
-          item-keyword (:key item)]
+          quantity (:quantity @state)]
       (cond
         (= 0 cursor)
         (do
-          (complete-sale! state item-keyword quantity (* (:worth (item/items item-keyword)) quantity))
+          (complete-sale! state item quantity (* (:worth (item/items item)) quantity))
           (ui/close-menu! state)
           (ui/open-menu! state (sale-complete-menu/create-menu state item quantity)))
         (= 1 cursor)
