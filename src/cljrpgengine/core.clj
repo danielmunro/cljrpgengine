@@ -40,6 +40,7 @@
   (player/update-move-offsets! state)
   (player/check-exits state)
   (player/check-start-moving state)
+  (mob/update-mobs state)
   state)
 
 (defn draw

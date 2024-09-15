@@ -76,3 +76,11 @@
         (if (= mob (:identifier (get mobs i)))
           (dosync (alter state assoc-in [:mobs i :destination] coords))
           (recur (inc i)))))))
+
+(defn update-mobs
+  [state]
+  (dorun
+    (for [mob (:mobs @state)]
+      (when-let [destination (:destination mob)]
+        (println (:identifier mob))
+        (println destination)))))
