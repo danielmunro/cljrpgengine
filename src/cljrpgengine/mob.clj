@@ -43,14 +43,15 @@
 
 (defn update-room-mobs
   [state mobs]
-  (let [room (get-in @state [:map :room])]
-    (if (contains? mobs room)
-      (dorun (map #(add-if-missing! state %) (mobs room))))))
+  (let [room (get-in @state [:map :room])
+        room-mobs (get mobs room)]
+    (if room-mobs
+      (dosync (alter state assoc :mobs room-mobs)))))
 
 (defn blocked-by-mob?
   [mob mobs new-x new-y tile-size]
   (let [height (constants/character-dimensions 1)
-        mobs-to-search (filter #(not= (:name mob) (:name %)) mobs)]
+        mobs-to-search (filter #(not= (:name mob) (:name %)) (vals mobs))]
     (some
      #(not= false %)
      (map
@@ -80,7 +81,7 @@
 (defn update-mobs
   [state]
   (dorun
-    (for [mob (:mobs @state)]
-      (when-let [destination (:destination mob)]
-        (println (:identifier mob))
-        (println destination)))))
+   (for [mob (:mobs @state)]
+     (when-let [destination (:destination mob)]
+       (println (:identifier mob))
+       (println destination)))))

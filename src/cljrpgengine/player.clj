@@ -153,7 +153,7 @@
                               :mob (:identifier mob)
                               :mob-direction (get-in mob [:sprite :current-animation])})
           (alter state assoc-in
-                 [:mobs (.indexOf (:mobs @state) mob) :sprite :current-animation]
+                 [:mobs (:identifier mob) :sprite :current-animation]
                  (util/opposite-direction (get-in @state [:player :party 0 :direction])))))
 
 (defn- engagement-done?
@@ -193,7 +193,7 @@
       (if (engagement-done? engagement)
         (clear-engagement! state engagement)
         (inc-engagement! state))
-      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
+      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals mobs))]
         (create-engagement! state mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               map

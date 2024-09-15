@@ -67,8 +67,9 @@
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
-     (for [m (sort-by :y (conj mobs player))]
+     (for [m (sort-by :y (vals mobs))]
        (mob/draw-mob m adjusted-x adjusted-y)))
+    (mob/draw-mob player adjusted-x adjusted-y)
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
       (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
