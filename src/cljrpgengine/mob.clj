@@ -68,10 +68,6 @@
          (+ (% :y) tile-size)))
       mobs-to-search))))
 
-(defn find-mob
-  [state mob]
-  (util/filter-first #(= (:identifier %) mob) (:mobs @state)))
-
 (defn set-destination
   [state mob coords]
   (let [mobs (:mobs @state)]
