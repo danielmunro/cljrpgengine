@@ -43,10 +43,15 @@
 
 (defn update-room-mobs
   [state mobs]
-  (let [room (get-in @state [:map :room])
+  (let [room-loaded (:room-loaded @state)
+        room (get-in @state [:map :room])
         room-mobs (get mobs room)]
-    (if room-mobs
-      (dosync (alter state assoc :mobs room-mobs)))))
+    (if (and
+          (not= room room-loaded)
+          room-mobs)
+      (dosync (alter state assoc
+                     :mobs room-mobs
+                     :room-loaded room)))))
 
 (defn blocked-by-mob?
   [mob mobs new-x new-y tile-size]

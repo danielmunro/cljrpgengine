@@ -166,9 +166,9 @@
 
 (defn- clear-engagement!
   [state engagement]
-  (let [index (util/get-index-of #(= (:mob engagement) (:identifier (% 1))) (:mobs @state))]
-    (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
-    (dosync (alter state dissoc :engagement))))
+  (dosync
+    (alter state assoc-in [:mobs (:mob engagement) :sprite :current-animation] (:mob-direction engagement))
+    (alter state dissoc :engagement)))
 
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]
