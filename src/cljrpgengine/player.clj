@@ -167,8 +167,8 @@
 (defn- clear-engagement!
   [state engagement]
   (dosync
-    (alter state assoc-in [:mobs (:mob engagement) :sprite :current-animation] (:mob-direction engagement))
-    (alter state dissoc :engagement)))
+   (alter state assoc-in [:mobs (:mob engagement) :sprite :current-animation] (:mob-direction engagement))
+   (alter state dissoc :engagement)))
 
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]

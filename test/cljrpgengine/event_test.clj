@@ -66,7 +66,7 @@
         (is (false? (contains? (:items @state) :blemished-amulet))))))
   (testing "can set a destination"
     (let [state (ref state/initial-state)]
-      (mob/add-if-missing! state (mob/create-mob :test-mob "test-mob" :down 0 0 nil))
+      (dosync (alter state assoc :mobs {:test-mob (mob/create-mob :test-mob "test-mob" :down 0 0 nil)}))
       (event/create-dialog-event!
        state
        []
@@ -75,7 +75,7 @@
        [(event/move-mob :test-mob [1 1])])
       (let [event (first (:events @state))]
         (event/apply-outcomes! state (:outcomes event))
-        (is (= [1 1] (get-in @state [:mobs 0 :destination]))))))
+        (is (= [1 1] (get-in @state [:mobs :test-mob :destination]))))))
   (testing "can get an event"
     (let [state (ref state/initial-state)]
       (is (= nil (event/get-dialog-event! state :test-event)))

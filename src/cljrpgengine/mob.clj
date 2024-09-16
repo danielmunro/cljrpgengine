@@ -47,8 +47,8 @@
         room (get-in @state [:map :room])
         room-mobs (get mobs room)]
     (if (and
-          (not= room room-loaded)
-          room-mobs)
+         (not= room room-loaded)
+         room-mobs)
       (dosync (alter state assoc
                      :mobs room-mobs
                      :room-loaded room)))))
@@ -76,12 +76,7 @@
 
 (defn set-destination
   [state mob coords]
-  (let [mobs (:mobs @state)]
-    (loop [i 0]
-      (if (< i (count mobs))
-        (if (= mob (:identifier (get mobs i)))
-          (dosync (alter state assoc-in [:mobs i :destination] coords))
-          (recur (inc i)))))))
+  (dosync (alter state assoc-in [:mobs mob :destination] coords)))
 
 (defn update-mobs
   [state]
