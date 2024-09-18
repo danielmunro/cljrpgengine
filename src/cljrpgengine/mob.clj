@@ -4,11 +4,12 @@
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]))
 
-(defn add-if-missing!
-  [state mob]
-  (if (not (util/filter-first #(= (:name mob) (:name %)) (:mobs @state)))
-    (dosync
-     (alter state update-in [:mobs] conj mob))))
+(defn no-move-offset
+  [mob]
+  (let [{:keys [x-offset y-offset]} mob]
+    (and
+     (= 0 x-offset)
+     (= 0 y-offset))))
 
 (defn draw-mob
   [mob offset-x offset-y]
@@ -43,14 +44,20 @@
 
 (defn update-room-mobs
   [state mobs]
-  (let [room (get-in @state [:map :room])]
-    (if (contains? mobs room)
-      (dorun (map #(add-if-missing! state %) (mobs room))))))
+  (let [room-loaded (:room-loaded @state)
+        room (get-in @state [:map :room])
+        room-mobs (get mobs room)]
+    (if (and
+         (not= room room-loaded)
+         room-mobs)
+      (dosync (alter state assoc
+                     :mobs room-mobs
+                     :room-loaded room)))))
 
 (defn blocked-by-mob?
   [mob mobs new-x new-y tile-size]
-  (let [height (constants/character-dimensions 1)
-        mobs-to-search (filter #(not= (:name mob) (:name %)) mobs)]
+  (let [height (second constants/character-dimensions)
+        mobs-to-search (filter #(not= (:name mob) (:name %)) (vals mobs))]
     (some
      #(not= false %)
      (map
@@ -68,6 +75,82 @@
          (+ (% :y) tile-size)))
       mobs-to-search))))
 
-(defn find-mob
-  [state mob]
-  (util/filter-first #(= (:identifier %) mob) (:mobs @state)))
+(defn set-destination
+  [state mob coords]
+  (dosync (alter state assoc-in [:mobs mob :destination] coords)))
+
+(defn start-moving!
+  [state mob key new-x new-y]
+  (let [identifier (:identifier mob)]
+    (dosync (alter state assoc-in [:mobs identifier :sprite :current-animation] key)
+            (alter state assoc-in [:mobs identifier :sprite :animations (keyword key) :is-playing] true)
+            (alter state update-in [:mobs identifier] assoc
+                   :x-offset (- (:x mob) new-x)
+                   :y-offset (- (:y mob) new-y)
+                   :x new-x
+                   :y new-y
+                   :direction key))))
+
+(defn update-move-offsets!
+  [state]
+  (let [{:keys [mobs]} @state]
+    (dorun
+     (for [m (vals mobs)]
+       (let [{:keys [x-offset y-offset]} m]
+         (cond
+           (< x-offset 0)
+           (dosync (alter state update-in [:mobs (:identifier m) :x-offset] inc))
+           (< 0 x-offset)
+           (dosync (alter state update-in [:mobs (:identifier m) :x-offset] dec))
+           (< y-offset 0)
+           (dosync (alter state update-in [:mobs (:identifier m) :y-offset] inc))
+           (< 0 y-offset)
+           (dosync (alter state update-in [:mobs (:identifier m) :y-offset] dec))))))))
+
+(defn check-start-moving
+  [state mob direction-moving]
+  (let [{:keys [x y]} mob
+        {{{:keys [tilewidth tileheight]} :tileset} :map} @state]
+    (if (no-move-offset mob)
+      (cond
+        (= direction-moving :up)
+        (start-moving! state mob :up x (- y tileheight))
+        (= direction-moving :down)
+        (start-moving! state mob :down x (+ y tileheight))
+        (= direction-moving :left)
+        (start-moving! state mob :left (- x tilewidth) y)
+        (= direction-moving :right)
+        (start-moving! state mob :right (+ x tilewidth) y)))))
+
+(defn update-mobs
+  [state]
+  (let [{:keys [mobs]} @state]
+    (dorun
+     (for [mob (vals mobs)]
+       (let [{:keys [x y destination]} mob
+             to-x (first destination)
+             to-y (second destination)]
+         (if destination
+           (cond
+             (< y to-y)
+             (check-start-moving state mob :down)
+             (< to-y y)
+             (check-start-moving state mob :up)
+             (< x to-x)
+             (check-start-moving state mob :right)
+             (< to-x x)
+             (check-start-moving state mob :left))))))))
+
+(defn update-mob-sprites!
+  [state]
+  (dorun
+   (for [m (-> (:mobs @state)
+               -> (vals))]
+     (let [{:keys [sprite identifier]} m
+           {:keys [current-animation]} sprite]
+       (dosync
+        (alter state update-in [:mobs identifier :sprite :animations current-animation :frame]
+               (fn [frame] (sprite/get-sprite-frame sprite frame))))
+       (if (no-move-offset m)
+         (dosync
+          (alter state assoc-in [:mobs identifier :sprite :animations current-animation :is-playing] false)))))))

@@ -58,10 +58,12 @@
 (defn initialize-scene
   [state]
   (swap! mobs
-         (constantly {:item-shop [(mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))]
-                      :main [(mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
-                             (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))
-                             (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create-from-name :fireas :down))]}))
+         (constantly {:item-shop
+                      {:gareth (mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))}
+                      :main
+                      {:andros (mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
+                       :sordna (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))
+                       :agnos (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create-from-name :fireas :down))}}))
   (sordna-events state)
   (andros-events state)
   (agnos-events state))

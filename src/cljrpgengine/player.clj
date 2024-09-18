@@ -45,8 +45,8 @@
 
 (defn start-moving!
   [state key new-x new-y]
-  (let [{:keys                     [mobs]
-         {[mob] :party}            :player
+  (let [{:keys [mobs]
+         {[mob] :party} :player
          {:keys [tileset tilemap]} :map} @state]
     (if
      (and
@@ -99,7 +99,8 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{{[{:keys [sprite x-offset y-offset]}] :party} :player} @state
+  (let [{{[mob] :party} :player} @state
+        {:keys [sprite]} mob
         current-animation (:current-animation sprite)]
     (dosync
      (alter
@@ -107,9 +108,7 @@
       update-in
       [:player :party 0 :sprite :animations current-animation :frame]
       (fn [frame] (sprite/get-sprite-frame sprite frame)))
-     (if (and
-          (= 0 x-offset)
-          (= 0 y-offset))
+     (if (mob/no-move-offset mob)
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets!
@@ -147,14 +146,16 @@
 
 (defn- create-engagement!
   [state mob]
-  (dosync (alter state assoc
-                 :engagement {:dialog (:dialog (event/get-dialog-event! state (:identifier mob)))
-                              :dialog-index 0
-                              :mob (:identifier mob)
-                              :mob-direction (get-in mob [:sprite :current-animation])})
-          (alter state assoc-in
-                 [:mobs (.indexOf (:mobs @state) mob) :sprite :current-animation]
-                 (util/opposite-direction (get-in @state [:player :party 0 :direction])))))
+  (let [event (event/get-dialog-event! state (:identifier mob))]
+    (dosync (alter state assoc
+                   :engagement {:dialog (:dialog event)
+                                :dialog-index 0
+                                :mob (:identifier mob)
+                                :event event
+                                :mob-direction (get-in mob [:sprite :current-animation])})
+            (alter state assoc-in
+                   [:mobs (:identifier mob) :sprite :current-animation]
+                   (util/opposite-direction (get-in @state [:player :party 0 :direction]))))))
 
 (defn- engagement-done?
   [engagement]
@@ -166,9 +167,11 @@
 
 (defn- clear-engagement!
   [state engagement]
-  (let [index (util/get-index-of #(= (:mob engagement) (:identifier (% 1))) (:mobs @state))]
-    (dosync (alter state assoc-in [:mobs index :sprite :current-animation] (:mob-direction engagement)))
-    (dosync (alter state dissoc :engagement))))
+  (let [{:keys [mob mob-direction] {:keys [outcomes]} :event} engagement]
+    (event/apply-outcomes! state outcomes)
+    (dosync
+     (alter state assoc-in [:mobs mob :sprite :current-animation] mob-direction)
+     (alter state dissoc :engagement))))
 
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]
@@ -179,11 +182,22 @@
       tile-position)))
 
 (defn- get-inspect-coords
+  "Get the coordinates that the player is inspecting.  The inspected coords
+  depends on the position and direction of the player.
+      1
+     2P3
+      4
+  Assuming P represents the player's coords, the inspected coords are 1 if
+  facing up, 2 if facing left, 3 if facing right, and 4 if facing down."
   [x y direction tilewidth tileheight]
   [(get-inspect x :left :right direction tilewidth)
    (get-inspect y :up :down direction tileheight)])
 
 (defn action-engaged!
+  "Player is attempting to engage with something.  If on a shop, the game will
+  open a shop dialog.  If next to a mob, a player will open a dialog with the
+  mob.  If the player is already engaged with a mob then proceed through the
+  engagement, and clear the engagement if all steps are complete."
   [state]
   (let [{:keys [engagement mobs map]
          {[{:keys [direction x y]}] :party} :player
@@ -193,7 +207,7 @@
       (if (engagement-done? engagement)
         (clear-engagement! state engagement)
         (inc-engagement! state))
-      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) mobs)]
+      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals mobs))]
         (create-engagement! state mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               map

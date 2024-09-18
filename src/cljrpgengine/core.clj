@@ -29,7 +29,8 @@
 (defn update-animations
   "Update all animations -- just the player right now."
   [state]
-  (player/update-player-sprite! state))
+  (player/update-player-sprite! state)
+  (mob/update-mob-sprites! state))
 
 (defn update-state
   "Main loop, starting with updating animations.  Eventually, this will include
@@ -40,6 +41,8 @@
   (player/update-move-offsets! state)
   (player/check-exits state)
   (player/check-start-moving state)
+  (mob/update-move-offsets! state)
+  (mob/update-mobs state)
   state)
 
 (defn draw
@@ -66,8 +69,9 @@
     (q/background 0)
     (map/draw-background scene-map adjusted-x adjusted-y)
     (dorun
-     (for [m (sort-by :y (conj mobs player))]
+     (for [m (sort-by :y (vals mobs))]
        (mob/draw-mob m adjusted-x adjusted-y)))
+    (mob/draw-mob player adjusted-x adjusted-y)
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
       (ui/dialog ((:dialog engagement) (:dialog-index engagement))))

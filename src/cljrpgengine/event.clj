@@ -86,16 +86,12 @@
        (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))
        (= :move-mob (:type outcome))
-       (do
-         (println "move mob")
-         (println (mob/find-mob state (:mob outcome))))))))
+       (mob/set-destination state (:mob outcome) (:coords outcome))))))
 
 (defn get-dialog-event!
   [state target-mob]
-  (let [event (util/filter-first
-               #(and
-                 (= (:type %) :dialog)
-                 (conditions-met state (:conditions %) target-mob))
-               (:events @state))]
-    (apply-outcomes! state (:outcomes event))
-    event))
+  (util/filter-first
+   #(and
+     (= (:type %) :dialog)
+     (conditions-met state (:conditions %) target-mob))
+   (:events @state)))
