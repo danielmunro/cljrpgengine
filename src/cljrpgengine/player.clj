@@ -52,7 +52,6 @@
      (and
       (not
        (mob/blocked-by-mob?
-        mob
         mobs
         new-x
         new-y
