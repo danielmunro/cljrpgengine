@@ -6,7 +6,7 @@
 
 (deftest test-start-moving
   (testing "can start moving left"
-    (let [state (test-util/create-new-state 0 0 :down)
+    (let [state (test-util/create-new-state)
           {{[mob] :party} :player} @state]
       (player/start-moving!
        state
@@ -16,7 +16,7 @@
       (is (contains? (:keys @state) :left))
       (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :left))))
   (testing "can reset moving"
-    (let [state (test-util/create-new-state 0 0 :down)
+    (let [state (test-util/create-new-state)
           {{[mob] :party} :player} @state]
       (player/start-moving!
        state
