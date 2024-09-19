@@ -7,7 +7,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Prepare java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
@@ -15,7 +15,6 @@ jobs:
         uses: DeLaGuardo/setup-clojure@12.5
         with:
           lein: 2.11.1
-          cljfmt: 0.10.2
       - name: Cache clojure dependencies
         uses: actions/cache@v4
         with:
@@ -26,6 +25,6 @@ jobs:
           key: cljdeps-${{ hashFiles('project.clj') }}
           restore-keys: cljdeps-
       - name: Run cljfmt
-        run: lein cljfmt
+        run: lein cljfmt check
       - name: Run tests
         run: lein test
