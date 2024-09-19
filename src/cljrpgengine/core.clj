@@ -20,7 +20,7 @@
   (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file
                 (state/create-from-latest-save @save-file)
-                (state/create-new-state))
+                (state/create-new-state (player/create-new-player) (map/load-render-map "tinytown" "main")))
         scene (create-scene/create state (:scene @state))]
     (dosync (alter state assoc :scene scene))
     (.initialize-scene scene)

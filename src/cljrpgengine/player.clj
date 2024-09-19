@@ -9,39 +9,48 @@
             [quil.core :as q]))
 
 (defn create-new-player
-  [x y direction]
+  []
   {:party [(mob/create-mob
             :fireas
             "Fireas"
             :warrior 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Dingus"
             :mage 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Prabble"
             :rogue 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Floodlegor"
             :cleric 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))]})
+
+(defn load-player
+  [data]
+  (let [player (create-new-player)
+        {{[{:keys [x y direction]}] :party} :player} data]
+    (-> player
+        (update-in [:party 0]
+                   assoc
+                   :x x
+                   :y y
+                   :direction direction)
+        (assoc-in [:party 0 :sprite :current-animation]
+                  direction))))
 
 (defn start-moving!
   [state key new-x new-y]
@@ -125,7 +134,7 @@
 
 (defn- change-map!
   [state area-name room entrance-name]
-  (let [new-map (map/load-map area-name room)
+  (let [new-map (map/load-render-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
     (dosync
      (alter state assoc-in [:map] new-map)
