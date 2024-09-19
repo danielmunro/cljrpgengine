@@ -54,27 +54,23 @@
        :grants (:grants data)
        :items (:items data)
        :money (:money data)
-       :player (player/create-new-player
-                (get-in data [:player :party 0 :x])
-                (get-in data [:player :party 0 :y])
-                (get-in data [:player :party 0 :direction]))
-       :map (map/load-map (get-in data [:map :name]) (get-in data [:map :room]))}))))
+       :player (player/load-player data)
+       :map (map/load-render-map (get-in data [:map :name]) (get-in data [:map :room]))}))))
 
 (defn create-new-state
-  []
-  (let [player (player/create-new-player 0 0 :down)
-        state (ref
+  [player map]
+  (let [state (ref
                (merge
                 initial-state
                 {:player player
                  :save-name (random-uuid)}))]
     (dosync
-     (let [map (map/load-map "tinytown" "main")
-           start (map/get-warp map "start")]
+     (let [start (map/get-warp map "start")]
        (alter state assoc-in [:map] map)
        (alter state update-in [:player :party 0] assoc
               :x (:x start)
-              :y (:y start))))
+              :y (:y start)
+              :direction (:direction start))))
     state))
 
 (defn create-from-latest-save

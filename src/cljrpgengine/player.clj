@@ -9,39 +9,48 @@
             [quil.core :as q]))
 
 (defn create-new-player
-  [x y direction]
+  []
   {:party [(mob/create-mob
             :fireas
             "Fireas"
             :warrior 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Dingus"
             :mage 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Prabble"
             :rogue 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Floodlegor"
             :cleric 1
-            direction
-            x y
-            (sprite/create-from-name :fireas direction)
+            :down 0 0
+            (sprite/create-from-name :fireas :down)
             (q/load-image "portraits/fireas.png"))]})
+
+(defn load-player
+  [data]
+  (let [player (create-new-player)
+        {{[{:keys [x y direction]}] :party} :player} data]
+    (-> player
+        (update-in [:party 0]
+                   assoc
+                   :x x
+                   :y y
+                   :direction direction)
+        (assoc-in [:party 0 :sprite :current-animation]
+                  direction))))
 
 (defn start-moving!
   [state key new-x new-y]
@@ -52,7 +61,6 @@
      (and
       (not
        (mob/blocked-by-mob?
-        mob
         mobs
         new-x
         new-y
@@ -79,12 +87,12 @@
 (defn check-start-moving
   [state]
   (let [{:keys [keys engagement menus]
-         {[{:keys [x y x-offset y-offset]}] :party} :player
+         {[mob] :party} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
+        {:keys [x y]} mob
         last-key (first keys)]
     (if (and
-         (= 0 x-offset)
-         (= 0 y-offset)
+         (mob/no-move-offset mob)
          (not engagement)
          (= 0 (count menus)))
       (cond
@@ -126,7 +134,7 @@
 
 (defn- change-map!
   [state area-name room entrance-name]
-  (let [new-map (map/load-map area-name room)
+  (let [new-map (map/load-render-map area-name room)
         entrance (map/get-entrance new-map entrance-name)]
     (dosync
      (alter state assoc-in [:map] new-map)
@@ -138,23 +146,24 @@
 (defn check-exits
   [state]
   (let [{:keys [map]
-         {[{:keys [x y x-offset y-offset]}] :party} :player} @state]
-    (if (and (= 0 y-offset)
-             (= 0 x-offset))
+         {[mob] :party} :player} @state
+        {:keys [x y]} mob]
+    (if (mob/no-move-offset mob)
       (if-let [exit (map/get-interaction-from-coords map (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps]))) x y)]
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
 (defn- create-engagement!
   [state mob]
-  (let [event (event/get-dialog-event! state (:identifier mob))]
+  (let [identifier (:identifier mob)
+        event (event/get-dialog-event! state identifier)]
     (dosync (alter state assoc
                    :engagement {:dialog (:dialog event)
                                 :dialog-index 0
-                                :mob (:identifier mob)
+                                :mob identifier
                                 :event event
                                 :mob-direction (get-in mob [:sprite :current-animation])})
             (alter state assoc-in
-                   [:mobs (:identifier mob) :sprite :current-animation]
+                   [:mobs identifier :sprite :current-animation]
                    (util/opposite-direction (get-in @state [:player :party 0 :direction]))))))
 
 (defn- engagement-done?

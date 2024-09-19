@@ -55,9 +55,8 @@
                      :room-loaded room)))))
 
 (defn blocked-by-mob?
-  [mob mobs new-x new-y tile-size]
-  (let [height (second constants/character-dimensions)
-        mobs-to-search (filter #(not= (:name mob) (:name %)) (vals mobs))]
+  [mobs new-x new-y tile-size]
+  (let [height (second constants/character-dimensions)]
     (some
      #(not= false %)
      (map
@@ -73,7 +72,7 @@
              (+ (% :y)))
          (+ (% :x) tile-size)
          (+ (% :y) tile-size)))
-      mobs-to-search))))
+      (vals mobs)))))
 
 (defn set-destination
   [state mob coords]
