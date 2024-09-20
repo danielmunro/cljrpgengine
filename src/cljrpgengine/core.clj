@@ -49,8 +49,8 @@
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
   (let [{scene-map :map
-         :keys [engagement mobs]
-         {[player] :party} :player} @state
+         :keys [engagement mobs player]
+         {[player-mob] :party} :player} @state
         {:keys [x y x-offset y-offset]} player
         x-plus-offset (+ x x-offset)
         y-plus-offset (+ y y-offset)
@@ -71,7 +71,10 @@
     (dorun
      (for [m (sort-by :y (vals mobs))]
        (mob/draw-mob m adjusted-x adjusted-y)))
-    (mob/draw-mob player adjusted-x adjusted-y)
+    (mob/draw-mob (assoc player-mob
+                         :x (:x player)
+                         :y (:y player)
+                         :direction (:direction player)) adjusted-x adjusted-y)
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
       (ui/dialog ((:dialog engagement) (:dialog-index engagement))))

@@ -37,13 +37,21 @@
             :cleric 1
             :down 0 0
             (sprite/create-from-name :fireas :down)
-            (q/load-image "portraits/fireas.png"))]})
+            (q/load-image "portraits/fireas.png"))]
+   :x 0
+   :y 0
+   :x-offset 0
+   :y-offset 0})
 
 (defn load-player
   [data]
   (let [player (create-new-player)
         {{[{:keys [x y direction]}] :party} :player} data]
     (-> player
+        (assoc :x x
+               :y y
+               :direction direction)
+        ; todo: remove next line
         (update-in [:party 0]
                    assoc
                    :x x
@@ -74,6 +82,13 @@
       (dosync (alter state update :keys conj key)
               (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
               (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
+              (alter state update-in [:player] assoc
+                     :x-offset (- (:x mob) new-x)
+                     :y-offset (- (:y mob) new-y)
+                     :x new-x
+                     :y new-y
+                     :direction key)
+              ; todo: remove next line
               (alter state update-in [:player :party 0] assoc
                      :x-offset (- (:x mob) new-x)
                      :y-offset (- (:y mob) new-y)
@@ -82,6 +97,8 @@
                      :direction key))
       (dosync
        (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
+       (alter state assoc-in [:player :direction] key)
+       ; todo: remove next line
        (alter state assoc-in [:player :party 0 :direction] key)))))
 
 (defn check-start-moving
@@ -122,25 +139,38 @@
 (defn update-move-offsets!
   [state]
   (let [{{[{:keys [x-offset y-offset]}] :party} :player} @state]
+    ; todo: update this cond
     (cond
       (< x-offset 0)
-      (dosync (alter state update-in [:player :party 0 :x-offset] inc))
+      (dosync
+       (alter state update-in [:player :x-offset] inc)
+       (alter state update-in [:player :party 0 :x-offset] inc))
       (< 0 x-offset)
-      (dosync (alter state update-in [:player :party 0 :x-offset] dec))
+      (dosync
+       (alter state update-in [:player :x-offset] dec)
+       (alter state update-in [:player :party 0 :x-offset] dec))
       (< y-offset 0)
-      (dosync (alter state update-in [:player :party 0 :y-offset] inc))
+      (dosync
+       (alter state update-in [:player :y-offset] inc)
+       (alter state update-in [:player :party 0 :y-offset] inc))
       (< 0 y-offset)
-      (dosync (alter state update-in [:player :party 0 :y-offset] dec)))))
+      (dosync
+       (alter state update-in [:player :y-offset] dec)
+       (alter state update-in [:player :party 0 :y-offset] dec)))))
 
 (defn- change-map!
   [state area-name room entrance-name]
   (let [new-map (map/load-render-map area-name room)
-        entrance (map/get-entrance new-map entrance-name)]
+        {:keys [x y]} (map/get-entrance new-map entrance-name)]
     (dosync
      (alter state assoc-in [:map] new-map)
+     (alter state update-in [:player] assoc
+            :x x
+            :y y)
+     ; todo: remove next line
      (alter state update-in [:player :party 0] assoc
-            :x (:x entrance)
-            :y (:y entrance))
+            :x x
+            :y y)
      (alter state assoc-in [:mobs] []))))
 
 (defn check-exits
@@ -162,6 +192,7 @@
                                 :mob identifier
                                 :event event
                                 :mob-direction (get-in mob [:sprite :current-animation])})
+            ; todo: update next line
             (alter state assoc-in
                    [:mobs identifier :sprite :current-animation]
                    (util/opposite-direction (get-in @state [:player :party 0 :direction]))))))
@@ -208,6 +239,7 @@
   mob.  If the player is already engaged with a mob then proceed through the
   engagement, and clear the engagement if all steps are complete."
   [state]
+  ; todo: update this function
   (let [{:keys [engagement mobs map]
          {[{:keys [direction x y]}] :party} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
