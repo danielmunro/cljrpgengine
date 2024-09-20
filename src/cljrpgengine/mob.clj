@@ -90,21 +90,25 @@
                    :y new-y
                    :direction key))))
 
+(defn update-move-offset!
+  [state x-offset y-offset update-in-path]
+  (cond
+    (< x-offset 0)
+    (dosync (alter state update-in (conj update-in-path :x-offset) inc))
+    (< 0 x-offset)
+    (dosync (alter state update-in (conj update-in-path :x-offset) dec))
+    (< y-offset 0)
+    (dosync (alter state update-in (conj update-in-path :y-offset) inc))
+    (< 0 y-offset)
+    (dosync (alter state update-in (conj update-in-path :y-offset) dec))))
+
 (defn update-move-offsets!
   [state]
   (let [{:keys [mobs]} @state]
     (dorun
      (for [m (vals mobs)]
        (let [{:keys [x-offset y-offset]} m]
-         (cond
-           (< x-offset 0)
-           (dosync (alter state update-in [:mobs (:identifier m) :x-offset] inc))
-           (< 0 x-offset)
-           (dosync (alter state update-in [:mobs (:identifier m) :x-offset] dec))
-           (< y-offset 0)
-           (dosync (alter state update-in [:mobs (:identifier m) :y-offset] inc))
-           (< 0 y-offset)
-           (dosync (alter state update-in [:mobs (:identifier m) :y-offset] dec))))))))
+         (update-move-offset! state x-offset y-offset [:mobs (:identifier m)]))))))
 
 (defn check-start-moving
   [state mob direction-moving]

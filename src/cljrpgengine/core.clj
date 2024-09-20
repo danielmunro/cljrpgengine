@@ -38,7 +38,7 @@
   [state]
   (.update-scene (:scene @state))
   (update-animations state)
-  (player/update-move-offsets! state)
+  (player/update-move-offset! state)
   (player/check-exits state)
   (player/check-start-moving state)
   (mob/update-move-offsets! state)

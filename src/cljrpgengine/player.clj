@@ -120,22 +120,10 @@
      (if (mob/no-move-offset player)
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
-(defn update-move-offsets!
+(defn update-move-offset!
   [state]
   (let [{{:keys [x-offset y-offset]} :player} @state]
-    (cond
-      (< x-offset 0)
-      (dosync
-       (alter state update-in [:player :x-offset] inc))
-      (< 0 x-offset)
-      (dosync
-       (alter state update-in [:player :x-offset] dec))
-      (< y-offset 0)
-      (dosync
-       (alter state update-in [:player :y-offset] inc))
-      (< 0 y-offset)
-      (dosync
-       (alter state update-in [:player :y-offset] dec)))))
+    (mob/update-move-offset! state x-offset y-offset [:player])))
 
 (defn- change-map!
   [state area-name room entrance-name]
