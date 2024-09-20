@@ -36,12 +36,9 @@
      :money money
      :player {:party (into []
                            (map
-                            (fn [{:keys [name x y direction]
+                            (fn [{:keys [name]
                                   {sprite-name :name} :sprite}]
                               {:name name
-                               :x x
-                               :y y
-                               :direction direction
                                :sprite sprite-name}) party))
               :x x
               :y y
@@ -83,11 +80,6 @@
      (let [{:keys [x y direction]} (map/get-warp map "start")]
        (alter state assoc-in [:map] map)
        (alter state update-in [:player] assoc
-              :x x
-              :y y
-              :direction direction)
-       ; todo: remove next line
-       (alter state update-in [:player :party 0] assoc
               :x x
               :y y
               :direction direction)))

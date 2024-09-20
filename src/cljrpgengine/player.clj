@@ -41,12 +41,13 @@
    :x 0
    :y 0
    :x-offset 0
-   :y-offset 0})
+   :y-offset 0
+   :direction :down})
 
 (defn load-player
   [data]
   (let [player (create-new-player)
-        {{[{:keys [x y direction]}] :party} :player} data]
+        {{:keys [x y direction]} :player} data]
     (-> player
         (assoc :x x
                :y y
