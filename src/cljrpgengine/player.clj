@@ -140,7 +140,11 @@
   (let [{:keys [map player]} @state
         {:keys [x y]} player]
     (if (mob/no-move-offset player)
-      (if-let [exit (map/get-interaction-from-coords map (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps]))) x y)]
+      (if-let [exit
+               (map/get-interaction-from-coords
+                map
+                (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
+                x y)]
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
 (defn- create-engagement!
