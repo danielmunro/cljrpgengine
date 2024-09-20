@@ -49,7 +49,7 @@
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
   (let [{scene-map :map
-         :keys [engagement mobs player]
+         :keys [engagement mobs player menus]
          {[player-mob] :party} :player} @state
         {:keys [x y x-offset y-offset]} player
         x-plus-offset (+ x x-offset)
@@ -80,7 +80,7 @@
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
       (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
-    (ui/draw-menus state)))
+    (ui/draw-menus menus)))
 
 (defn -main
   "Start the game."

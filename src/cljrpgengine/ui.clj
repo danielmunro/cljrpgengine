@@ -129,9 +129,9 @@
     (draw-line 0 y 0 text)))
 
 (defn draw-menus
-  [state]
+  [menus]
   (dorun
-   (for [m (:menus @state)]
+   (for [m menus]
      (cond
        (:open m)
        (.draw (:menu m))))))
