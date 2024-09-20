@@ -28,11 +28,13 @@
      :grants    (:grants @state)
      :items     (:items @state)
      :money     (:money @state)
-     :player    {:party (into [] (map (fn [p] {:name   (:name p)
-                                               :x      (:x p)
-                                               :y (:y p)
-                                               :direction (:direction p)
-                                               :sprite (get-in p [:sprite :name])}) party))}
+     :player    {:party (into []
+                              (map
+                               (fn [p] {:name (:name p)
+                                        :x (:x p)
+                                        :y (:y p)
+                                        :direction (:direction p)
+                                        :sprite (get-in p [:sprite :name])}) party))}
      :map {:name (name (get-in @state [:map :name]))
            :room (name (get-in @state [:map :room]))}}))
 
