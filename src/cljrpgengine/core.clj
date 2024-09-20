@@ -74,6 +74,8 @@
     (mob/draw-mob (assoc player-mob
                          :x (:x player)
                          :y (:y player)
+                         :x-offset (:x-offset player)
+                         :y-offset (:y-offset player)
                          :direction (:direction player)) adjusted-x adjusted-y)
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement

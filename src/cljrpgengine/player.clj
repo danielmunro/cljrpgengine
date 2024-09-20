@@ -63,7 +63,7 @@
 (defn start-moving!
   [state key new-x new-y]
   (let [{:keys [mobs]
-         {[mob] :party} :player
+         {:keys [x y]} :player
          {:keys [tileset tilemap]} :map} @state]
     (if
      (and
@@ -83,15 +83,15 @@
               (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
               (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
               (alter state update-in [:player] assoc
-                     :x-offset (- (:x mob) new-x)
-                     :y-offset (- (:y mob) new-y)
+                     :x-offset (- x new-x)
+                     :y-offset (- y new-y)
                      :x new-x
                      :y new-y
                      :direction key)
               ; todo: remove next line
               (alter state update-in [:player :party 0] assoc
-                     :x-offset (- (:x mob) new-x)
-                     :y-offset (- (:y mob) new-y)
+                     :x-offset (- x new-x)
+                     :y-offset (- y new-y)
                      :x new-x
                      :y new-y
                      :direction key))
@@ -104,12 +104,12 @@
 (defn check-start-moving
   [state]
   (let [{:keys [keys engagement menus]
-         {[mob] :party} :player
-         {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        {:keys [x y]} mob
+         {{:keys [tilewidth tileheight]} :tileset} :map
+         {:keys [x y x-offset y-offset]} :player} @state
         last-key (first keys)]
     (if (and
-         (mob/no-move-offset mob)
+         (= 0 x-offset)
+         (= 0 y-offset)
          (not engagement)
          (= 0 (count menus)))
       (cond
@@ -124,7 +124,7 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{{[mob] :party} :player} @state
+  (let [{{:keys [x-offset y-offset] [mob] :party} :player} @state
         {:keys [sprite]} mob
         current-animation (:current-animation sprite)]
     (dosync
@@ -133,30 +133,27 @@
       update-in
       [:player :party 0 :sprite :animations current-animation :frame]
       (fn [frame] (sprite/get-sprite-frame sprite frame)))
-     (if (mob/no-move-offset mob)
+     (if (and
+          (= 0 x-offset)
+          (= 0 y-offset))
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets!
   [state]
-  (let [{{[{:keys [x-offset y-offset]}] :party} :player} @state]
-    ; todo: update this cond
+  (let [{{:keys [x-offset y-offset]} :player} @state]
     (cond
       (< x-offset 0)
       (dosync
-       (alter state update-in [:player :x-offset] inc)
-       (alter state update-in [:player :party 0 :x-offset] inc))
+       (alter state update-in [:player :x-offset] inc))
       (< 0 x-offset)
       (dosync
-       (alter state update-in [:player :x-offset] dec)
-       (alter state update-in [:player :party 0 :x-offset] dec))
+       (alter state update-in [:player :x-offset] dec))
       (< y-offset 0)
       (dosync
-       (alter state update-in [:player :y-offset] inc)
-       (alter state update-in [:player :party 0 :y-offset] inc))
+       (alter state update-in [:player :y-offset] inc))
       (< 0 y-offset)
       (dosync
-       (alter state update-in [:player :y-offset] dec)
-       (alter state update-in [:player :party 0 :y-offset] dec)))))
+       (alter state update-in [:player :y-offset] dec)))))
 
 (defn- change-map!
   [state area-name room entrance-name]
