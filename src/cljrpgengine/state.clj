@@ -22,21 +22,25 @@
 
 (defn- transform-to-save
   [state]
-  (let [party (get-in @state [:player :party])]
-    {:save-name (:save-name @state)
-     :scene (.scene-name (:scene @state))
-     :grants (:grants @state)
-     :items (:items @state)
-     :money (:money @state)
+  (let [party (get-in @state [:player :party])
+        {:keys [save-name scene grants items money]
+         {area-name :name room :room} :map} @state]
+    {:save-name save-name
+     :scene (.scene-name scene)
+     :grants grants
+     :items items
+     :money money
      :player {:party (into []
                            (map
-                            (fn [p] {:name (:name p)
-                                     :x (:x p)
-                                     :y (:y p)
-                                     :direction (:direction p)
-                                     :sprite (get-in p [:sprite :name])}) party))}
-     :map {:name (name (get-in @state [:map :name]))
-           :room (name (get-in @state [:map :room]))}}))
+                            (fn [{:keys [name x y direction]
+                                  {sprite-name :name} :sprite}]
+                              {:name name
+                               :x x
+                               :y y
+                               :direction direction
+                               :sprite sprite-name}) party))}
+     :map {:name (name area-name)
+           :room (name room)}}))
 
 (defn save
   [state]
@@ -47,17 +51,19 @@
 
 (defn load-save-file
   [save-file]
-  (let [data (read-string (slurp save-file))]
+  (let [data (read-string (slurp save-file))
+        {:keys [scene save-name grants items money]
+         {area-name :name room :room} :map} data]
     (ref
      (merge
       initial-state
-      {:scene (:scene data)
-       :save-name (:save-name data)
-       :grants (:grants data)
-       :items (:items data)
-       :money (:money data)
+      {:scene scene
+       :save-name save-name
+       :grants grants
+       :items items
+       :money money
        :player (player/load-player data)
-       :map (map/load-render-map (get-in data [:map :name]) (get-in data [:map :room]))}))))
+       :map (map/load-render-map area-name room)}))))
 
 (defn create-new-state
   [player map]
@@ -67,12 +73,12 @@
                 {:player player
                  :save-name (random-uuid)}))]
     (dosync
-     (let [start (map/get-warp map "start")]
+     (let [{:keys [x y direction]} (map/get-warp map "start")]
        (alter state assoc-in [:map] map)
        (alter state update-in [:player :party 0] assoc
-              :x (:x start)
-              :y (:y start)
-              :direction (:direction start))))
+              :x x
+              :y y
+              :direction direction)))
     state))
 
 (defn create-from-latest-save
