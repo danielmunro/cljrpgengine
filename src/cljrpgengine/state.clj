@@ -16,14 +16,18 @@
                     :menus []
                     :grants #{}
                     :scene :tinytown
-                    :player nil
+                    :player {:x 0
+                             :y 0
+                             :x-offset 0
+                             :y-offset 0
+                             :direction :down}
                     :money constants/starting-money
                     :map nil})
 
 (defn- transform-to-save
   [state]
   (let [{:keys [save-name scene grants items money]
-         {:keys [party]} :player
+         {:keys [party x y direction]} :player
          {area-name :name room :room} :map} @state]
     {:save-name save-name
      :scene (.scene-name scene)
@@ -32,13 +36,13 @@
      :money money
      :player {:party (into []
                            (map
-                            (fn [{:keys [name x y direction]
+                            (fn [{:keys [name]
                                   {sprite-name :name} :sprite}]
                               {:name name
-                               :x x
-                               :y y
-                               :direction direction
-                               :sprite sprite-name}) party))}
+                               :sprite sprite-name}) party))
+              :x x
+              :y y
+              :direction direction}
      :map {:name (name area-name)
            :room (name room)}}))
 
@@ -75,7 +79,7 @@
     (dosync
      (let [{:keys [x y direction]} (map/get-warp map "start")]
        (alter state assoc-in [:map] map)
-       (alter state update-in [:player :party 0] assoc
+       (alter state update-in [:player] assoc
               :x x
               :y y
               :direction direction)))

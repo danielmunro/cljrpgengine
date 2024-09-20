@@ -37,25 +37,28 @@
             :cleric 1
             :down 0 0
             (sprite/create-from-name :fireas :down)
-            (q/load-image "portraits/fireas.png"))]})
+            (q/load-image "portraits/fireas.png"))]
+   :x 0
+   :y 0
+   :x-offset 0
+   :y-offset 0
+   :direction :down})
 
 (defn load-player
   [data]
   (let [player (create-new-player)
-        {{[{:keys [x y direction]}] :party} :player} data]
+        {{:keys [x y direction]} :player} data]
     (-> player
-        (update-in [:party 0]
-                   assoc
-                   :x x
-                   :y y
-                   :direction direction)
+        (assoc :x x
+               :y y
+               :direction direction)
         (assoc-in [:party 0 :sprite :current-animation]
                   direction))))
 
 (defn start-moving!
   [state key new-x new-y]
   (let [{:keys [mobs]
-         {[mob] :party} :player
+         {:keys [x y]} :player
          {:keys [tileset tilemap]} :map} @state]
     (if
      (and
@@ -74,25 +77,25 @@
       (dosync (alter state update :keys conj key)
               (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
               (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
-              (alter state update-in [:player :party 0] assoc
-                     :x-offset (- (:x mob) new-x)
-                     :y-offset (- (:y mob) new-y)
+              (alter state update-in [:player] assoc
+                     :x-offset (- x new-x)
+                     :y-offset (- y new-y)
                      :x new-x
                      :y new-y
                      :direction key))
       (dosync
        (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-       (alter state assoc-in [:player :party 0 :direction] key)))))
+       (alter state assoc-in [:player :direction] key)))))
 
 (defn check-start-moving
   [state]
   (let [{:keys [keys engagement menus]
-         {[mob] :party} :player
-         {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        {:keys [x y]} mob
+         {{:keys [tilewidth tileheight]} :tileset} :map
+         {:keys [x y x-offset y-offset]} :player} @state
         last-key (first keys)]
     (if (and
-         (mob/no-move-offset mob)
+         (= 0 x-offset)
+         (= 0 y-offset)
          (not engagement)
          (= 0 (count menus)))
       (cond
@@ -107,8 +110,7 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{{[mob] :party} :player} @state
-        {:keys [sprite]} mob
+  (let [{{:keys [x-offset y-offset] [{:keys [sprite]}] :party} :player} @state
         current-animation (:current-animation sprite)]
     (dosync
      (alter
@@ -116,31 +118,38 @@
       update-in
       [:player :party 0 :sprite :animations current-animation :frame]
       (fn [frame] (sprite/get-sprite-frame sprite frame)))
-     (if (mob/no-move-offset mob)
+     (if (and
+          (= 0 x-offset)
+          (= 0 y-offset))
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets!
   [state]
-  (let [{{[{:keys [x-offset y-offset]}] :party} :player} @state]
+  (let [{{:keys [x-offset y-offset]} :player} @state]
     (cond
       (< x-offset 0)
-      (dosync (alter state update-in [:player :party 0 :x-offset] inc))
+      (dosync
+       (alter state update-in [:player :x-offset] inc))
       (< 0 x-offset)
-      (dosync (alter state update-in [:player :party 0 :x-offset] dec))
+      (dosync
+       (alter state update-in [:player :x-offset] dec))
       (< y-offset 0)
-      (dosync (alter state update-in [:player :party 0 :y-offset] inc))
+      (dosync
+       (alter state update-in [:player :y-offset] inc))
       (< 0 y-offset)
-      (dosync (alter state update-in [:player :party 0 :y-offset] dec)))))
+      (dosync
+       (alter state update-in [:player :y-offset] dec)))))
 
 (defn- change-map!
   [state area-name room entrance-name]
   (let [new-map (map/load-render-map area-name room)
-        entrance (map/get-entrance new-map entrance-name)]
+        {:keys [x y]} (map/get-entrance new-map entrance-name)]
     (dosync
      (alter state assoc-in [:map] new-map)
-     (alter state update-in [:player :party 0] assoc
-            :x (:x entrance)
-            :y (:y entrance))
+     (alter state update-in [:player] assoc
+            :x x
+            :y y)
+     ; todo: next light might be unnecessary
      (alter state assoc-in [:mobs] []))))
 
 (defn check-exits
@@ -164,7 +173,7 @@
                                 :mob-direction (get-in mob [:sprite :current-animation])})
             (alter state assoc-in
                    [:mobs identifier :sprite :current-animation]
-                   (util/opposite-direction (get-in @state [:player :party 0 :direction]))))))
+                   (util/opposite-direction (get-in @state [:player :direction]))))))
 
 (defn- engagement-done?
   [engagement]
@@ -209,7 +218,7 @@
   engagement, and clear the engagement if all steps are complete."
   [state]
   (let [{:keys [engagement mobs map]
-         {[{:keys [direction x y]}] :party} :player
+         {:keys [direction x y]} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
         [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement
