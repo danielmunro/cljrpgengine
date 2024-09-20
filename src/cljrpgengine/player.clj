@@ -133,16 +133,13 @@
      (alter state assoc-in [:map] new-map)
      (alter state update-in [:player] assoc
             :x x
-            :y y)
-     ; todo: next light might be unnecessary
-     (alter state assoc-in [:mobs] []))))
+            :y y))))
 
 (defn check-exits
   [state]
-  (let [{:keys [map]
-         {[mob] :party} :player} @state
-        {:keys [x y]} mob]
-    (if (mob/no-move-offset mob)
+  (let [{:keys [map player]} @state
+        {:keys [x y]} player]
+    (if (mob/no-move-offset player)
       (if-let [exit (map/get-interaction-from-coords map (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps]))) x y)]
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
