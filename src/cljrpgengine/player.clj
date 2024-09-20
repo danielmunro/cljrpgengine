@@ -89,13 +89,12 @@
 
 (defn check-start-moving
   [state]
-  (let [{:keys [keys engagement menus]
+  (let [{:keys [keys engagement menus player]
          {{:keys [tilewidth tileheight]} :tileset} :map
-         {:keys [x y x-offset y-offset]} :player} @state
+         {:keys [x y]} :player} @state
         last-key (first keys)]
     (if (and
-         (= 0 x-offset)
-         (= 0 y-offset)
+         (mob/no-move-offset player)
          (not engagement)
          (= 0 (count menus)))
       (cond
@@ -110,7 +109,7 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{{:keys [x-offset y-offset] [{:keys [sprite]}] :party} :player} @state
+  (let [{:keys [player] {[{:keys [sprite]}] :party} :player} @state
         current-animation (:current-animation sprite)]
     (dosync
      (alter
@@ -118,9 +117,7 @@
       update-in
       [:player :party 0 :sprite :animations current-animation :frame]
       (fn [frame] (sprite/get-sprite-frame sprite frame)))
-     (if (and
-          (= 0 x-offset)
-          (= 0 y-offset))
+     (if (mob/no-move-offset player)
        (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
 
 (defn update-move-offsets!
