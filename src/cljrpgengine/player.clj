@@ -51,12 +51,6 @@
         (assoc :x x
                :y y
                :direction direction)
-        ; todo: remove next line
-        (update-in [:party 0]
-                   assoc
-                   :x x
-                   :y y
-                   :direction direction)
         (assoc-in [:party 0 :sprite :current-animation]
                   direction))))
 
@@ -87,19 +81,10 @@
                      :y-offset (- y new-y)
                      :x new-x
                      :y new-y
-                     :direction key)
-              ; todo: remove next line
-              (alter state update-in [:player :party 0] assoc
-                     :x-offset (- x new-x)
-                     :y-offset (- y new-y)
-                     :x new-x
-                     :y new-y
                      :direction key))
       (dosync
        (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-       (alter state assoc-in [:player :direction] key)
-       ; todo: remove next line
-       (alter state assoc-in [:player :party 0 :direction] key)))))
+       (alter state assoc-in [:player :direction] key)))))
 
 (defn check-start-moving
   [state]
@@ -124,8 +109,7 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{{:keys [x-offset y-offset] [mob] :party} :player} @state
-        {:keys [sprite]} mob
+  (let [{{:keys [x-offset y-offset] [{:keys [sprite]}] :party} :player} @state
         current-animation (:current-animation sprite)]
     (dosync
      (alter
@@ -164,10 +148,7 @@
      (alter state update-in [:player] assoc
             :x x
             :y y)
-     ; todo: remove next line
-     (alter state update-in [:player :party 0] assoc
-            :x x
-            :y y)
+     ; todo: next light might be unnecessary
      (alter state assoc-in [:mobs] []))))
 
 (defn check-exits
@@ -189,10 +170,9 @@
                                 :mob identifier
                                 :event event
                                 :mob-direction (get-in mob [:sprite :current-animation])})
-            ; todo: update next line
             (alter state assoc-in
                    [:mobs identifier :sprite :current-animation]
-                   (util/opposite-direction (get-in @state [:player :party 0 :direction]))))))
+                   (util/opposite-direction (get-in @state [:player :direction]))))))
 
 (defn- engagement-done?
   [engagement]
@@ -236,9 +216,8 @@
   mob.  If the player is already engaged with a mob then proceed through the
   engagement, and clear the engagement if all steps are complete."
   [state]
-  ; todo: update this function
   (let [{:keys [engagement mobs map]
-         {[{:keys [direction x y]}] :party} :player
+         {:keys [direction x y]} :player
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
         [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement
