@@ -22,8 +22,8 @@
 
 (defn- transform-to-save
   [state]
-  (let [party (get-in @state [:player :party])
-        {:keys [save-name scene grants items money]
+  (let [{:keys [save-name scene grants items money]
+         {:keys [party]} :player
          {area-name :name room :room} :map} @state]
     {:save-name save-name
      :scene (.scene-name scene)
