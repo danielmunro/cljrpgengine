@@ -144,6 +144,16 @@
              (< to-x x)
              (check-start-moving state mob :left))))))))
 
+(defn update-sprite!
+  [state update-path {:keys [sprite] :as mobile}]
+  (dosync
+   (alter state update-in (conj update-path :frame)
+          (fn [frame]
+            (sprite/get-sprite-frame sprite frame))))
+  (if (no-move-offset mobile)
+    (dosync
+     (alter state assoc-in (conj update-path :is-playing) false))))
+
 (defn update-mob-sprites!
   [state]
   (dorun
@@ -151,9 +161,4 @@
                -> (vals))]
      (let [{:keys [sprite identifier]} m
            {:keys [current-animation]} sprite]
-       (dosync
-        (alter state update-in [:mobs identifier :sprite :animations current-animation :frame]
-               (fn [frame] (sprite/get-sprite-frame sprite frame))))
-       (if (no-move-offset m)
-         (dosync
-          (alter state assoc-in [:mobs identifier :sprite :animations current-animation :is-playing] false)))))))
+       (update-sprite! state [:mobs identifier :sprite :animations current-animation] m)))))

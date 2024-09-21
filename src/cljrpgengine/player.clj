@@ -109,16 +109,14 @@
 
 (defn update-player-sprite!
   [state]
-  (let [{:keys [player] {[{:keys [sprite]}] :party} :player} @state
-        current-animation (:current-animation sprite)]
-    (dosync
-     (alter
-      state
-      update-in
-      [:player :party 0 :sprite :animations current-animation :frame]
-      (fn [frame] (sprite/get-sprite-frame sprite frame)))
-     (if (mob/no-move-offset player)
-       (alter state assoc-in [:player :party 0 :sprite :animations current-animation :is-playing] false)))))
+  (let [{{:keys [x-offset y-offset]
+          [{:keys [sprite] {:keys [current-animation]} :sprite}] :party} :player} @state]
+    (mob/update-sprite!
+     state
+     [:player :party 0 :sprite :animations current-animation]
+     {:x-offset x-offset
+      :y-offset y-offset
+      :sprite sprite})))
 
 (defn update-move-offset!
   [state]
