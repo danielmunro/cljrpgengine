@@ -15,7 +15,7 @@
             "Fireas"
             :warrior 1
             :down 0 0
-            (sprite/create-from-name :fireas :down)
+            (sprite/create-from-name :edwyn :down)
             (q/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
