@@ -1,5 +1,6 @@
 (ns cljrpgengine.player
-  (:require [cljrpgengine.event :as event]
+  (:require [cljrpgengine.effect :as effect]
+            [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
             [cljrpgengine.menus.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
@@ -127,6 +128,7 @@
   [state area-name room entrance-name]
   (let [new-map (map/load-render-map area-name room)
         {:keys [x y]} (map/get-entrance new-map entrance-name)]
+    (effect/add-fade-in state)
     (dosync
      (alter state assoc-in [:map] new-map)
      (alter state update-in [:player] assoc

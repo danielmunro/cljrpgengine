@@ -8,7 +8,8 @@
             [quil.middleware :as m]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
-            [cljrpgengine.input :as input]))
+            [cljrpgengine.input :as input]
+            [cljrpgengine.effect :as effect]))
 
 (def save-file (atom nil))
 
@@ -24,6 +25,7 @@
         scene (create-scene/create state (:scene @state))]
     (dosync (alter state assoc :scene scene))
     (.initialize-scene scene)
+    (effect/add-fade-in state)
     state))
 
 (defn update-animations
@@ -80,7 +82,8 @@
     (map/draw-foreground scene-map adjusted-x adjusted-y)
     (if engagement
       (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
-    (ui/draw-menus menus)))
+    (ui/draw-menus menus))
+  (effect/apply-effects state))
 
 (defn -main
   "Start the game."

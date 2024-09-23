@@ -22,7 +22,8 @@
                              :y-offset 0
                              :direction :down}
                     :money constants/starting-money
-                    :map nil})
+                    :map nil
+                    :effects {}})
 
 (defn- transform-to-save
   [state]
