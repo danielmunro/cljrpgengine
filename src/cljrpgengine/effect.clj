@@ -14,30 +14,29 @@
   (let [fade (:fade-in @state)]
     (if fade
       (dosync
-        (alter state update :fade-in #(- % 10))
-        (q/fill (q/color 0 0 0 fade))
-        (q/rect 0 0 (first constants/window) (second constants/window))))
+       (alter state update :fade-in #(- % 10))
+       (q/fill (q/color 0 0 0 fade))
+       (q/rect 0 0 (first constants/window) (second constants/window))))
     (if (< (:fade-in @state) 0)
       (do
-        #_((-> (:effects state)
-            (:fade-in)
-            (:end) state))
+        ((:end (:fade-in (:effects @state))) state)
         true))))
 
 (defn add-fade-in
   [state]
-  (dosync (alter state assoc :fade-in 255))
+  (dosync (alter state assoc :lock true
+                 :fade-in 255))
   (add-effect state
               :fade-in
               fade-in
               #(dosync
-                 (println "unsetting lock")
-                 (alter % dissoc :lock))))
+                (println "done")
+                (alter % dissoc :lock))))
 
 (defn apply-effects
   [state]
   (dorun
-    (for [e (vals (:effects @state))]
-      (let [result ((:effect e) state)]
-        (if result
-          (dosync (alter state update-in [:effects] dissoc (:effect-type e))))))))
+   (for [e (vals (:effects @state))]
+     (let [result ((:effect e) state)]
+       (if result
+         (dosync (alter state update-in [:effects] dissoc (:effect-type e))))))))

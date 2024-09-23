@@ -53,47 +53,47 @@
 (defn create-fireas
   [direction]
   (create
-    name
-    "fireas.png"
-    (first constants/character-dimensions)
-    (second constants/character-dimensions)
-    direction
-    {:down  {:frames   4
-             :delay    8
-             :y-offset 0}
-     :left  {:frames   4
-             :delay    8
-             :y-offset 1}
-     :right {:frames   4
-             :delay    8
-             :y-offset 2}
-     :up    {:frames   4
-             :delay    8
-             :y-offset 3}
-     :sleep {:frames   1
-             :delay    0
-             :y-offset 4}}))
+   name
+   "fireas.png"
+   (first constants/character-dimensions)
+   (second constants/character-dimensions)
+   direction
+   {:down  {:frames   4
+            :delay    8
+            :y-offset 0}
+    :left  {:frames   4
+            :delay    8
+            :y-offset 1}
+    :right {:frames   4
+            :delay    8
+            :y-offset 2}
+    :up    {:frames   4
+            :delay    8
+            :y-offset 3}
+    :sleep {:frames   1
+            :delay    0
+            :y-offset 4}}))
 
 (defn create-edwyn
   [direction]
   (create
-    name
-    "edwyn.png"
-    (first constants/character-dimensions)
-    (second constants/character-dimensions)
-    direction
-    {:down  {:frames   3
-             :delay    8
-             :y-offset 0}
-     :left  {:frames   3
-             :delay    8
-             :y-offset 1}
-     :right {:frames   3
-             :delay    8
-             :y-offset 2}
-     :up    {:frames   3
-             :delay    8
-             :y-offset 3}}))
+   name
+   "edwyn.png"
+   (first constants/character-dimensions)
+   (second constants/character-dimensions)
+   direction
+   {:down  {:frames   3
+            :delay    8
+            :y-offset 0}
+    :left  {:frames   3
+            :delay    8
+            :y-offset 1}
+    :right {:frames   3
+            :delay    8
+            :y-offset 2}
+    :up    {:frames   3
+            :delay    8
+            :y-offset 3}}))
 
 (defn create-from-name
   [name direction]
