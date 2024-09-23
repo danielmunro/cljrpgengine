@@ -19,7 +19,9 @@
        (q/rect 0 0 (first constants/window) (second constants/window))))
     (if (< (:fade-in @state) 0)
       (do
-        ((:end (:fade-in (:effects @state))) state)
+        ((-> (:effects @state)
+            (:fade-in)
+            (:end)) state)
         true))))
 
 (defn add-fade-in
@@ -29,9 +31,7 @@
   (add-effect state
               :fade-in
               fade-in
-              #(dosync
-                (println "done")
-                (alter % dissoc :lock))))
+              #(dosync (alter % dissoc :lock))))
 
 (defn apply-effects
   [state]
