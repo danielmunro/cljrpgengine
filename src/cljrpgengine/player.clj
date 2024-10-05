@@ -121,7 +121,7 @@
 (defn update-move-offset!
   [state elapsed-nano]
   (let [{{:keys [x-offset y-offset]} :player} @state]
-    (mob/update-move-offset! state x-offset y-offset [:player] elapsed-nano)))
+    (mob/update-move-offset! state x-offset y-offset [:player] [:player :party 0 :sprite] elapsed-nano)))
 
 (defn- change-map!
   [state area-name room entrance-name]

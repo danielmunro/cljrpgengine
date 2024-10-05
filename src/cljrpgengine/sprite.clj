@@ -64,9 +64,10 @@
                   nil))))
 
 (defn create-animation
-  [frames delay]
+  [frames delay is-looping]
   {:frames frames
-   :delay delay})
+   :delay delay
+   :is-looping is-looping})
 
 (defn create-edwyn
   [direction]
@@ -78,10 +79,10 @@
    4
    4
    direction
-   {:down  (create-animation [0 1 0 3] 8)
-    :left  (create-animation [4 5 4 7] 8)
-    :right (create-animation [8 9 8 11] 8)
-    :up    (create-animation [12 13 12 15] 8)}))
+   {:down  (create-animation [0 1 0 3] 8 true)
+    :left  (create-animation [4 5 4 7] 8 true)
+    :right (create-animation [8 9 8 11] 8 true)
+    :up    (create-animation [12 13 12 15] 8 true)}))
 
 (defn create-from-name
   [name direction]

@@ -91,7 +91,7 @@
                    :direction key))))
 
 (defn update-move-offset!
-  [state x-offset y-offset update-in-path elapsed-nano]
+  [state x-offset y-offset update-in-path sprite-path elapsed-nano]
   (let [amount (/ elapsed-nano 20000000)]
     (cond
       (< x-offset 0)
@@ -101,7 +101,11 @@
       (< y-offset 0)
       (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< 0 (+ off amount)) 0 (+ off amount)))))
       (< 0 y-offset)
-      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< (+ off amount) 0) 0 (- off amount))))))))
+      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< (+ off amount) 0) 0 (- off amount)))))))
+  (let [current-animation (get-in @state (conj sprite-path :current-animation))]
+    (if (and (no-move-offset (get-in @state update-in-path))
+             (:is-playing (get-in @state (conj sprite-path :animations current-animation))))
+      (dosync (alter state update-in (conj sprite-path :animations current-animation :is-playing) (constantly false))))))
 
 (defn update-move-offsets!
   [state elapsed-nano]
@@ -109,7 +113,7 @@
     (dorun
      (for [m (vals mobs)]
        (let [{:keys [x-offset y-offset]} m]
-         (update-move-offset! state x-offset y-offset [:mobs (:identifier m)] elapsed-nano))))))
+         (update-move-offset! state x-offset y-offset [:mobs (:identifier m)] [:mobs (:identifier m) :sprite] elapsed-nano))))))
 
 (defn check-start-moving
   [state mob direction-moving]
@@ -146,20 +150,17 @@
              (check-start-moving state mob :left))))))))
 
 (defn update-sprite!
-  [state update-path {:keys [sprite] :as mobile}]
+  [state update-path {:keys [sprite]}]
   (let [current-animation (:current-animation sprite)
         animation (get-in sprite [:animations current-animation])
-        {:keys [frame frames]} animation]
-    (if (and (not (:is-looping animation))
-             (= (inc frame) (count frames)))
-      (dosync (alter state update-in update-path assoc :is-playing false))))
+        frame (:frame animation)
+        next-frame (sprite/get-sprite-frame sprite frame)]
+    (if (:is-playing animation)
       (dosync
-       (alter state update-in (conj update-path :frame)
-              (fn [frame]
-                (sprite/get-sprite-frame sprite frame))))
-  (if (no-move-offset mobile)
-    (dosync
-     (alter state assoc-in (conj update-path :is-playing) false))))
+        (if (and (not (:is-looping animation))
+                 (= 0 next-frame))
+          (alter state assoc-in update-path :is-playing false)
+          (alter state update-in (conj update-path :frame) (constantly next-frame)))))))
 
 (defn update-mob-sprites!
   [state]
