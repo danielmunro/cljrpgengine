@@ -147,10 +147,16 @@
 
 (defn update-sprite!
   [state update-path {:keys [sprite] :as mobile}]
-  (dosync
-   (alter state update-in (conj update-path :frame)
-          (fn [frame]
-            (sprite/get-sprite-frame sprite frame))))
+  (let [current-animation (:current-animation sprite)
+        animation (get-in sprite [:animations current-animation])
+        {:keys [frame frames]} animation]
+    (if (and (not (:is-looping animation))
+             (= (inc frame) (count frames)))
+      (dosync (alter state update-in update-path assoc :is-playing false))))
+      (dosync
+       (alter state update-in (conj update-path :frame)
+              (fn [frame]
+                (sprite/get-sprite-frame sprite frame))))
   (if (no-move-offset mobile)
     (dosync
      (alter state assoc-in (conj update-path :is-playing) false))))
