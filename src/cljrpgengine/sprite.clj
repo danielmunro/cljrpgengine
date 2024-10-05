@@ -1,8 +1,8 @@
 (ns cljrpgengine.sprite
   (:require [cljrpgengine.constants :as constants]
-            [quil.core :as q]))
-
-(def create-graphics (memoize (fn [w h] (q/create-graphics w h))))
+            [cljrpgengine.util :as util])
+  (:import (java.awt.geom AffineTransform)
+           (java.awt.image BufferedImage)))
 
 (defn- add-default-props
   [animations]
@@ -12,12 +12,14 @@
          (keys animations))))
 
 (defn create
-  [name filename width height current-animation animations]
+  [name filename width height columns rows current-animation animations]
   {:name name
    :filename filename
-   :image (q/load-image (str "sprites/" filename))
+   :image (util/load-image (str "sprites/" filename))
    :width width
    :height height
+   :columns columns
+   :rows rows
    :current-animation current-animation
    :animations (add-default-props animations)})
 
@@ -31,48 +33,40 @@
 (defn get-sprite-frame
   [{:keys [current-animation animations]} frame]
   (let [animation (current-animation animations)]
-    (if (and
-         (= 0 (mod (q/frame-count) (:delay animation)))
-         (:is-playing animation))
-      (get-next-frame frame (:frames animation))
+    (if (:is-playing animation)
+      (get-next-frame frame (count (:frames animation)))
       frame)))
 
 (defn draw
-  [player-x player-y {:keys [width height image animations current-animation]}]
+  [g player-x player-y {:keys [width height columns rows image animations current-animation]}]
   (let [animation (current-animation animations)
-        frame (:frame animation 0)
-        x (* frame width)
-        y (* height (:y-offset animation))
-        g (create-graphics width height)
+        index (:frame animation)
+        frame (get (:frames animation) index)
+        x (* width (mod frame columns))
+        y (* height (Math/floor (/ frame rows)))
+        bi (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
+        sprite-frame (.createGraphics bi)
         y-diff (- height width)]
-    (q/with-graphics g
-      (.clear g)
-      (q/image image (- x) (- y)))
-    (q/image g player-x (- player-y y-diff) width height)))
+    (.drawImage sprite-frame
+                image
+                0 0
+                width height
+                x
+                y
+                (+ x width)
+                (+ y height)
+                nil)
+    (let [transform (AffineTransform.)]
+      (.translate transform player-x (- player-y y-diff))
+      (.drawImage g
+                  bi
+                  transform
+                  nil))))
 
-(defn create-fireas
-  [direction]
-  (create
-   name
-   "fireas.png"
-   (first constants/character-dimensions)
-   (second constants/character-dimensions)
-   direction
-   {:down  {:frames   4
-            :delay    8
-            :y-offset 0}
-    :left  {:frames   4
-            :delay    8
-            :y-offset 1}
-    :right {:frames   4
-            :delay    8
-            :y-offset 2}
-    :up    {:frames   4
-            :delay    8
-            :y-offset 3}
-    :sleep {:frames   1
-            :delay    0
-            :y-offset 4}}))
+(defn create-animation
+  [frames delay]
+  {:frames frames
+   :delay delay})
 
 (defn create-edwyn
   [direction]
@@ -81,24 +75,18 @@
    "edwyn.png"
    (first constants/character-dimensions)
    (second constants/character-dimensions)
+   4
+   4
    direction
-   {:down  {:frames   3
-            :delay    8
-            :y-offset 0}
-    :left  {:frames   3
-            :delay    8
-            :y-offset 1}
-    :right {:frames   3
-            :delay    8
-            :y-offset 2}
-    :up    {:frames   3
-            :delay    8
-            :y-offset 3}}))
+   {:down  (create-animation [0 1 0 3] 8)
+    :left  (create-animation [4 5 4 7] 8)
+    :right (create-animation [8 9 8 11] 8)
+    :up    (create-animation [12 13 12 15] 8)}))
 
 (defn create-from-name
   [name direction]
   (cond
     (= :fireas name)
-    (create-fireas direction)
+    (create-edwyn direction)
     (= :edwyn name)
     (create-edwyn direction)))

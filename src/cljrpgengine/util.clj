@@ -1,4 +1,6 @@
-(ns cljrpgengine.util)
+(ns cljrpgengine.util
+  (:import (java.io File)
+           (javax.imageio IIOException ImageIO)))
 
 (defn filter-first
   [f data]
@@ -26,3 +28,14 @@
 (defn restore-amount
   [modifier amount max-amount]
   (min modifier (- max-amount amount)))
+
+(defn load-image
+  "Load an image, path is relative to 'resources/'"
+  [path]
+  (try
+    (-> (str "resources/" path)
+        (File.)
+        (ImageIO/read))
+    (catch IIOException e
+      (println "could not find path: " path)
+      (throw e))))

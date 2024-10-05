@@ -1,4 +1,5 @@
-(ns cljrpgengine.constants)
+(ns cljrpgengine.constants
+  (:import (java.awt Color)))
 
 (def target-fps 60)
 
@@ -10,17 +11,18 @@
 
 (def padding 30)
 
-(def window [640 400])
+(def screen-width 640)
+(def screen-height 400)
+
+(def window [screen-width screen-height])
 
 (def draw-blocking false)
 
 (def character-dimensions [16 24])
 
-(def title "Wheel of Fate")
-
-(def colors {:window       [0 0 255]
-             :font-default [255 255 255]
-             :font-disabled [155 155 155]})
+(def colors {:window        Color/BLUE
+             :font-default  Color/WHITE
+             :font-disabled Color/GRAY})
 
 (def dialog-text-width 62)
 
@@ -31,3 +33,7 @@
 (def starting-money 100)
 
 (def portrait-size [40 40])
+
+(def time-per-frame-nano 200000000)
+
+(def nano-per-second 1000000000)

@@ -1,89 +1,47 @@
 (ns cljrpgengine.core
   (:require [cljrpgengine.map :as map]
-            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.ui :as ui]
-            [quil.core :as q]
-            [quil.middleware :as m]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.input :as input]
-            [cljrpgengine.effect :as effect]))
+            [cljrpgengine.effect :as effect]
+            [cljrpgengine.game-loop :as game-loop]
+            [cljrpgengine.window :as window])
+  (:import (java.awt.event KeyListener))
+  (:gen-class))
 
 (def save-file (atom nil))
 
-(defn setup
+(defn setup-state!
   "Setup function for the game."
   []
   (ui/init!)
-  (q/frame-rate constants/target-fps)
-  (q/text-font (q/create-font constants/font-family constants/text-size))
   (let [state (if @save-file
                 (state/create-from-latest-save @save-file)
                 (state/create-new-state (player/create-new-player) (map/load-render-map "tinytown" "main")))
-        scene (create-scene/create state (:scene @state))]
-    (dosync (alter state assoc :scene scene))
+        scene (create-scene/create state (:scene @state))
+        frame (window/create
+               constants/screen-width
+               constants/screen-height)]
+    (.createBufferStrategy frame 2)
+    (.addKeyListener
+     frame
+     (proxy
+      [KeyListener]
+      []
+       (keyPressed [e]
+         (input/key-pressed! state e))
+       (keyReleased [e]
+         (input/key-released! state e))
+       (keyTyped [_])))
+    (dosync (alter state assoc
+                   :scene scene
+                   :buffer-strategy (.getBufferStrategy frame)))
     (.initialize-scene scene)
     (effect/add-fade-in state)
     state))
-
-(defn update-animations
-  "Update all animations -- just the player right now."
-  [state]
-  (player/update-player-sprite! state)
-  (mob/update-mob-sprites! state))
-
-(defn update-state
-  "Main loop, starting with updating animations.  Eventually, this will include
-  checking for game events."
-  [state]
-  (.update-scene (:scene @state))
-  (update-animations state)
-  (player/update-move-offset! state)
-  (player/check-exits state)
-  (player/check-start-moving state)
-  (mob/update-move-offsets! state)
-  (mob/update-mobs state)
-  state)
-
-(defn draw
-  "Redraw the screen, including backgrounds, mobs, and player."
-  [state]
-  (let [{scene-map :map
-         :keys [engagement mobs player menus]
-         {[player-mob] :party} :player} @state
-        {:keys [x y x-offset y-offset]} player
-        x-plus-offset (+ x x-offset)
-        y-plus-offset (+ y y-offset)
-        x-window-offset (-> (first constants/window)
-                            (/ 2)
-                            (- x-plus-offset))
-        y-window-offset (-> (second constants/window)
-                            (/ 2)
-                            (- y-plus-offset))
-        character-x (-> (first constants/character-dimensions)
-                        (/ 2))
-        character-y (-> (second constants/character-dimensions)
-                        (/ 2))
-        adjusted-x (- x-window-offset character-x)
-        adjusted-y (- y-window-offset character-y)]
-    (q/background 0)
-    (map/draw-background scene-map adjusted-x adjusted-y)
-    (dorun
-     (for [m (sort-by :y (vals mobs))]
-       (mob/draw-mob m adjusted-x adjusted-y)))
-    (mob/draw-mob (assoc player-mob
-                         :x (:x player)
-                         :y (:y player)
-                         :x-offset (:x-offset player)
-                         :y-offset (:y-offset player)
-                         :direction (:direction player)) adjusted-x adjusted-y)
-    (map/draw-foreground scene-map adjusted-x adjusted-y)
-    (if engagement
-      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
-    (ui/draw-menus menus))
-  (effect/apply-effects state))
 
 (defn -main
   "Start the game."
@@ -93,14 +51,4 @@
       (if (= "-s" arg)
         (swap! save-file (constantly (first (next args)))))))
   (println "starting game...")
-  (q/defsketch game
-    :title constants/title
-    :setup setup
-    :size constants/window
-    :update update-state
-    :draw draw
-    :key-pressed input/key-pressed!
-    :key-released input/key-released!
-    :middleware [m/fun-mode]
-    :features [:exit-on-close
-               :keep-on-top]))
+  (game-loop/run (setup-state!)))

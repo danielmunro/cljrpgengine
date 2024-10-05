@@ -5,12 +5,10 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.5.0"]
-                 [quil "4.3.1563"]
                  [clojure.java-time "1.4.2"]]
-  :main ^:skip-aot cljrpgengine.core
+  :main cljrpgengine.core
   :target-path "target/%s"
   :plugins [[lein-pprint "1.3.2"]
             [dev.weavejester/lein-cljfmt "0.12.0"]
             [lein-cloverage "1.2.2"]]
-  :profiles {:uberjar {:aot :all
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
+  :profiles {:uberjar {:aot :all}})

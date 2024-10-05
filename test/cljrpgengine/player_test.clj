@@ -1,6 +1,5 @@
 (ns cljrpgengine.player-test
-  (:require [cljrpgengine.input :as input]
-            [cljrpgengine.player :as player]
+  (:require [cljrpgengine.player :as player]
             [cljrpgengine.test-util :as test-util]
             [clojure.test :refer :all]))
 
@@ -25,6 +24,6 @@
        :right
        (- x tilewidth)
        y)
-      (input/key-released! state {:key :right})
+      (dosync (alter state update :keys disj :right))
       (is (empty? (:keys @state)))
       (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))))

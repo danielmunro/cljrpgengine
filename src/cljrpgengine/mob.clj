@@ -12,10 +12,10 @@
      (= 0 y-offset))))
 
 (defn draw-mob
-  [mob offset-x offset-y]
+  [g mob offset-x offset-y]
   (let [x (+ (:x mob) (:x-offset mob))
         y (+ (:y mob) (:y-offset mob))]
-    (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
+    (sprite/draw g (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
   ([identifier name class level direction x y sprite portrait]
@@ -91,24 +91,25 @@
                    :direction key))))
 
 (defn update-move-offset!
-  [state x-offset y-offset update-in-path]
-  (cond
-    (< x-offset 0)
-    (dosync (alter state update-in (conj update-in-path :x-offset) inc))
-    (< 0 x-offset)
-    (dosync (alter state update-in (conj update-in-path :x-offset) dec))
-    (< y-offset 0)
-    (dosync (alter state update-in (conj update-in-path :y-offset) inc))
-    (< 0 y-offset)
-    (dosync (alter state update-in (conj update-in-path :y-offset) dec))))
+  [state x-offset y-offset update-in-path elapsed-nano]
+  (let [amount (/ elapsed-nano 20000000)]
+    (cond
+      (< x-offset 0)
+      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (if (< 0 (+ off amount)) 0 (+ off amount)))))
+      (< 0 x-offset)
+      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (if (< (- off amount) 0) 0 (- off amount)))))
+      (< y-offset 0)
+      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< 0 (+ off amount)) 0 (+ off amount)))))
+      (< 0 y-offset)
+      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< (+ off amount) 0) 0 (- off amount))))))))
 
 (defn update-move-offsets!
-  [state]
+  [state elapsed-nano]
   (let [{:keys [mobs]} @state]
     (dorun
      (for [m (vals mobs)]
        (let [{:keys [x-offset y-offset]} m]
-         (update-move-offset! state x-offset y-offset [:mobs (:identifier m)]))))))
+         (update-move-offset! state x-offset y-offset [:mobs (:identifier m)] elapsed-nano))))))
 
 (defn check-start-moving
   [state mob direction-moving]

@@ -1,6 +1,6 @@
 (ns cljrpgengine.effect
-  (:require [cljrpgengine.constants :as constants]
-            [quil.core :as q]))
+  (:require [cljrpgengine.window :as window])
+  (:import (java.awt Color)))
 
 (defn add-effect
   [state effect-type effect effect-end]
@@ -14,20 +14,19 @@
   (let [fade (:fade-in @state)]
     (if fade
       (dosync
-       (alter state update :fade-in #(- % 10))
-       (q/fill (q/color 0 0 0 fade))
-       (q/rect 0 0 (first constants/window) (second constants/window))))
+       (alter state update :fade-in #(- % 0.05))
+       (window/fill-screen (Color. (float 0) (float 0) (float 0) (float fade)))))
     (if (< (:fade-in @state) 0)
       (do
         ((-> (:effects @state)
-            (:fade-in)
-            (:end)) state)
+             (:fade-in)
+             (:end)) state)
         true))))
 
 (defn add-fade-in
   [state]
   (dosync (alter state assoc :lock true
-                 :fade-in 255))
+                 :fade-in 1))
   (add-effect state
               :fade-in
               fade-in

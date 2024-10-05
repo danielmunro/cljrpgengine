@@ -8,7 +8,7 @@
 (deftype PartyMenu [state]
   menu/Menu
   (draw [menu]
-    (ui/draw-window 0 0 (first constants/window) (second constants/window))
+    (ui/draw-window 0 0 constants/screen-width constants/screen-height)
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
           x (* 3/4 (first constants/window))]
       (ui/draw-portraits state)

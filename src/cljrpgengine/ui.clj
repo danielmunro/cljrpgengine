@@ -1,92 +1,98 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
-            [clojure.string :as str]
-            [quil.core :as q]))
+            [cljrpgengine.window :as window]
+            [clojure.string :as str])
+  (:import (java.awt Font)
+           (java.io File)))
 
 (def panel (atom nil))
 (def ui-pack (atom nil))
+(def main-font (atom nil))
 
 (defn init!
   []
-  (swap! panel (fn [_] (q/load-image "sprites/panel.png")))
-  (swap! ui-pack (fn [_] (q/load-image "sprites/ui.png"))))
+  (swap! panel (fn [_] (util/load-image "sprites/panel.png")))
+  (swap! ui-pack (fn [_] (util/load-image "sprites/ui.png")))
+  (swap! main-font (fn [_] (.deriveFont
+                            (Font/createFont Font/TRUETYPE_FONT
+                                             (File. (str "resources/" constants/font-family)))
+                            (float constants/text-size)))))
 
 (defn draw-line
   ([x y line-number text font-color]
-   (q/with-fill (font-color constants/colors)
-     (q/text text (+ x constants/padding) (+ y constants/padding (* constants/line-spacing line-number)))))
+   (.setColor @window/graphics (font-color constants/colors))
+   (.setFont @window/graphics @main-font)
+   (.drawString @window/graphics
+                text
+                (float (+ x constants/padding))
+                (float (+ y constants/padding (* constants/line-spacing line-number)))))
   ([x y line-number text]
    (draw-line x y line-number text :font-default)))
 
 (defn draw-window
   [x y width height]
-  (q/with-fill (:window constants/colors)
-    (q/rect x y width height))
-  (let [f 48
+  (let [g @window/graphics
+        p @panel
+        f 48
         h (/ f 2)
-        q (/ h 2)
-        g (sprite/create-graphics h h)]
+        q (/ h 2)]
+    (.setColor g (:window constants/colors))
+    (.fillRect g x y width height)
+
     ; upper left
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel 0 0))
-    (q/image g x y)
+    (.drawImage g p x y (+ x h) (+ y h) 0 0 h h nil)
 
     ; lower left
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel 0 (- h)))
-    (q/image g x (-> (- height h)
-                     (+ y)))
+    (let [y (-> height
+                (- h)
+                (+ y))]
+      (.drawImage g p x y (+ x h) (+ y h) 0 h h (+ h h) nil))
 
     ; left
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel 0 (- q)))
-    (q/image g x (+ y h) h (- height f))
+    (let [y (+ y h)
+          h2 (- height f)]
+      (.drawImage g p x y (+ x h) (+ y h2) 0 q h (+ q h) nil))
 
     ; top
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- q) 0))
-    (q/image g (+ x h) y (- width f) h)
+    (let [dx1 (+ x h)
+          dx2 (- width h)]
+      (.drawImage g p dx1 y dx2 (+ y h) q 0 (+ q h) h nil))
 
     ; upper right
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- h) 0))
-    (q/image g (-> (- width h)
-                   (+ x)) y)
+    (let [dx1 (-> width
+                  (- h)
+                  (+ x))]
+      (.drawImage g p dx1 y (+ dx1 h) (+ y h) h 0 f h nil))
 
     ; lower right
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- h) (- h)))
-    (q/image g (-> (- width h)
-                   (+ x)) (-> (- height h)
-                              (+ y)))
+    (let [dx1 (-> width
+                  (- h)
+                  (+ x))
+          dy1 (-> height
+                  (- h)
+                  (+ y))]
+      (.drawImage g p dx1 dy1 (+ dx1 h) (+ dy1 h) h h f f nil))
 
     ; right
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- h) (- q)))
-    (q/image g (-> (- width h)
-                   (+ x)) (+ y h) h (- height f))
+    (let [dx1 (-> width
+                  (- h)
+                  (+ x))
+          dy1 (+ y h)
+          dy2 (-> dy1
+                  (+ height)
+                  (- h))]
+      (.drawImage g p dx1 dy1 (+ dx1 h) dy2 h q f (+ q h) nil))
 
     ; bottom
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- q) (- h)))
-    (q/image g (+ x h) (-> (- height h)
-                           (+ y)) (- width f) h)
-
-    ; middle
-    (q/with-graphics g
-      (.clear g)
-      (q/image @panel (- q) (- q)))
-    (q/image g h h  (- width f) (- height f))))
+    (let [dx1 (+ x h)
+          dy1 (-> height
+                  (- h)
+                  (+ y))
+          dx2 (-> dx1
+                  (+ width)
+                  (- h))]
+      (.drawImage g p dx1 dy1 dx2 (+ dy1 h) q h (+ q h) f nil))))
 
 (defn- string-break
   [message]
@@ -109,11 +115,7 @@
 
 (defn draw-cursor
   ([x y]
-   (let [g (sprite/create-graphics 16 16)]
-     (q/with-graphics g
-       (.clear g)
-       (q/image @ui-pack -342 -468))
-     (q/image g x y)))
+   (.drawImage @window/graphics @ui-pack x y (+ x 16) (+ y 16) 342 468 358 484 nil))
   ([x y line]
    (draw-cursor (+ x 10) (+ y 17 (* constants/line-spacing line)))))
 
@@ -125,7 +127,7 @@
   [message]
   (let [y (* (second constants/window) 2/3)
         text (string-break message)]
-    (draw-window 0 y (first constants/window) (* (second constants/window) 1/3))
+    (draw-window 0 y constants/screen-width (* constants/screen-height 1/3))
     (draw-line 0 y 0 text)))
 
 (defn draw-menus
@@ -255,37 +257,33 @@
 
 (defn draw-portraits
   ([state item selected-mob]
-   (let [graphics (sprite/create-graphics (first constants/portrait-size) (second constants/portrait-size))]
-     (loop [i 0]
-       (let [portrait-x 50
-             portrait-y (-> (* 10 i)
-                            (+ (* (second constants/portrait-size) i))
-                            (+ (* constants/padding i)))
-             {:keys [affect amount]} item
-             {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name]} i} :party} :player} @state
-             amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
-             amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
-         (q/with-graphics graphics
-           (.clear graphics)
-           (q/image portrait 0 0))
-         (q/image graphics constants/padding (+ 20 portrait-y))
-         (draw-line portrait-x portrait-y 0 name)
-         (draw-line portrait-x
-                    portrait-y
-                    1
-                    (str (format "%d/%d HP" hp max-hp)
-                         (if (and (= i selected-mob)
-                                  (= :restore-hp affect))
-                           (format " +%d" amount-hp))))
-         (draw-line
-          portrait-x
-          portrait-y
-          2
-          (str (format "%d/%d Mana" mana max-mana)
-               (if (and (= i selected-mob)
-                        (= :restore-mana affect))
-                 (format " +%d" amount-mana))))
-         (if (< i (dec (count party)))
-           (recur (inc i)))))))
+   (loop [i 0]
+     (let [portrait-x 50
+           portrait-y (-> (* 10 i)
+                          (+ (* (second constants/portrait-size) i))
+                          (+ (* constants/padding i)))
+           {:keys [affect amount]} item
+           {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name]} i} :party} :player} @state
+           amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
+           amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
+       (.drawImage @window/graphics portrait constants/padding (+ 20 portrait-y) nil)
+       (draw-line portrait-x portrait-y 0 name)
+       (draw-line portrait-x
+                  portrait-y
+                  1
+                  (str (format "%d/%d HP" hp max-hp)
+                       (if (and (= i selected-mob)
+                                (= :restore-hp affect))
+                         (format " +%d" amount-hp))))
+       (draw-line
+        portrait-x
+        portrait-y
+        2
+        (str (format "%d/%d Mana" mana max-mana)
+             (if (and (= i selected-mob)
+                      (= :restore-mana affect))
+               (format " +%d" amount-mana))))
+       (if (< i (dec (count party)))
+         (recur (inc i))))))
   ([state]
    (draw-portraits state nil -1)))

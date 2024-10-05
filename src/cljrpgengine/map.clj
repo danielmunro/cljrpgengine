@@ -1,12 +1,9 @@
 (ns cljrpgengine.map
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.util :as util]
-            [clojure.data.json :as json]
-            [quil.core :as q])
-  (:import (java.awt.image BufferedImage)
-           (java.io File)
-           (javax.imageio ImageIO)
-           (processing.core PImage)))
+            [clojure.data.json :as json])
+  (:import (java.awt.geom AffineTransform)
+           (java.awt.image BufferedImage)))
 
 (def cnt (atom 0))
 (def x (atom 0))
@@ -151,15 +148,13 @@
            (if (>= (inc x) mapw)
              (inc y)
              y)))))
-    (PImage. buf)))
+    buf))
 
 (defn load-map
   [area-name room]
   (let [tilemap (load-tilemap area-name room)
         tileset (load-tileset area-name)
-        image (-> (str "resources/" area-name "/" area-name ".png")
-                  (File.)
-                  (ImageIO/read))]
+        image (util/load-image (str area-name "/" area-name ".png"))]
     {:name (keyword area-name)
      :room (keyword room)
      :tilemap tilemap
@@ -185,13 +180,17 @@
       :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))})))
 
 (defn draw-background
-  [map offset-x offset-y]
-  (q/image (:background map) offset-x offset-y)
-  (q/image (:midground map) offset-x offset-y))
+  [g map offset-x offset-y]
+  (let [transform (AffineTransform.)]
+    (.translate transform offset-x offset-y)
+    (.drawImage g (:background map) transform nil)
+    (.drawImage g (:midground map) transform nil)))
 
 (defn draw-foreground
-  [map offset-x offset-y]
-  (q/image (:foreground map) offset-x offset-y))
+  [g map offset-x offset-y]
+  (let [transform (AffineTransform.)]
+    (.translate transform offset-x offset-y)
+    (.drawImage g (:foreground map) transform nil)))
 
 (defn get-warp
   [map warp-name]

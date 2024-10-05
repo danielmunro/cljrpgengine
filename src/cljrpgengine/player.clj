@@ -6,8 +6,7 @@
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.util :as util]
-            [quil.core :as q]))
+            [cljrpgengine.util :as util]))
 
 (defn create-new-player
   []
@@ -17,28 +16,28 @@
             :warrior 1
             :down 0 0
             (sprite/create-from-name :edwyn :down)
-            (q/load-image "portraits/fireas.png"))
+            (util/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Dingus"
             :mage 1
             :down 0 0
             (sprite/create-from-name :fireas :down)
-            (q/load-image "portraits/fireas.png"))
+            (util/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Prabble"
             :rogue 1
             :down 0 0
             (sprite/create-from-name :fireas :down)
-            (q/load-image "portraits/fireas.png"))
+            (util/load-image "portraits/fireas.png"))
            (mob/create-mob
             :fireas
             "Floodlegor"
             :cleric 1
             :down 0 0
             (sprite/create-from-name :fireas :down)
-            (q/load-image "portraits/fireas.png"))]
+            (util/load-image "portraits/fireas.png"))]
    :x 0
    :y 0
    :x-offset 0
@@ -120,9 +119,9 @@
       :sprite sprite})))
 
 (defn update-move-offset!
-  [state]
+  [state elapsed-nano]
   (let [{{:keys [x-offset y-offset]} :player} @state]
-    (mob/update-move-offset! state x-offset y-offset [:player])))
+    (mob/update-move-offset! state x-offset y-offset [:player] elapsed-nano)))
 
 (defn- change-map!
   [state area-name room entrance-name]
