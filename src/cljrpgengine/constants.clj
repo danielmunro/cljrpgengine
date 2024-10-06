@@ -37,3 +37,5 @@
 (def time-per-frame-nano 200000000)
 
 (def nano-per-second 1000000000)
+
+(def move-delay 14000000)

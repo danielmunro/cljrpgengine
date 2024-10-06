@@ -92,7 +92,7 @@
 
 (defn update-move-offset!
   [state x-offset y-offset update-in-path sprite-path elapsed-nano]
-  (let [amount (/ elapsed-nano 20000000)]
+  (let [amount (/ elapsed-nano constants/move-delay)]
     (cond
       (< x-offset 0)
       (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (min 0 (+ off amount)))))
