@@ -44,7 +44,9 @@
   (event/create-dialog-event! state
                               [(event/has-item :brilliant-amulet)]
                               :agnos
-                              ["Oh wow! The amulet look amazing!"])
+                              ["Oh wow! The amulet look amazing!"]
+                              [(event/mob-animation :agnos :dance)
+                               (event/player-animation :dance)])
   (event/create-dialog-event! state
                               [(event/granted :gain-blemished-item)]
                               :agnos

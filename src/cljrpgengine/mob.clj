@@ -176,8 +176,6 @@
 
 (defn play-animation
   [state update-in-path animation]
-  (println (str "play-animation " animation))
   (dosync
    (alter state assoc-in (conj update-in-path :sprite :current-animation) animation)
-   (alter state assoc-in (conj update-in-path :sprite :animations animation :is-playing) true))
-  (println (get-in @state (conj update-in-path :sprite :animations animation))))
+   (alter state assoc-in (conj update-in-path :sprite :animations animation :is-playing) true)))

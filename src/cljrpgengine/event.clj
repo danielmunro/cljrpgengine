@@ -49,6 +49,17 @@
    :mob mob
    :coords coords})
 
+(defn mob-animation
+  [mob animation]
+  {:type :mob-animation
+   :mob mob
+   :animation animation})
+
+(defn player-animation
+  [animation]
+  {:type :player-animation
+   :animation animation})
+
 (defn create-dialog-event!
   ([state conditions mob dialog outcomes]
    (dosync (alter state update-in [:events] conj {:type :dialog
@@ -86,7 +97,11 @@
        (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))
        (= :move-mob (:type outcome))
-       (mob/set-destination state (:mob outcome) (:coords outcome))))))
+       (mob/set-destination state (:mob outcome) (:coords outcome))
+       (= :mob-animation (:type outcome))
+       (mob/play-animation state [:mobs (:mob outcome)] (:animation outcome))
+       (= :player-animation (:type outcome))
+       (mob/play-animation state [:player :party 0] (:animation outcome))))))
 
 (defn get-dialog-event!
   [state target-mob]
