@@ -95,15 +95,16 @@
   (let [amount (/ elapsed-nano 20000000)]
     (cond
       (< x-offset 0)
-      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (if (< 0 (+ off amount)) 0 (+ off amount)))))
+      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (min 0 (+ off amount)))))
       (< 0 x-offset)
-      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (if (< (- off amount) 0) 0 (- off amount)))))
+      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (max 0 (- off amount)))))
       (< y-offset 0)
-      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< 0 (+ off amount)) 0 (+ off amount)))))
+      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (min 0 (+ off amount)))))
       (< 0 y-offset)
-      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (if (< (+ off amount) 0) 0 (- off amount)))))))
+      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (max 0 (- off amount)))))))
   (let [current-animation (get-in @state (conj sprite-path :current-animation))]
-    (if (and (no-move-offset (get-in @state update-in-path))
+    (if (and (or (not= 0 x-offset) (not= 0 y-offset))
+             (no-move-offset (get-in @state update-in-path))
              (:is-playing (get-in @state (conj sprite-path :animations current-animation))))
       (dosync (alter state update-in (conj sprite-path :animations current-animation :is-playing) (constantly false))))))
 
@@ -159,8 +160,10 @@
       (dosync
         (if (and (not (:is-looping animation))
                  (= 0 next-frame))
-          (alter state assoc-in update-path :is-playing false)
-          (alter state update-in (conj update-path :frame) (constantly next-frame)))))))
+          (alter state update-in update-path assoc
+                 :is-playing false
+                 :frame 0)
+          (alter state assoc-in (conj update-path :frame) next-frame))))))
 
 (defn update-mob-sprites!
   [state]
@@ -170,3 +173,11 @@
      (let [{:keys [sprite identifier]} m
            {:keys [current-animation]} sprite]
        (update-sprite! state [:mobs identifier :sprite :animations current-animation] m)))))
+
+(defn play-animation
+  [state update-in-path animation]
+  (println (str "play-animation " animation))
+  (dosync
+    (alter state assoc-in (conj update-in-path :sprite :current-animation) animation)
+    (alter state assoc-in (conj update-in-path :sprite :animations animation :is-playing) true))
+  (println (get-in @state (conj update-in-path :sprite :animations animation))))

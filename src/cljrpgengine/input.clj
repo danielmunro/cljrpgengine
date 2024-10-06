@@ -1,5 +1,6 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.mob :as mob]
+            [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.party-menu :as party-menu])
@@ -25,7 +26,9 @@
     (= key-code KeyEvent/VK_ESCAPE)
     :escape
     (= key-code KeyEvent/VK_Q)
-    :q))
+    :q
+    (= key-code KeyEvent/VK_D)
+    :d))
 
 (defn key-released!
   [state event]
@@ -84,7 +87,9 @@
         (= key :m)
         (ui/open-menu! state (party-menu/create-menu state))
         (= key :escape)
-        (System/exit 0))
+        (System/exit 0)
+        (= key :d)
+        (mob/play-animation state [:player :party 0] :dance))
       (cond
         (= key :escape)
         (System/exit 0))))
