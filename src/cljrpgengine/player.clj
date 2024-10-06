@@ -175,9 +175,9 @@
     (let [current-animation (get-in @state current-animation-path)]
       (event/apply-outcomes! state outcomes)
       (dosync
-        (if (= current-animation (get-in @state current-animation-path))
-          (alter state assoc-in current-animation-path mob-direction))
-        (alter state dissoc :engagement)))))
+       (if (= current-animation (get-in @state current-animation-path))
+         (alter state assoc-in current-animation-path mob-direction))
+       (alter state dissoc :engagement)))))
 
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]

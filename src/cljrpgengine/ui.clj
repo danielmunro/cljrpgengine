@@ -81,7 +81,7 @@
           dy1 (+ y h)
           dy2 (-> dy1
                   (+ height)
-                  (- h))]
+                  (- f))]
       (.drawImage g p dx1 dy1 (+ dx1 h) dy2 h q f (+ q h) nil))
 
     ; bottom
@@ -91,7 +91,7 @@
                   (+ y))
           dx2 (-> dx1
                   (+ width)
-                  (- h))]
+                  (- f))]
       (.drawImage g p dx1 dy1 dx2 (+ dy1 h) q h (+ q h) f nil))))
 
 (defn- string-break
