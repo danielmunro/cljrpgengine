@@ -158,12 +158,12 @@
         next-frame (sprite/get-sprite-frame sprite frame)]
     (if (:is-playing animation)
       (dosync
-        (if (and (not (:is-looping animation))
-                 (= 0 next-frame))
-          (alter state update-in update-path assoc
-                 :is-playing false
-                 :frame 0)
-          (alter state assoc-in (conj update-path :frame) next-frame))))))
+       (if (and (not (:is-looping animation))
+                (= 0 next-frame))
+         (alter state update-in update-path assoc
+                :is-playing false
+                :frame 0)
+         (alter state assoc-in (conj update-path :frame) next-frame))))))
 
 (defn update-mob-sprites!
   [state]
@@ -178,6 +178,6 @@
   [state update-in-path animation]
   (println (str "play-animation " animation))
   (dosync
-    (alter state assoc-in (conj update-in-path :sprite :current-animation) animation)
-    (alter state assoc-in (conj update-in-path :sprite :animations animation :is-playing) true))
+   (alter state assoc-in (conj update-in-path :sprite :current-animation) animation)
+   (alter state assoc-in (conj update-in-path :sprite :animations animation :is-playing) true))
   (println (get-in @state (conj update-in-path :sprite :animations animation))))
