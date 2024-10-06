@@ -33,7 +33,6 @@
 
 (defn draw-graphics
   [buffer-strategy]
-  (.dispose @graphics)
   (.show buffer-strategy))
 
 (defn new-graphics
