@@ -46,14 +46,15 @@
                               :agnos
                               ["Oh wow! The amulet look amazing!"])
   (event/create-dialog-event! state
-                              [(event/has-item :blemished-amulet)]
+                              [(event/granted :gain-blemished-item)]
                               :agnos
                               ["I hope the amulet serves you well."])
   (event/create-dialog-event! state
-                              []
+                              [(event/not-granted :gain-blemished-item)]
                               :agnos
                               ["Please, take this amulet."]
-                              [(event/gain-item :blemished-amulet)]))
+                              [(event/gain-item :blemished-amulet)
+                               (event/grant :gain-blemished-item)]))
 
 (defn initialize-scene
   [state]
