@@ -10,15 +10,16 @@
   (draw [menu]
     (ui/draw-window 0 0 constants/screen-width constants/screen-height)
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
-          x (* 3/4 (first constants/window))]
+          x (* 3/4 (first constants/window))
+          menu-item (partial ui/draw-line x 0)]
       (ui/draw-portraits state)
       (ui/draw-cursor x 0 cursor)
-      (ui/draw-line x 0 0 "Items")
-      (ui/draw-line x 0 1 "Equipment")
-      (ui/draw-line x 0 2 "Magic")
-      (ui/draw-line x 0 3 "Quests")
-      (ui/draw-line x 0 4 "Save")
-      (ui/draw-line x 0 5 "Quit")))
+      (menu-item 0 "Items")
+      (menu-item 1 "Equipment")
+      (menu-item 2 "Magic")
+      (menu-item 3 "Quests")
+      (menu-item 4 "Save")
+      (menu-item 5 "Quit")))
   (cursor-length [_] 6)
   (menu-type [_] :party)
   (key-pressed [menu]
