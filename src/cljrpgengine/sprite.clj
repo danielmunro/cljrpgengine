@@ -64,31 +64,7 @@
                   nil))))
 
 (defn create-animation
-  [frames delay is-looping]
+  [frames delay props]
   {:frames frames
    :delay delay
-   :is-looping is-looping})
-
-(defn create-edwyn
-  [direction]
-  (create
-   name
-   "edwyn.png"
-   (first constants/character-dimensions)
-   (second constants/character-dimensions)
-   4
-   4
-   direction
-   {:down  (create-animation [0 1 0 3] 8 true)
-    :left  (create-animation [4 5 4 7] 8 true)
-    :right (create-animation [8 9 8 11] 8 true)
-    :up    (create-animation [12 13 12 15] 8 true)
-    :dance (create-animation [0 4 12 8] 4 false)}))
-
-(defn create-from-name
-  [name direction]
-  (cond
-    (= :fireas name)
-    (create-edwyn direction)
-    (= :edwyn name)
-    (create-edwyn direction)))
+   :props props})

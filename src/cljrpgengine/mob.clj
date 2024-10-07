@@ -158,7 +158,7 @@
         next-frame (sprite/get-sprite-frame sprite frame)]
     (if (:is-playing animation)
       (dosync
-       (if (and (not (:is-looping animation))
+       (if (and (not (contains? (:props animation) :loop))
                 (= 0 next-frame))
          (alter state update-in update-path assoc
                 :is-playing false

@@ -2,7 +2,7 @@
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.scene :as scene]
-            [cljrpgengine.sprite :as sprite]))
+            [cljrpgengine.prefab-sprites :as prefab-sprites]))
 
 (def mobs (atom {}))
 
@@ -62,11 +62,11 @@
   [state]
   (swap! mobs
          (constantly {:item-shop
-                      {:gareth (mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create-from-name :fireas :down))}
+                      {:gareth (mob/create-mob :gareth "Gareth" :down 240 80 (prefab-sprites/create-from-name :edwyn :down))}
                       :main
-                      {:andros (mob/create-mob :andros "Andros" :down 352 224 (sprite/create-from-name :fireas :down))
-                       :sordna (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create-from-name :fireas :down))
-                       :agnos (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create-from-name :fireas :down))}}))
+                      {:andros (mob/create-mob :andros "Andros" :down 352 224 (prefab-sprites/create-from-name :edwyn :down))
+                       :sordna (mob/create-mob :sordna "Sordna" :down 544 320 (prefab-sprites/create-from-name :edwyn :down))
+                       :agnos (mob/create-mob :agnos "Agnos" :down 240 288 (prefab-sprites/create-from-name :edwyn :down))}}))
   (sordna-events state)
   (andros-events state)
   (agnos-events state))

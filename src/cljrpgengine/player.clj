@@ -4,7 +4,7 @@
             [cljrpgengine.map :as map]
             [cljrpgengine.menus.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.prefab-sprites :as prefab-sprites]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]))
 
@@ -15,31 +15,31 @@
             "Fireas"
             :warrior 1
             :down 0 0
-            (sprite/create-from-name :edwyn :down)
-            (util/load-image "portraits/fireas.png"))
+            (prefab-sprites/create-from-name :edwyn :down)
+            (util/load-image "portraits/edwyn.png"))
            (mob/create-mob
             :fireas
             "Dingus"
             :mage 1
             :down 0 0
-            (sprite/create-from-name :fireas :down)
-            (util/load-image "portraits/fireas.png"))
+            (prefab-sprites/create-from-name :edwyn :down)
+            (util/load-image "portraits/edwyn.png"))
            (mob/create-mob
             :fireas
             "Prabble"
             :rogue 1
             :down 0 0
-            (sprite/create-from-name :fireas :down)
-            (util/load-image "portraits/fireas.png"))
+            (prefab-sprites/create-from-name :edwyn :down)
+            (util/load-image "portraits/edwyn.png"))
            (mob/create-mob
             :fireas
             "Floodlegor"
             :cleric 1
             :down 0 0
-            (sprite/create-from-name :fireas :down)
-            (util/load-image "portraits/fireas.png"))]
-   :x 0
-   :y 0
+            (prefab-sprites/create-from-name :edwyn :down)
+            (util/load-image "portraits/edwyn.png"))]
+   :x     0
+   :y     0
    :x-offset 0
    :y-offset 0
    :direction :down})
