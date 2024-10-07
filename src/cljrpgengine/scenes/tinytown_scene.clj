@@ -84,6 +84,6 @@
                                    :practice-sword
                                    :cotton-tunic]}))
 
-(defn create-tinytown-scene
+(defn create
   [state]
   (TinytownScene. state))

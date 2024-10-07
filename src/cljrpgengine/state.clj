@@ -15,7 +15,8 @@
                     :events []
                     :menus []
                     :grants #{}
-                    :scene :tinytown
+                    :scene :main-menu
+                    ;:scene :tinytown
                     :player {:x 0
                              :y 0
                              :x-offset 0
