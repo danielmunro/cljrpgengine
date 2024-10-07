@@ -216,3 +216,16 @@
   (util/filter-first
    #(= entrance-name (:name %))
    (filter #(= "entrance" (:type %)) (get-in map [:tilemap :warps]))))
+
+(defn init-map
+  [state]
+  (let [map (:map @state)
+        {:keys [x y direction]} (get-warp map "start")]
+    (dosync
+     (alter state assoc-in [:map] map)
+     (alter state update-in [:player] assoc
+            :x x
+            :y y
+            :x-offset 0
+            :y-offset 0
+            :direction direction))))

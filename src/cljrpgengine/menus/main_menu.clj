@@ -3,6 +3,10 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
+(defn- new-game
+  [state]
+  (dosync (alter state assoc :new-game true)))
+
 (deftype MainMenu [state]
   menu/Menu
   (draw [menu]
@@ -22,7 +26,18 @@
   (cursor-length [_] 5)
   (menu-type [_] :main-menu)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))])))
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+      (cond
+        (= 0 cursor)
+        (println "continue")
+        (= 1 cursor)
+        (new-game state)
+        (= 2 cursor)
+        (println "load game")
+        (= 3 cursor)
+        (println "settings")
+        (= 4 cursor)
+        (System/exit 0)))))
 
 (defn create-menu
   [state]

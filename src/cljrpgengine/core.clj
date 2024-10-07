@@ -18,10 +18,8 @@
   "Setup function for the game."
   []
   (ui/init!)
-  (let [state (if @save-file
-                (state/create-from-latest-save @save-file)
-                (state/create-new-state (player/create-new-player) (map/load-render-map "tinytown" "main")))
-        scene (create-scene/create state (:scene @state))
+  (let [state (state/create-new-state)
+        scene (create-scene/create state :main-menu)
         frame (window/create
                constants/screen-width
                constants/screen-height)]

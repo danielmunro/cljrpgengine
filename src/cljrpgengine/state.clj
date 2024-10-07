@@ -1,6 +1,5 @@
 (ns cljrpgengine.state
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.player :as player]
+  (:require [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -9,20 +8,15 @@
 (def initial-state {:save-name nil
                     :keys #{}
                     :mobs []
-                    :items {:light-health-potion 2
-                            :light-mana-potion 1
-                            :practice-sword 1}
+                    :items {}
                     :events []
                     :menus []
                     :grants #{}
                     :scene :main-menu
                     ;:scene :tinytown
-                    :player {:x 0
-                             :y 0
-                             :x-offset 0
-                             :y-offset 0
-                             :direction :down}
-                    :money constants/starting-money
+                    :nodes #{}
+                    :player {}
+                    :money 0
                     :map nil
                     :effects {}})
 
@@ -72,23 +66,15 @@
        :map (map/load-render-map area-name room)}))))
 
 (defn create-new-state
-  [player map]
-  (let [state (ref
-               (merge
-                initial-state
-                {:player player
-                 :save-name (random-uuid)}))]
-    (dosync
-     (let [{:keys [x y direction]} (map/get-warp map "start")]
-       (alter state assoc-in [:map] map)
-       (alter state update-in [:player] assoc
-              :x x
-              :y y
-              :direction direction)))
-    state))
+  []
+  (ref initial-state))
 
 (defn create-from-latest-save
   [save-name]
   (let [directory (io/file (str "resources/saves/" save-name))
         files (sort (filter #(string/includes? % ".txt") (file-seq directory)))]
     (load-save-file (last files))))
+
+(defn update-nodes
+  [state nodes]
+  (dosync (alter state assoc :nodes nodes)))

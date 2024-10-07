@@ -2,7 +2,8 @@
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.scene :as scene]
-            [cljrpgengine.prefab-sprites :as prefab-sprites]))
+            [cljrpgengine.prefab-sprites :as prefab-sprites]
+            [cljrpgengine.state :as state]))
 
 (def mobs (atom {}))
 
@@ -69,7 +70,8 @@
                        :agnos (mob/create-mob :agnos "Agnos" :down 240 288 (prefab-sprites/create-from-name :edwyn :down))}}))
   (sordna-events state)
   (andros-events state)
-  (agnos-events state))
+  (agnos-events state)
+  (state/update-nodes state #{:player :mobs :map}))
 
 (defn update-scene
   [state]
