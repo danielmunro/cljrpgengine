@@ -39,3 +39,5 @@
 (def nano-per-second 1000000000)
 
 (def move-delay 14000000)
+
+(def dialog-height 140)

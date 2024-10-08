@@ -127,9 +127,9 @@
 
 (defn dialog
   [message]
-  (let [y (* (second constants/window) 2/3)
+  (let [y (- constants/screen-height constants/dialog-height)
         text (string-break message)]
-    (draw-window 0 y constants/screen-width (* constants/screen-height 1/3))
+    (draw-window 0 y constants/screen-width constants/dialog-height)
     (draw-line 0 y 0 text)))
 
 (defn draw-menus
