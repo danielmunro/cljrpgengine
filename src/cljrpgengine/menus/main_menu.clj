@@ -7,6 +7,10 @@
   [state]
   (dosync (alter state assoc :new-game true)))
 
+(defn- load-game
+  [state file]
+  (dosync (alter state assoc :load-game file)))
+
 (deftype MainMenu [state]
   menu/Menu
   (draw [menu]
@@ -29,7 +33,7 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (println "continue")
+        (load-game state "last-save.txt")
         (= 1 cursor)
         (new-game state)
         (= 2 cursor)

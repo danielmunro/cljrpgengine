@@ -72,6 +72,8 @@
   [state elapsed-nano]
   (if (:new-game @state)
     (new-game/start state))
+  (if (:load-game @state)
+    (new-game/load state))
   (.update-scene (:scene @state))
   (update-animations state elapsed-nano)
   (let [nodes (:nodes @state)]

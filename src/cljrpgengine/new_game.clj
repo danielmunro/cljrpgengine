@@ -3,6 +3,7 @@
             [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.map :as map]
             [cljrpgengine.player :as player]
+            [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]))
 
 (defn start
@@ -22,3 +23,15 @@
   (map/init-map state)
   (if (ui/is-menu-open? state)
     (ui/close-menu! state)))
+
+(defn load
+  [state]
+  (let [file (:load-game @state)
+        new-state (state/load-save-file file)
+        scene (create-scene/create state (:scene @new-state))]
+    (dosync (alter state merge @new-state)
+            (alter state dissoc :load-game)
+            (alter state assoc :scene scene))
+    (.initialize-scene scene)
+    (if (ui/is-menu-open? state)
+      (ui/close-menu! state))))

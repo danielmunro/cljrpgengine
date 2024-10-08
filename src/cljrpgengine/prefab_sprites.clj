@@ -5,7 +5,7 @@
 (defn create-edwyn
   [direction]
   (sprite/create
-   name
+   :edwyn
    "edwyn.png"
    (first constants/character-dimensions)
    (second constants/character-dimensions)

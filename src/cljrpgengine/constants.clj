@@ -41,3 +41,5 @@
 (def move-delay 14000000)
 
 (def dialog-height 140)
+
+(def save-dir "resources/saves/")

@@ -1,5 +1,6 @@
 (ns cljrpgengine.state
-  (:require [cljrpgengine.player :as player]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.player :as player]
             [cljrpgengine.map :as map]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -43,14 +44,15 @@
 
 (defn save
   [state]
-  (let [file-name (str "resources/saves/" (:save-name @state) "/" (jt/local-date-time) ".txt")]
+  (let [file-name (str constants/save-dir (:save-name @state) "/" (jt/local-date-time) ".txt")]
     (println "saving to: " file-name)
     (io/make-parents file-name)
-    (spit file-name (transform-to-save state))))
+    (spit file-name (transform-to-save state))
+    (spit (str constants/save-dir "last-save.txt") (transform-to-save state))))
 
 (defn load-save-file
   [save-file]
-  (let [data (read-string (slurp save-file))
+  (let [data (read-string (slurp (str constants/save-dir save-file)))
         {:keys [scene save-name grants items money]
          {area-name :name room :room} :map} data]
     (ref
