@@ -56,7 +56,9 @@
 
     ; top
     (let [dx1 (+ x h)
-          dx2 (- width h)]
+          dx2 (-> dx1
+                  (+ width)
+                  (- f))]
       (.drawImage g p dx1 y dx2 (+ y h) q 0 (+ q h) h nil))
 
     ; upper right
