@@ -11,6 +11,7 @@
     (dosync (alter state assoc
                    :player (player/create-new-player)
                    :map (map/load-map "tinytown" "main")
+                   :save-name (random-uuid)
                    :money constants/starting-money
                    :items {:light-health-potion 2
                            :light-mana-potion 1

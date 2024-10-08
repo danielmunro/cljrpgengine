@@ -163,6 +163,7 @@
         iw (:imagewidth tileset)]
     {:tilemap tilemap
      :tileset tileset
+     :name (keyword area-name)
      :room (keyword room)
      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
