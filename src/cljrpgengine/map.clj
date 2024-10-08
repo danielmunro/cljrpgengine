@@ -154,30 +154,19 @@
   [area-name room]
   (let [tilemap (load-tilemap area-name room)
         tileset (load-tileset area-name)
-        image (util/load-image (str area-name "/" area-name ".png"))]
-    {:name (keyword area-name)
-     :room (keyword room)
-     :tilemap tilemap
-     :tileset tileset
-     :image image}))
-
-(defn load-render-map
-  [area-name room]
-  (let [map (load-map area-name room)
-        tilemap (:tilemap map)
-        tileset (:tileset map)
-        image (:image map)
+        image (util/load-image (str area-name "/" area-name ".png"))
         layers (:layers tilemap)
         w (:tilewidth tileset)
         h (:tileheight tileset)
         mapw (:width tilemap)
         maph (:height tilemap)
         iw (:imagewidth tileset)]
-    (merge
-     map
-     {:background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
-      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
-      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))})))
+    {:tilemap tilemap
+     :tileset tileset
+     :room (keyword room)
+     :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
+     :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
+     :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))}))
 
 (defn draw-background
   [g map offset-x offset-y]

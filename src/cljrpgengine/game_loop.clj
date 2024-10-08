@@ -80,8 +80,9 @@
           (player/check-exits state)
           (player/check-start-moving state)))
     (if (contains? nodes :mobs)
-      (do (mob/update-move-offsets! state elapsed-nano)
-          (mob/update-mobs state))))
+      (do
+        (mob/update-move-offsets! state elapsed-nano)
+        (mob/update-mobs state))))
   state)
 
 (defn run

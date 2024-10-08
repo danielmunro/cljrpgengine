@@ -10,7 +10,7 @@
   (let [scene (create-scene/create state :tinytown)]
     (dosync (alter state assoc
                    :player (player/create-new-player)
-                   :map (map/load-render-map "tinytown" "main")
+                   :map (map/load-map "tinytown" "main")
                    :money constants/starting-money
                    :items {:light-health-potion 2
                            :light-mana-potion 1

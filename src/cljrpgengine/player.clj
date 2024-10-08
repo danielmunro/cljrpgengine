@@ -125,7 +125,7 @@
 
 (defn- change-map!
   [state area-name room entrance-name]
-  (let [new-map (map/load-render-map area-name room)
+  (let [new-map (map/load-map area-name room)
         {:keys [x y]} (map/get-entrance new-map entrance-name)]
     (effect/add-fade-in state)
     (dosync

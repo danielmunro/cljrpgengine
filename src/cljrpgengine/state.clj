@@ -13,7 +13,6 @@
                     :menus []
                     :grants #{}
                     :scene :main-menu
-                    ;:scene :tinytown
                     :nodes #{}
                     :player {}
                     :money 0
@@ -63,7 +62,7 @@
        :items items
        :money money
        :player (player/load-player data)
-       :map (map/load-render-map area-name room)}))))
+       :map (map/load-map area-name room)}))))
 
 (defn create-new-state
   []
