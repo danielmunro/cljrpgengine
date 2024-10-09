@@ -70,12 +70,6 @@
   []
   (ref initial-state))
 
-(defn create-from-latest-save
-  [save-name]
-  (let [directory (io/file (str "resources/saves/" save-name))
-        files (sort (filter #(string/includes? % ".txt") (file-seq directory)))]
-    (load-save-file (last files))))
-
 (defn update-nodes
   [state nodes]
   (dosync (alter state assoc :nodes nodes)))
