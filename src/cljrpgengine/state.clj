@@ -66,15 +66,15 @@
 (defn mob-from-data
   [data]
   (mob/create-mob
-    (:identifier data)
-    (:name data)
-    (:class data)
-    (:level data)
-    :down
-    0
-    0
-    (prefab-sprites/create-from-name (:identifier data) :down)
-    (:portrait data)))
+   (:identifier data)
+   (:name data)
+   (:class data)
+   (:level data)
+   :down
+   0
+   0
+   (prefab-sprites/create-from-name (:identifier data) :down)
+   (:portrait data)))
 
 (defn load-player
   [data]

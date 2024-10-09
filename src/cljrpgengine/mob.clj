@@ -32,7 +32,7 @@
       :sprite sprite
       :portrait (if portrait
                   {:filename portrait
-                  :image (util/load-image portrait)}
+                   :image (util/load-image portrait)}
                   nil)
       :class class
       :level level
