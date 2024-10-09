@@ -1,7 +1,19 @@
 (ns cljrpgengine.menus.main-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.ui :as ui]))
+            [cljrpgengine.ui :as ui]
+            [clojure.java.io :as io]))
+
+(def last-save (.exists (io/as-file (str constants/save-dir "last-save.txt"))))
+
+(def initial-menu-items '("New Game"
+                          "Load Game"
+                          "Settings"
+                          "Quit"))
+
+(def final-menu-items (if last-save
+                        (conj initial-menu-items "Continue")
+                        initial-menu-items))
 
 (defn- new-game
   [state]
@@ -22,25 +34,23 @@
           cursor (ui/get-menu-cursor state (.menu-type menu))]
       (ui/draw-window padding-x padding-y width height)
       (ui/draw-cursor padding-x padding-y cursor)
-      (menu-item 0 "Continue")
-      (menu-item 1 "New Game")
-      (menu-item 2 "Load Game")
-      (menu-item 3 "Settings")
-      (menu-item 4 "Quit")))
-  (cursor-length [_] 5)
+      (dorun
+       (for [i (range (count final-menu-items))]
+         (menu-item i (nth final-menu-items i))))))
+  (cursor-length [_] (count final-menu-items))
   (menu-type [_] :main-menu)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
-        (= 0 cursor)
+        (= (nth final-menu-items cursor) "Continue")
         (load-game state "last-save.txt")
-        (= 1 cursor)
+        (= (nth final-menu-items cursor) "New Game")
         (new-game state)
-        (= 2 cursor)
+        (= (nth final-menu-items cursor) "Load Game")
         (println "load game")
-        (= 3 cursor)
+        (= (nth final-menu-items cursor) "Settings")
         (println "settings")
-        (= 4 cursor)
+        (= (nth final-menu-items cursor) "Quit")
         (System/exit 0)))))
 
 (defn create-menu
