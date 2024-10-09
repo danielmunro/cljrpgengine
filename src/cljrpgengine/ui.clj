@@ -268,7 +268,7 @@
            {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name]} i} :party} :player} @state
            amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
-       (.drawImage @window/graphics portrait constants/padding (+ 20 portrait-y) nil)
+       (.drawImage @window/graphics (:image portrait) constants/padding (+ 20 portrait-y) nil)
        (draw-line portrait-x portrait-y 0 name)
        (draw-line portrait-x
                   portrait-y

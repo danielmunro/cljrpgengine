@@ -30,7 +30,10 @@
       :x-offset 0
       :y-offset 0
       :sprite sprite
-      :portrait portrait
+      :portrait (if portrait
+                  {:filename portrait
+                  :image (util/load-image portrait)}
+                  nil)
       :class class
       :level level
       :hp hp

@@ -1,9 +1,9 @@
 (ns cljrpgengine.state
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.player :as player]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.map :as map]
+            [cljrpgengine.prefab-sprites :as prefab-sprites]
             [clojure.java.io :as io]
-            [clojure.string :as string]
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
@@ -31,10 +31,24 @@
      :items items
      :money money
      :player {:party (mapv
-                      (fn [{:keys [name]
-                            {sprite-name :name} :sprite}]
+                      (fn [{:keys [name
+                                   identifier
+                                   class
+                                   level
+                                   hp
+                                   max-hp
+                                   mana
+                                   max-mana
+                                   portrait]}]
                         {:name name
-                         :sprite sprite-name}) party)
+                         :identifier identifier
+                         :class class
+                         :level level
+                         :hp hp
+                         :max-hp max-hp
+                         :mana mana
+                         :max-mana max-mana
+                         :portrait (:filename portrait)}) party)
               :x x
               :y y
               :direction direction}
@@ -49,8 +63,32 @@
     (spit file-name (transform-to-save state))
     (spit (str constants/save-dir "last-save.txt") (transform-to-save state))))
 
+(defn mob-from-data
+  [data]
+  (mob/create-mob
+    (:identifier data)
+    (:name data)
+    (:class data)
+    (:level data)
+    :down
+    0
+    0
+    (prefab-sprites/create-from-name (:identifier data) :down)
+    (:portrait data)))
+
+(defn load-player
+  [data]
+  (let [{{:keys [x y direction party]} :player} data]
+    {:x x
+     :x-offset 0
+     :y y
+     :y-offset 0
+     :direction direction
+     :party (mapv mob-from-data party)}))
+
 (defn load-save-file
   [save-file]
+  (println (str "loading save file: " constants/save-dir save-file))
   (let [data (read-string (slurp (str constants/save-dir save-file)))
         {:keys [scene save-name grants items money]
          {area-name :name room :room} :map} data]
@@ -62,7 +100,7 @@
        :grants grants
        :items items
        :money money
-       :player (player/load-player data)
+       :player (load-player data)
        :map (map/load-map area-name room)}))))
 
 (defn create-new-state

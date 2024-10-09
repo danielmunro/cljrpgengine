@@ -11,49 +11,38 @@
 (defn create-new-player
   []
   {:party [(mob/create-mob
-            :fireas
+            :edwyn
             "Fireas"
             :warrior 1
             :down 0 0
             (prefab-sprites/create-from-name :edwyn :down)
-            (util/load-image "portraits/edwyn.png"))
+            "portraits/edwyn.png")
            (mob/create-mob
-            :fireas
+            :edwyn
             "Dingus"
             :mage 1
             :down 0 0
             (prefab-sprites/create-from-name :edwyn :down)
-            (util/load-image "portraits/edwyn.png"))
+            "portraits/edwyn.png")
            (mob/create-mob
-            :fireas
+            :edwyn
             "Prabble"
             :rogue 1
             :down 0 0
             (prefab-sprites/create-from-name :edwyn :down)
-            (util/load-image "portraits/edwyn.png"))
+            "portraits/edwyn.png")
            (mob/create-mob
-            :fireas
+            :edwyn
             "Floodlegor"
             :cleric 1
             :down 0 0
             (prefab-sprites/create-from-name :edwyn :down)
-            (util/load-image "portraits/edwyn.png"))]
+            "portraits/edwyn.png")]
    :x     0
    :y     0
    :x-offset 0
    :y-offset 0
    :direction :down})
-
-(defn load-player
-  [data]
-  (let [player (create-new-player)
-        {{:keys [x y direction]} :player} data]
-    (-> player
-        (assoc :x x
-               :y y
-               :direction direction)
-        (assoc-in [:party 0 :sprite :current-animation]
-                  direction))))
 
 (defn start-moving!
   [state key new-x new-y]

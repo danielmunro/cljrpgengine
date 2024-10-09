@@ -24,7 +24,7 @@
   (if (ui/is-menu-open? state)
     (ui/close-menu! state)))
 
-(defn load
+(defn load-save
   [state]
   (let [file (:load-game @state)
         new-state (state/load-save-file file)
