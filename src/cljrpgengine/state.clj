@@ -30,12 +30,11 @@
      :grants grants
      :items items
      :money money
-     :player {:party (into []
-                           (map
-                            (fn [{:keys [name]
-                                  {sprite-name :name} :sprite}]
-                              {:name name
-                               :sprite sprite-name}) party))
+     :player {:party (mapv
+                      (fn [{:keys [name]
+                            {sprite-name :name} :sprite}]
+                        {:name name
+                         :sprite sprite-name}) party)
               :x x
               :y y
               :direction direction}
