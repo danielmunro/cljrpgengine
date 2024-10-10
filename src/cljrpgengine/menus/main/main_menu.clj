@@ -1,6 +1,8 @@
-(ns cljrpgengine.menus.main-menu
+(ns cljrpgengine.menus.main.main-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.menus.main.select-game :as select-game]
+            [cljrpgengine.menus.main.shared :as shared]
             [cljrpgengine.ui :as ui]
             [clojure.java.io :as io]))
 
@@ -18,10 +20,6 @@
 (defn- new-game
   [state]
   (dosync (alter state assoc :new-game true)))
-
-(defn- load-game
-  [state file]
-  (dosync (alter state assoc :load-game file)))
 
 (deftype MainMenu [state]
   menu/Menu
@@ -43,11 +41,11 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= (nth final-menu-items cursor) "Continue")
-        (load-game state "last-save.txt")
+        (shared/load-game state "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
         (new-game state)
         (= (nth final-menu-items cursor) "Load Game")
-        (println "load game")
+        (ui/open-menu! state (select-game/create-menu state))
         (= (nth final-menu-items cursor) "Settings")
         (println "settings")
         (= (nth final-menu-items cursor) "Quit")

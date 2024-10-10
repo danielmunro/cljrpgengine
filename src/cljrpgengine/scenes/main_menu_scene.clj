@@ -2,7 +2,7 @@
   (:require [cljrpgengine.scene :as scene]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.main-menu :as main-menu]))
+            [cljrpgengine.menus.main.main-menu :as main-menu]))
 
 (deftype MainMenuScene [state]
   scene/Scene
