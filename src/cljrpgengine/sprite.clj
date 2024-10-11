@@ -1,6 +1,5 @@
 (ns cljrpgengine.sprite
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.util :as util])
+  (:require [cljrpgengine.util :as util])
   (:import (java.awt.geom AffineTransform)
            (java.awt.image BufferedImage)))
 

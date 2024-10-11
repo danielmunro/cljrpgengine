@@ -26,15 +26,15 @@
     (.setVisible frame true)
     (.createBufferStrategy frame 2)
     (.addKeyListener
-      frame
-      (proxy
-        [KeyListener]
-        []
-        (keyPressed [e]
-          (key-pressed e))
-        (keyReleased [e]
-          (key-released e))
-        (keyTyped [_])))
+     frame
+     (proxy
+      [KeyListener]
+      []
+       (keyPressed [e]
+         (key-pressed e))
+       (keyReleased [e]
+         (key-released e))
+       (keyTyped [_])))
     frame))
 
 (defn fill-screen
