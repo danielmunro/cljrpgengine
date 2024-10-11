@@ -1,6 +1,7 @@
 (ns cljrpgengine.window
   (:require [cljrpgengine.constants :as constants])
   (:import (java.awt Color GraphicsEnvironment Toolkit)
+           (java.awt.event KeyListener)
            (javax.swing JFrame)))
 
 (def graphics (atom nil))
@@ -8,7 +9,7 @@
 (def ratio-y (atom nil))
 
 (defn create
-  [width height]
+  [width height key-pressed key-released]
   (let [screenSize (.getScreenSize (Toolkit/getDefaultToolkit))
         m (min
            (/ (.getWidth screenSize) constants/screen-width)
@@ -23,6 +24,17 @@
     (.setExtendedState frame JFrame/MAXIMIZED_BOTH)
     (.setFullScreenWindow (.getDefaultScreenDevice (GraphicsEnvironment/getLocalGraphicsEnvironment)) frame)
     (.setVisible frame true)
+    (.createBufferStrategy frame 2)
+    (.addKeyListener
+      frame
+      (proxy
+        [KeyListener]
+        []
+        (keyPressed [e]
+          (key-pressed e))
+        (keyReleased [e]
+          (key-released e))
+        (keyTyped [_])))
     frame))
 
 (defn fill-screen

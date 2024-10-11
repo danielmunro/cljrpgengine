@@ -1,7 +1,5 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.map :as map]
-            [cljrpgengine.player :as player]
-            [cljrpgengine.create-scene :as create-scene]
+  (:require [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
@@ -9,7 +7,6 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window])
-  (:import (java.awt.event KeyListener))
   (:gen-class))
 
 (def save-file (atom nil))
@@ -22,18 +19,9 @@
         scene (create-scene/create state :main-menu)
         frame (window/create
                constants/screen-width
-               constants/screen-height)]
-    (.createBufferStrategy frame 2)
-    (.addKeyListener
-     frame
-     (proxy
-      [KeyListener]
-      []
-       (keyPressed [e]
-         (input/key-pressed! state e))
-       (keyReleased [e]
-         (input/key-released! state e))
-       (keyTyped [_])))
+               constants/screen-height
+               #(input/key-pressed! state %)
+               #(input/key-released! state %))]
     (dosync (alter state assoc
                    :scene scene
                    :buffer-strategy (.getBufferStrategy frame)))
