@@ -109,7 +109,7 @@
     (if (and (or (not= 0 x-offset) (not= 0 y-offset))
              (no-move-offset (get-in @state update-in-path))
              (:is-playing (get-in @state (conj sprite-path :animations current-animation))))
-      (dosync (alter state update-in (conj sprite-path :animations current-animation :is-playing) (constantly false))))))
+      (dosync (alter state assoc-in (conj sprite-path :animations current-animation :is-playing) false)))))
 
 (defn update-move-offsets!
   [state elapsed-nano]
