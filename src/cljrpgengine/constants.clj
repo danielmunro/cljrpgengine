@@ -43,3 +43,5 @@
 (def dialog-height 140)
 
 (def save-dir "resources/saves/")
+
+(def walk-frame-delay 8)
