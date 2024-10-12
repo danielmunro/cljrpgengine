@@ -93,18 +93,22 @@
                    :y new-y
                    :direction key))))
 
+(defn- do-update-move-offset!
+  [state update-in-path min-or-max amount]
+  (dosync (alter state update-in update-in-path (fn [off] (min-or-max 0 (+ off amount))))))
+
 (defn update-move-offset!
   [state x-offset y-offset update-in-path sprite-path elapsed-nano]
   (let [amount (/ elapsed-nano constants/move-delay)]
     (cond
       (< x-offset 0)
-      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (min 0 (+ off amount)))))
+      (do-update-move-offset! state (conj update-in-path :x-offset) min amount)
       (< 0 x-offset)
-      (dosync (alter state update-in (conj update-in-path :x-offset) (fn [off] (max 0 (- off amount)))))
+      (do-update-move-offset! state (conj update-in-path :x-offset) max (- amount))
       (< y-offset 0)
-      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (min 0 (+ off amount)))))
+      (do-update-move-offset! state (conj update-in-path :y-offset) min amount)
       (< 0 y-offset)
-      (dosync (alter state update-in (conj update-in-path :y-offset) (fn [off] (max 0 (- off amount)))))))
+      (do-update-move-offset! state (conj update-in-path :y-offset) max (- amount))))
   (let [current-animation (get-in @state (conj sprite-path :current-animation))]
     (if (and (or (not= 0 x-offset) (not= 0 y-offset))
              (no-move-offset (get-in @state update-in-path))
