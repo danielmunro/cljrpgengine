@@ -41,22 +41,23 @@
 
 (defn draw
   [g player-x player-y {:keys [width height columns rows image animations current-animation]}]
-  (let [animation (current-animation animations)
-        index (:frame animation)
-        frame (get (:frames animation) index)
-        x (* width (mod frame columns))
-        y (* height (Math/floor (/ frame rows)))
+  (let [animation (get animations current-animation)
+        {:keys [frame frames]
+         {:keys [flip]} :props} animation
+        index (get frames frame)
+        x (* width (mod index columns))
+        y (* height (Math/floor (/ index rows)))
         bi (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
         sprite-frame (.createGraphics bi)
-        y-diff (- height width)]
-    (.drawImage sprite-frame
+        y-diff (- height width)
+        dx1 (if flip (+ x width) x)
+        dx2 (if flip x (+ x width))]
+   (.drawImage sprite-frame
                 image
                 0 0
                 width height
-                x
-                y
-                (+ x width)
-                (+ y height)
+                dx1 y
+                dx2 (+ y height)
                 nil)
     (let [transform (AffineTransform.)]
       (.translate transform player-x (- player-y y-diff))

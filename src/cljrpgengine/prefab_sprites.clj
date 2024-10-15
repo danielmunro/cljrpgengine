@@ -14,7 +14,7 @@
    direction
    {:down  (sprite/create-animation [0 1 0 2] nil #{:loop})
     :left  (sprite/create-animation [3 4 3 5] nil #{:loop})
-    :right (sprite/create-animation [6 7 6 8] nil #{:loop})
+    :right (sprite/create-animation [3 4 3 5] nil #{:loop :flip})
     :up    (sprite/create-animation [9 10 9 11] nil #{:loop})
     :dance (sprite/create-animation [0 3 9 6] 4 #{})}))
 
