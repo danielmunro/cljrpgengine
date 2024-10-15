@@ -99,9 +99,9 @@
        (= :move-mob (:type outcome))
        (mob/set-destination state (:mob outcome) (:coords outcome))
        (= :mob-animation (:type outcome))
-       (mob/play-animation state [:mobs (:mob outcome)] (:animation outcome))
+       (mob/play-animation! state [:mobs (:mob outcome)] (:animation outcome))
        (= :player-animation (:type outcome))
-       (mob/play-animation state [:player :party 0] (:animation outcome))))))
+       (mob/play-animation! state [:player :party 0] (:animation outcome))))))
 
 (defn get-dialog-event!
   [state target-mob]

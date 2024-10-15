@@ -45,7 +45,7 @@
    :direction :down})
 
 (defn start-moving!
-  [state key new-x new-y]
+  [state direction new-x new-y]
   (let [{:keys [mobs]
          {:keys [x y]} :player
          {:keys [tileset tilemap]} :map} @state]
@@ -63,18 +63,13 @@
         tileset
         new-x
         new-y)))
-      (dosync (alter state update :keys conj key)
-              (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-              (alter state assoc-in [:player :party 0 :sprite :animations (keyword key) :is-playing] true)
-              (alter state update-in [:player] assoc
-                     :x-offset (- x new-x)
-                     :y-offset (- y new-y)
-                     :x new-x
-                     :y new-y
-                     :direction key))
+      (do
+        (mob/play-animation! state [:player :party 0] direction)
+        (mob/set-mob-move-offsets! state [:player] direction x y new-x new-y)
+        (dosync (alter state update :keys conj direction)))
       (dosync
-       (alter state assoc-in [:player :party 0 :sprite :current-animation] key)
-       (alter state assoc-in [:player :direction] key)))))
+       (alter state assoc-in [:player :party 0 :sprite :current-animation] direction)
+       (alter state assoc-in [:player :direction] direction)))))
 
 (defn check-start-moving
   [state]

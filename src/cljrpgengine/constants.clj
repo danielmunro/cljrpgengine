@@ -44,4 +44,4 @@
 
 (def save-dir "resources/saves/")
 
-(def walk-frame-delay 8)
+(def tile-size 16)

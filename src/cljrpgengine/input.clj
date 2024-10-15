@@ -89,7 +89,7 @@
         (= key :escape)
         (System/exit 0)
         (= key :d)
-        (mob/play-animation state [:player :party 0] :dance))
+        (mob/play-animation! state [:player :party 0] :dance))
       (cond
         (= key :escape)
         (System/exit 0))))

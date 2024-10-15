@@ -3,6 +3,9 @@
   (:import (java.awt.geom AffineTransform)
            (java.awt.image BufferedImage)))
 
+(def move-animations
+  #{:up :down :left :right})
+
 (defn- add-default-props
   [animations]
   (into {}
