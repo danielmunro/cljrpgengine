@@ -101,6 +101,7 @@
   (let [words (str/split message #" ")]
     (loop [w 0
            l 0
+           lines []
            text ""]
       (if (< w (count words))
         (recur
@@ -111,9 +112,12 @@
            0
            (+ 1 l (count (words w))))
          (if (> (+ l (count (words w)) 1) constants/dialog-text-width)
-           (str text "\n")
+           (conj lines text)
+           lines)
+         (if (> (+ l (count (words w)) 1) constants/dialog-text-width)
+           ""
            (str text (words w) " ")))
-        text))))
+        (conj lines text)))))
 
 (defn draw-cursor
   ([x y]
@@ -130,7 +134,9 @@
   (let [y (- constants/screen-height constants/dialog-height)
         text (string-break message)]
     (draw-window 0 y constants/screen-width constants/dialog-height)
-    (draw-line 0 y 0 text)))
+    (dorun
+     (for [i (range (count text))]
+       (draw-line 0 y i (get text i))))))
 
 (defn draw-menus
   [menus]

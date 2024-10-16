@@ -52,7 +52,7 @@
         y-diff (- height width)
         dx1 (if flip (+ x width) x)
         dx2 (if flip x (+ x width))]
-   (.drawImage sprite-frame
+    (.drawImage sprite-frame
                 image
                 0 0
                 width height
