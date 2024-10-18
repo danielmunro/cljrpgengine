@@ -1,5 +1,6 @@
 (ns cljrpgengine.core
   (:require [cljrpgengine.create-scene :as create-scene]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
@@ -15,6 +16,7 @@
   "Setup function for the game."
   []
   (ui/init!)
+  (sprite/load-sprites)
   (let [state (state/create-new-state)
         scene (create-scene/create state :main-menu)
         frame (window/create

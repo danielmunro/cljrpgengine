@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.map :as map]
-            [cljrpgengine.prefab-sprites :as prefab-sprites]
+            [cljrpgengine.sprite :as sprite]
             [clojure.java.io :as io]
             [java-time.api :as jt]))
 
@@ -73,7 +73,7 @@
    :down
    0
    0
-   (prefab-sprites/create-from-name (:identifier data) :down)
+   (sprite/create-from-def (:identifier data))
    (:portrait data)))
 
 (defn load-player

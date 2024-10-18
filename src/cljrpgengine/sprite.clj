@@ -1,10 +1,15 @@
 (ns cljrpgengine.sprite
-  (:require [cljrpgengine.util :as util])
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.util :as util]
+            [clojure.java.io :as io]
+            [clojure.string :as str])
   (:import (java.awt.geom AffineTransform)
            (java.awt.image BufferedImage)))
 
 (def move-animations
   #{:up :down :left :right})
+
+(def sprites (atom nil))
 
 (defn- add-default-props
   [animations]
@@ -24,6 +29,26 @@
    :rows rows
    :current-animation current-animation
    :animations (add-default-props animations)})
+
+(defn create-from-def
+  [name]
+  (let [sprite-def (or (util/filter-first #(= (:name %) name) @sprites)
+                       (throw (ex-info (format "no sprite with name %s" name) {:name name})))
+        {:keys [name
+                file
+                dimensions
+                size
+                default-animation
+                animations]} sprite-def]
+    (create
+      name
+      file
+      (first dimensions)
+      (second dimensions)
+      (first size)
+      (second size)
+      default-animation
+      animations)))
 
 (defn get-next-frame
   [current-frame total-frames]
@@ -66,8 +91,14 @@
                   transform
                   nil))))
 
-(defn create-animation
-  [frames delay props]
-  {:frames frames
-   :delay delay
-   :props props})
+(defn load-sprites
+  []
+  (swap!
+   sprites
+   (fn [_]
+     (->> (io/file constants/sprites-dir)
+          (.list)
+          (seq)
+          (filter #(str/ends-with? % ".edn"))
+          (map
+            #(read-string (slurp (str constants/sprites-dir %))))))))

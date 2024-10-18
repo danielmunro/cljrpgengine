@@ -4,7 +4,7 @@
             [cljrpgengine.map :as map]
             [cljrpgengine.menus.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.prefab-sprites :as prefab-sprites]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]))
 
@@ -15,29 +15,29 @@
             "Fireas"
             :warrior 1
             :down 0 0
-            (prefab-sprites/create-from-name :edwyn :down)
+            (sprite/create-from-def :edwyn)
             "portraits/edwyn.png")
            (mob/create-mob
-            :edwyn
-            "Dingus"
-            :mage 1
-            :down 0 0
-            (prefab-sprites/create-from-name :edwyn :down)
-            "portraits/edwyn.png")
+             :edwyn
+             "Dingus"
+             :mage 1
+             :down 0 0
+             (sprite/create-from-def :edwyn)
+             "portraits/edwyn.png")
            (mob/create-mob
-            :edwyn
-            "Prabble"
-            :rogue 1
-            :down 0 0
-            (prefab-sprites/create-from-name :edwyn :down)
-            "portraits/edwyn.png")
+             :edwyn
+             "Prabble"
+             :rogue 1
+             :down 0 0
+             (sprite/create-from-def :edwyn)
+             "portraits/edwyn.png")
            (mob/create-mob
-            :edwyn
-            "Floodlegor"
-            :cleric 1
-            :down 0 0
-            (prefab-sprites/create-from-name :edwyn :down)
-            "portraits/edwyn.png")]
+             :edwyn
+             "Floodlegor"
+             :cleric 1
+             :down 0 0
+             (sprite/create-from-def :edwyn)
+             "portraits/edwyn.png")]
    :x     0
    :y     0
    :x-offset 0
@@ -46,8 +46,8 @@
 
 (defn start-moving!
   [state direction new-x new-y]
-  (let [{:keys [mobs]
-         {:keys [x y]} :player
+  (let [{:keys                     [mobs]
+         {:keys [x y]}             :player
          {:keys [tileset tilemap]} :map} @state]
     (if
      (and

@@ -42,6 +42,10 @@
 
 (def dialog-height 140)
 
-(def save-dir "resources/saves/")
+(def resources-dir "resources/")
+
+(def save-dir (str resources-dir "saves/"))
+
+(def sprites-dir (str resources-dir "sprites/"))
 
 (def tile-size 16)
