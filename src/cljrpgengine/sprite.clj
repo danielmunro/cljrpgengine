@@ -11,44 +11,18 @@
 
 (def sprites (atom nil))
 
-(defn- add-default-props
-  [animations]
-  (into {}
-        (map
-         (fn [animation] {animation (assoc (animation animations) :frame 0 :is-playing false)})
-         (keys animations))))
-
 (defn create
-  [name filename width height columns rows current-animation animations]
-  {:name name
-   :filename filename
-   :image (util/load-image (str "sprites/" filename))
-   :width width
-   :height height
-   :columns columns
-   :rows rows
-   :current-animation current-animation
-   :animations (add-default-props animations)})
-
-(defn create-from-def
   [name]
   (let [sprite-def (or (util/filter-first #(= (:name %) name) @sprites)
                        (throw (ex-info (format "no sprite with name %s" name) {:name name})))
-        {:keys [name
-                file
-                dimensions
-                size
-                default-animation
-                animations]} sprite-def]
-    (create
-      name
-      file
-      (first dimensions)
-      (second dimensions)
-      (first size)
-      (second size)
-      default-animation
-      animations)))
+        {:keys [file default-animation animations]} sprite-def]
+    (assoc sprite-def :image (util/load-image (str "sprites/" file))
+           :current-animation default-animation
+           :animations (into {}
+                             (map
+                              (fn [animation] {animation (assoc (animation animations) :frame 0
+                                                                :is-playing false)})
+                              (keys animations))))))
 
 (defn get-next-frame
   [current-frame total-frames]
@@ -65,7 +39,9 @@
       frame)))
 
 (defn draw
-  [g player-x player-y {:keys [width height columns rows image animations current-animation]}]
+  [g player-x player-y {:keys [image animations current-animation]
+                        [width height] :dimensions
+                        [rows columns] :size}]
   (let [animation (get animations current-animation)
         {:keys [frame frames]
          {:keys [flip]} :props} animation
@@ -101,4 +77,4 @@
           (seq)
           (filter #(str/ends-with? % ".edn"))
           (map
-            #(read-string (slurp (str constants/sprites-dir %))))))))
+           #(read-string (slurp (str constants/sprites-dir %))))))))

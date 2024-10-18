@@ -73,7 +73,7 @@
    :down
    0
    0
-   (sprite/create-from-def (:identifier data))
+   (sprite/create (:identifier data))
    (:portrait data)))
 
 (defn load-player

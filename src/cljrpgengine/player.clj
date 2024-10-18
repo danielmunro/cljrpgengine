@@ -15,29 +15,29 @@
             "Fireas"
             :warrior 1
             :down 0 0
-            (sprite/create-from-def :edwyn)
+            (sprite/create :edwyn)
             "portraits/edwyn.png")
            (mob/create-mob
-             :edwyn
-             "Dingus"
-             :mage 1
-             :down 0 0
-             (sprite/create-from-def :edwyn)
-             "portraits/edwyn.png")
+            :edwyn
+            "Dingus"
+            :mage 1
+            :down 0 0
+            (sprite/create :edwyn)
+            "portraits/edwyn.png")
            (mob/create-mob
-             :edwyn
-             "Prabble"
-             :rogue 1
-             :down 0 0
-             (sprite/create-from-def :edwyn)
-             "portraits/edwyn.png")
+            :edwyn
+            "Prabble"
+            :rogue 1
+            :down 0 0
+            (sprite/create :edwyn)
+            "portraits/edwyn.png")
            (mob/create-mob
-             :edwyn
-             "Floodlegor"
-             :cleric 1
-             :down 0 0
-             (sprite/create-from-def :edwyn)
-             "portraits/edwyn.png")]
+            :edwyn
+            "Floodlegor"
+            :cleric 1
+            :down 0 0
+            (sprite/create :edwyn)
+            "portraits/edwyn.png")]
    :x     0
    :y     0
    :x-offset 0

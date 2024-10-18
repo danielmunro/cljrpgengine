@@ -1,10 +1,12 @@
 (ns cljrpgengine.player-test
   (:require [cljrpgengine.player :as player]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.test-util :as test-util]
             [clojure.test :refer :all]))
 
 (deftest test-start-moving
   (testing "can start moving left"
+    (sprite/load-sprites)
     (let [state (test-util/create-new-state)
           {{:keys [x y]} :player
            {{:keys [tilewidth]} :tileset} :map} @state]
@@ -16,6 +18,7 @@
       (is (contains? (:keys @state) :left))
       (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :left))))
   (testing "can reset moving"
+    (sprite/load-sprites)
     (let [state (test-util/create-new-state)
           {{:keys [x y]} :player
            {{:keys [tilewidth]} :tileset} :map} @state]
