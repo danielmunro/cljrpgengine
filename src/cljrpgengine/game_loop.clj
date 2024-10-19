@@ -16,7 +16,7 @@
 (def draws (atom 0))
 (def sleep-length (atom 12))
 
-(defn draw
+(defn- draw
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
   (if (contains? (:nodes @state) :map)
@@ -55,7 +55,7 @@
     (ui/draw-menus menus))
   (effect/apply-effects state))
 
-(defn update-animations
+(defn- update-animations
   "Update all animations."
   [state elapsed-nano]
   (swap! animation-update (fn [current] (+ current elapsed-nano)))
@@ -67,7 +67,16 @@
         (mob/update-mob-sprites! state))
       (swap! animation-update (fn [amount] (- amount constants/time-per-frame-nano))))))
 
-(defn update-state
+(defn- check-room-change
+  "Fire a room-loaded event whenever the player enters a new room."
+  [state room-loaded]
+  (let [current-room (get-in @state [:map :room])]
+    (if (not= current-room room-loaded)
+      (dorun
+        (for [event (event/get-room-loaded-events state (keyword current-room))]
+          (event/apply-outcomes! state (:outcomes event)))))))
+
+(defn- update-state
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state elapsed-nano]
@@ -77,11 +86,7 @@
     (if load-game
       (new-game/load-save state))
     (.update-scene (:scene @state))
-    (let [current-room (get-in @state [:map :room])]
-      (if (not= current-room room-loaded)
-        (dorun
-         (for [event (event/get-room-loaded-events state (keyword current-room))]
-           (event/apply-outcomes! state (:outcomes event)))))))
+    (check-room-change state room-loaded))
   (update-animations state elapsed-nano)
   (let [nodes (:nodes @state)]
     (if (contains? nodes :player)
