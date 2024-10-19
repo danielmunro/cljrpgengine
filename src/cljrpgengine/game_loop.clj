@@ -1,5 +1,6 @@
 (ns cljrpgengine.game-loop
-  (:require [cljrpgengine.new-game :as new-game]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.new-game :as new-game]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -70,12 +71,17 @@
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
   [state elapsed-nano]
-  (let [{:keys [new-game load-game]} @state]
+  (let [{:keys [new-game load-game room-loaded]} @state]
     (if new-game
       (new-game/start state))
     (if load-game
-      (new-game/load-save state)))
-  (.update-scene (:scene @state))
+      (new-game/load-save state))
+    (.update-scene (:scene @state))
+    (let [current-room (get-in @state [:map :room])]
+      (if (not= current-room room-loaded)
+        (dorun
+         (for [event (event/get-room-loaded-events state (keyword current-room))]
+           (event/apply-outcomes! state (:outcomes event)))))))
   (update-animations state elapsed-nano)
   (let [nodes (:nodes @state)]
     (if (contains? nodes :player)

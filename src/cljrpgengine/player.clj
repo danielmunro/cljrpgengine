@@ -133,7 +133,7 @@
 (defn- create-engagement!
   [state mob]
   (let [identifier (:identifier mob)
-        event (event/get-dialog-event! state identifier)]
+        event (event/get-dialog-event state identifier)]
     (dosync (alter state assoc
                    :engagement {:dialog (:dialog event)
                                 :dialog-index 0

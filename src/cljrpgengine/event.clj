@@ -49,6 +49,12 @@
    :mob mob
    :coords coords})
 
+(defn set-mob-position
+  [mob coords]
+  {:type :set-mob-position
+   :mob mob
+   :coords coords})
+
 (defn mob-animation
   [mob animation]
   {:type :mob-animation
@@ -60,6 +66,11 @@
   {:type :player-animation
    :animation animation})
 
+(defn room-loaded
+  [room]
+  {:type :room-loaded
+   :room room})
+
 (defn create-dialog-event!
   ([state conditions mob dialog outcomes]
    (dosync (alter state update-in [:events] conj {:type :dialog
@@ -70,11 +81,18 @@
   ([state conditions mob dialog]
    (create-dialog-event! state conditions mob dialog [])))
 
+(defn create-room-loaded-event!
+  [state conditions room outcomes]
+  (dosync (alter state update-in [:events] conj {:type :room-loaded
+                                                 :conditions (conj conditions (room-loaded room))
+                                                 :room room
+                                                 :outcomes outcomes})))
+
 (defn conditions-met
-  [state conditions target-mob]
+  [state conditions compare]
   (every? #(cond
              (= (:type %) :speak-to)
-             (= (:mob %) target-mob)
+             (= (:mob %) compare)
              (= (:type %) :has-grant)
              (contains? (:grants @state) (:grant %))
              (= (:type %) :not-has-grant)
@@ -82,7 +100,9 @@
              (= (:type %) :has-item)
              (contains? (:items @state) (:item %))
              (= (:type %) :not-has-item)
-             (not (contains? (:items @state) (:item %))))
+             (not (contains? (:items @state) (:item %)))
+             (= (:type %) :room-loaded)
+             (= (:room %) compare))
           conditions))
 
 (defn apply-outcomes!
@@ -101,9 +121,17 @@
        (= :mob-animation (:type outcome))
        (mob/play-animation! state [:mobs (:mob outcome)] (:animation outcome))
        (= :player-animation (:type outcome))
-       (mob/play-animation! state [:player :party 0] (:animation outcome))))))
+       (mob/play-animation! state [:player :party 0] (:animation outcome))
+       (= :set-mob-position (:type outcome))
+       (mob/set-position! state [:mobs (:mob outcome)] (:coords outcome))))))
 
-(defn get-dialog-event!
+(defn get-room-loaded-events
+  [state room]
+  (filter #(and
+            (= (:type %) :room-loaded)
+            (conditions-met state (:conditions %) room)) (:events @state)))
+
+(defn get-dialog-event
   [state target-mob]
   (util/filter-first
    #(and

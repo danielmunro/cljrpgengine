@@ -78,11 +78,11 @@
         (is (= [1 1] (get-in @state [:mobs :test-mob :destination]))))))
   (testing "can get an event"
     (let [state (ref state/initial-state)]
-      (is (= nil (event/get-dialog-event! state :test-event)))
+      (is (= nil (event/get-dialog-event state :test-event)))
       (event/create-dialog-event!
        state
        []
        :test-mob
        ["this is a test"]
        [])
-      (is (event/get-dialog-event! state :test-mob)))))
+      (is (event/get-dialog-event state :test-mob)))))

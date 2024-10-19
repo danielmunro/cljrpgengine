@@ -84,6 +84,15 @@
   (dosync (alter state assoc-in (conj update-path :sprite :current-animation) animation)
           (alter state assoc-in (conj update-path :sprite :animations (keyword animation) :is-playing) true)))
 
+(defn set-position!
+  [state update-path position]
+  (dosync
+   (alter state update-in update-path assoc
+          :x (first position)
+          :y (second position)
+          :x-offset 0
+          :y-offset 0)))
+
 (defn set-mob-move-offsets!
   [state update-path direction x y new-x new-y]
   (dosync
