@@ -21,7 +21,7 @@
    state
    [(event/granted :sordna-moved)]
    :main
-   [(event/set-mob-position :sordna [352 176])]))
+   [(event/set-mob-coords :sordna [352 176])]))
 
 (defn andros-events
   [state]

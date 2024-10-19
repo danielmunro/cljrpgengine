@@ -49,10 +49,10 @@
    :mob mob
    :coords coords})
 
-(defn set-mob-position
+(defn set-mob-coords
   [mob coords]
-  {:type :set-mob-position
-   :mob mob
+  {:type   :set-mob-coords
+   :mob    mob
    :coords coords})
 
 (defn mob-animation
@@ -122,7 +122,7 @@
        (mob/play-animation! state [:mobs (:mob outcome)] (:animation outcome))
        (= :player-animation (:type outcome))
        (mob/play-animation! state [:player :party 0] (:animation outcome))
-       (= :set-mob-position (:type outcome))
+       (= :set-mob-coords (:type outcome))
        (mob/set-position! state [:mobs (:mob outcome)] (:coords outcome))))))
 
 (defn get-room-loaded-events
