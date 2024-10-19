@@ -45,14 +45,16 @@
   (let [animation (get animations current-animation)
         {:keys [frame frames]
          {:keys [flip]} :props} animation
-        index (get frames frame)
+        i (get frames frame)
+        index (if (map? i) (:frame i) i)
+        to-flip (or flip (and (map? i) (:flip frame)))
         x (* width (mod index columns))
         y (* height (Math/floor (/ index rows)))
         bi (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
         sprite-frame (.createGraphics bi)
         y-diff (- height width)
-        dx1 (if flip (+ x width) x)
-        dx2 (if flip x (+ x width))]
+        dx1 (if to-flip (+ x width) x)
+        dx2 (if to-flip x (+ x width))]
     (.drawImage sprite-frame
                 image
                 0 0
