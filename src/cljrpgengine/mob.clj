@@ -186,27 +186,33 @@
              (check-start-moving state mob :left))))))))
 
 (defn update-sprite!
-  [state update-path {:keys [sprite]}]
+  [state update-path time-elapsed-ns {:keys [sprite]}]
   (let [current-animation (:current-animation sprite)
         animation (get-in sprite [:animations current-animation])
         frame (:frame animation)
-        next-frame (sprite/get-sprite-frame sprite frame)]
+        next-frame (sprite/get-sprite-frame sprite frame)
+        delay (:delay animation)
+        time-elapsed-path (conj update-path :time-elapsed)]
     (if (and
          (:is-playing animation)
          (not (contains? sprite/move-animations current-animation)))
       (dosync
-       (if (and (not (contains? (:props animation) :loop))
-                (= 0 next-frame))
-         (alter state update-in update-path assoc
-                :is-playing false
-                :frame 0)
-         (alter state assoc-in (conj update-path :frame) next-frame))))))
+       (alter state update-in time-elapsed-path (fn [amount] (+ amount time-elapsed-ns)))
+       (if (< delay (/ (get-in @state time-elapsed-path) 1000000))
+         (do
+           (alter state update-in time-elapsed-path (fn [amount] (- amount (* delay 1000000))))
+           (if (and (not (contains? (:props animation) :loop))
+                    (= 0 next-frame))
+             (alter state update-in update-path assoc
+                    :is-playing false
+                    :frame 0)
+             (alter state assoc-in (conj update-path :frame) next-frame))))))))
 
 (defn update-mob-sprites!
-  [state]
+  [state time-elapsed-ns]
   (dorun
    (for [m (-> (:mobs @state)
                -> (vals))]
      (let [{:keys [sprite identifier]} m
            {:keys [current-animation]} sprite]
-       (update-sprite! state [:mobs identifier :sprite :animations current-animation] m)))))
+       (update-sprite! state [:mobs identifier :sprite :animations current-animation] time-elapsed-ns m)))))

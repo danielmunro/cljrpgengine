@@ -92,12 +92,13 @@
         (start-moving! state :right (+ x tilewidth) y)))))
 
 (defn update-player-sprite!
-  [state]
+  [state time-elapsed-ns]
   (let [{{:keys [x-offset y-offset]
           [{:keys [sprite] {:keys [current-animation]} :sprite}] :party} :player} @state]
     (mob/update-sprite!
      state
      [:player :party 0 :sprite :animations current-animation]
+     time-elapsed-ns
      {:x-offset x-offset
       :y-offset y-offset
       :sprite sprite})))

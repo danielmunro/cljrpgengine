@@ -20,8 +20,10 @@
            :current-animation default-animation
            :animations (into {}
                              (map
-                              (fn [animation] {animation (assoc (animation animations) :frame 0
-                                                                :is-playing false)})
+                              (fn [animation] {animation (assoc (animation animations)
+                                                                :frame 0
+                                                                :is-playing false
+                                                                :time-elapsed 0)})
                               (keys animations))))))
 
 (defn get-next-frame
@@ -47,7 +49,7 @@
          {:keys [flip]} :props} animation
         i (get frames frame)
         index (if (map? i) (:frame i) i)
-        to-flip (or flip (and (map? i) (:flip frame)))
+        to-flip (or flip (and (map? i) (:flip i)))
         x (* width (mod index columns))
         y (* height (Math/floor (/ index rows)))
         bi (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)

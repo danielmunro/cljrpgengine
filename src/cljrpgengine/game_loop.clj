@@ -59,13 +59,12 @@
   "Update all animations."
   [state elapsed-nano]
   (swap! animation-update (fn [current] (+ current elapsed-nano)))
-  (if (< constants/time-per-frame-nano @animation-update)
-    (let [nodes (:nodes @state)]
-      (if (contains? nodes :player)
-        (player/update-player-sprite! state))
-      (if (contains? nodes :mobs)
-        (mob/update-mob-sprites! state))
-      (swap! animation-update (fn [amount] (- amount constants/time-per-frame-nano))))))
+  (let [nodes (:nodes @state)]
+    (if (contains? nodes :player)
+      (player/update-player-sprite! state elapsed-nano))
+    (if (contains? nodes :mobs)
+      (mob/update-mob-sprites! state elapsed-nano))
+    (swap! animation-update (fn [amount] (- amount constants/time-per-frame-nano)))))
 
 (defn- check-room-change
   "Fire a room-loaded event whenever the player enters a new room."
@@ -73,8 +72,8 @@
   (let [current-room (get-in @state [:map :room])]
     (if (not= current-room room-loaded)
       (dorun
-        (for [event (event/get-room-loaded-events state (keyword current-room))]
-          (event/apply-outcomes! state (:outcomes event)))))))
+       (for [event (event/get-room-loaded-events state (keyword current-room))]
+         (event/apply-outcomes! state (:outcomes event)))))))
 
 (defn- update-state
   "Main loop, starting with updating animations.  Eventually, this will include

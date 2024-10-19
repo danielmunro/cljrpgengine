@@ -11,5 +11,6 @@
                              :props  #{:loop :flip}}
                      :up    {:frames [6 7 6 8]
                              :props  #{:loop}}
-                     :dance {:frames [0 3 {:frame 3 :flip true} 6]
+                     :dance {:frames [0 3 6 {:frame 3 :flip true}]
+                             :delay 100
                              :props #{}}}}

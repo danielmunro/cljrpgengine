@@ -20,10 +20,10 @@
   (let [state (state/create-new-state)
         scene (create-scene/create state :main-menu)]
     (window/create
-      constants/screen-width
-      constants/screen-height
-      #(input/key-pressed! state %)
-      #(input/key-released! state %))
+     constants/screen-width
+     constants/screen-height
+     #(input/key-pressed! state %)
+     #(input/key-released! state %))
     (dosync (alter state assoc :scene scene))
     (.initialize-scene scene)
     (effect/add-fade-in state)
