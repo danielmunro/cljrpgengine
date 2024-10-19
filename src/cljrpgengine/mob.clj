@@ -50,9 +50,7 @@
   (let [room-loaded (:room-loaded @state)
         room (get-in @state [:map :room])
         room-mobs (get mobs room)]
-    (if (and
-         (not= room room-loaded)
-         room-mobs)
+    (if (not= room room-loaded)
       (dosync (alter state assoc
                      :mobs room-mobs
                      :room-loaded room)))))
