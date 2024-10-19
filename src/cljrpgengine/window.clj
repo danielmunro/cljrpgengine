@@ -7,6 +7,7 @@
 (def graphics (atom nil))
 (def ratio-x (atom nil))
 (def ratio-y (atom nil))
+(def buffer-strategy (atom nil))
 
 (defn create
   [width height key-pressed key-released]
@@ -35,7 +36,7 @@
        (keyReleased [e]
          (key-released e))
        (keyTyped [_])))
-    frame))
+    (swap! buffer-strategy (constantly (.getBufferStrategy frame)))))
 
 (defn fill-screen
   [color]
@@ -44,12 +45,12 @@
     (.fillRect g 0 0 (* 2 constants/screen-width) (* 2 constants/screen-height))))
 
 (defn draw-graphics
-  [buffer-strategy]
-  (.show buffer-strategy))
+  []
+  (.show @buffer-strategy))
 
 (defn new-graphics
-  [bs]
-  (let [g (.getDrawGraphics bs)]
+  []
+  (let [g (.getDrawGraphics @buffer-strategy)]
     (.scale g @ratio-x @ratio-y)
     (swap! graphics (constantly g))
     (fill-screen Color/BLACK)))

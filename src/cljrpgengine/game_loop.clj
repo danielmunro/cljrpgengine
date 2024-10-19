@@ -101,22 +101,21 @@
 
 (defn run
   [state]
-  (let [bs (:buffer-strategy @state)]
-    (while true
-      (Thread/sleep @sleep-length)
-      (let [current-time (System/nanoTime)]
-        (swap! time-diff (fn [_] (- current-time @last-time)))
-        (window/new-graphics bs)
-        (update-state state @time-diff)
-        (draw state)
-        (window/draw-graphics bs)
-        (swap! timer (fn [amount] (+ amount @time-diff)))
-        (swap! draws inc)
-        (if (< constants/nano-per-second @timer)
-          (do
-            (if (> @draws constants/target-fps)
-              (swap! sleep-length inc)
-              (swap! sleep-length dec))
-            (swap! draws (fn [_] 0))
-            (swap! timer (fn [amount] (- amount constants/nano-per-second)))))
-        (swap! last-time (fn [_] current-time))))))
+  (while true
+    (Thread/sleep @sleep-length)
+    (let [current-time (System/nanoTime)]
+      (swap! time-diff (fn [_] (- current-time @last-time)))
+      (window/new-graphics)
+      (update-state state @time-diff)
+      (draw state)
+      (window/draw-graphics)
+      (swap! timer (fn [amount] (+ amount @time-diff)))
+      (swap! draws inc)
+      (if (< constants/nano-per-second @timer)
+        (do
+          (if (> @draws constants/target-fps)
+            (swap! sleep-length inc)
+            (swap! sleep-length dec))
+          (swap! draws (fn [_] 0))
+          (swap! timer (fn [amount] (- amount constants/nano-per-second)))))
+      (swap! last-time (fn [_] current-time)))))
