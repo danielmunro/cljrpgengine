@@ -1,4 +1,4 @@
-(ns cljrpgengine.new-game
+(ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.event :as event]

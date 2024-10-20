@@ -1,7 +1,7 @@
 (ns cljrpgengine.menus.main.select-save
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.new-game :as new-game]
+            [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.ui :as ui]))
 
 (deftype SelectSaveMenu [state save]

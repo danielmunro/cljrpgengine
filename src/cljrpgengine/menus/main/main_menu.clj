@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.main.select-game :as select-game]
-            [cljrpgengine.new-game :as new-game]
+            [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.ui :as ui]
             [clojure.java.io :as io]))
 

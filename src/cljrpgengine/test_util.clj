@@ -1,5 +1,5 @@
 (ns cljrpgengine.test-util
-  (:require [cljrpgengine.new-game :as new-game]
+  (:require [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.state :as state]))
 
 (defn create-new-state

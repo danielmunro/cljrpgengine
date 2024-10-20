@@ -1,6 +1,6 @@
 (ns cljrpgengine.game-loop
   (:require [cljrpgengine.event :as event]
-            [cljrpgengine.new-game :as new-game]
+            [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
