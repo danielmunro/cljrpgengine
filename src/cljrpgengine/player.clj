@@ -108,29 +108,6 @@
   (let [{{:keys [x-offset y-offset]} :player} @state]
     (mob/update-move-offset! state x-offset y-offset [:player] [:player :party 0 :sprite] elapsed-nano)))
 
-(defn- change-map!
-  [state area-name room entrance-name]
-  (let [new-map (map/load-map area-name room)
-        {:keys [x y]} (map/get-entrance new-map entrance-name)]
-    (effect/add-fade-in state)
-    (dosync
-     (alter state assoc-in [:map] new-map)
-     (alter state update-in [:player] assoc
-            :x x
-            :y y))))
-
-(defn check-exits
-  [state]
-  (let [{:keys [map player]} @state
-        {:keys [x y]} player]
-    (if (mob/no-move-offset player)
-      (if-let [exit
-               (map/get-interaction-from-coords
-                map
-                (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
-                x y)]
-        (change-map! state (:scene exit) (:room exit) (:to exit))))))
-
 (defn- create-engagement!
   [state mob]
   (let [identifier (:identifier mob)

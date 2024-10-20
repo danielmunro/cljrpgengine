@@ -75,10 +75,44 @@
        (for [event (event/get-room-loaded-events state (keyword current-room))]
          (event/apply-outcomes! state (:outcomes event)))))))
 
+(defn- change-map!
+  [state area-name room entrance-name]
+  (let [new-map (map/load-map area-name room)
+        {:keys [x y]} (map/get-entrance new-map entrance-name)]
+    (effect/add-fade-in state)
+    (dosync
+     (alter state assoc-in [:map] new-map)
+     (alter state update-in [:player] assoc
+            :x x
+            :y y))))
+
+(defn check-exits
+  [state]
+  (let [{:keys [map player]} @state
+        {:keys [x y]} player]
+    (if (mob/no-move-offset player)
+      (if-let [exit
+               (map/get-interaction-from-coords
+                map
+                (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
+                x y)]
+        (change-map! state (:scene exit) (:room exit) (:to exit))))))
+
+(defn- do-player-updates
+  [state time-elapsed-ns]
+  (check-exits state)
+  (player/update-move-offset! state time-elapsed-ns)
+  (player/check-start-moving state))
+
+(defn- do-mob-updates
+  [state time-elapsed-ns]
+  (mob/update-move-offsets! state time-elapsed-ns)
+  (mob/update-mobs state))
+
 (defn- update-state
   "Main loop, starting with updating animations.  Eventually, this will include
   checking for game events."
-  [state elapsed-nano]
+  [state time-elapsed-ns]
   (let [{:keys [new-game load-game room-loaded]} @state]
     (if new-game
       (new-game/start state))
@@ -86,16 +120,12 @@
       (new-game/load-save state))
     (.update-scene (:scene @state))
     (check-room-change state room-loaded))
-  (update-animations state elapsed-nano)
+  (update-animations state time-elapsed-ns)
   (let [nodes (:nodes @state)]
     (if (contains? nodes :player)
-      (do (player/update-move-offset! state elapsed-nano)
-          (player/check-exits state)
-          (player/check-start-moving state)))
+      (do-player-updates state time-elapsed-ns))
     (if (contains? nodes :mobs)
-      (do
-        (mob/update-move-offsets! state elapsed-nano)
-        (mob/update-mobs state))))
+      (do-mob-updates state time-elapsed-ns)))
   state)
 
 (defn run
