@@ -76,6 +76,7 @@
          (event/apply-outcomes! state (:outcomes event)))))))
 
 (defn- change-map!
+  "Transport the player to a different map and put them at the given entrance."
   [state area-name room entrance-name]
   (let [new-map (map/load-map area-name room)
         {:keys [x y]} (map/get-entrance new-map entrance-name)]
@@ -87,6 +88,7 @@
             :y y))))
 
 (defn check-exits
+  "Check the player's current location for an exit."
   [state]
   (let [{:keys [map player]} @state
         {:keys [x y]} player]
@@ -99,12 +101,14 @@
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
 (defn- do-player-updates
+  "Main loop player updates."
   [state time-elapsed-ns]
   (check-exits state)
   (player/update-move-offset! state time-elapsed-ns)
   (player/check-start-moving state))
 
 (defn- do-mob-updates
+  "Main loop mob updates."
   [state time-elapsed-ns]
   (mob/update-move-offsets! state time-elapsed-ns)
   (mob/update-mobs state))
