@@ -4,7 +4,7 @@
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]))
 
-(defn no-move-offset
+(defn is-standing-still
   [mob]
   (let [{:keys [x-offset y-offset]} mob]
     (and
@@ -139,7 +139,7 @@
       (do-update-move-offset! state update-in-path :y-offset sprite-path max (- amount))))
   (let [current-animation (get-in @state (conj sprite-path :current-animation))]
     (if (and (or (not= 0 x-offset) (not= 0 y-offset))
-             (no-move-offset (get-in @state update-in-path))
+             (is-standing-still (get-in @state update-in-path))
              (:is-playing (get-in @state (conj sprite-path :animations current-animation))))
       (dosync (alter state assoc-in (conj sprite-path :animations current-animation :is-playing) false)))))
 
@@ -155,7 +155,7 @@
   [state mob direction-moving]
   (let [{:keys [x y]} mob
         {{{:keys [tilewidth tileheight]} :tileset} :map} @state]
-    (if (no-move-offset mob)
+    (if (is-standing-still mob)
       (cond
         (= direction-moving :up)
         (start-moving! state mob :up x (- y tileheight))

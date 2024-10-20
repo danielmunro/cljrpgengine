@@ -92,7 +92,7 @@
   [state]
   (let [{:keys [map player]} @state
         {:keys [x y]} player]
-    (if (mob/no-move-offset player)
+    (if (mob/is-standing-still player)
       (if-let [exit
                (map/get-interaction-from-coords
                 map

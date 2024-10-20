@@ -78,7 +78,7 @@
          {:keys [x y]} :player} @state
         last-key (first keys)]
     (if (and
-         (mob/no-move-offset player)
+         (mob/is-standing-still player)
          (not engagement)
          (= 0 (count menus)))
       (cond
