@@ -80,7 +80,7 @@
   (.update-scene (:scene @state))
   (event/fire-room-loaded-event state room))
 
-(defn check-exits
+(defn- check-exits
   "Check the player's current location for an exit."
   [state]
   (let [{:keys [map player]} @state
