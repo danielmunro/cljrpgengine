@@ -40,9 +40,8 @@
   (close-ui-if-open state))
 
 (defn load-save
-  [state]
-  (let [file (:load-game @state)
-        new-state (state/load-save-file file)
+  [state file]
+  (let [new-state (state/load-save-file file)
         scene (create-scene/create state (:scene @new-state))]
     (dosync (alter state merge @new-state)
             (alter state dissoc :load-game)

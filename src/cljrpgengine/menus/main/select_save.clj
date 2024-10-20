@@ -1,7 +1,7 @@
 (ns cljrpgengine.menus.main.select-save
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.menus.main.shared :as shared]
+            [cljrpgengine.new-game :as new-game]
             [cljrpgengine.ui :as ui]))
 
 (deftype SelectSaveMenu [state save]
@@ -22,7 +22,7 @@
     (count (:saves save)))
   (menu-type [_] :select-save-menu)
   (key-pressed [menu]
-    (shared/load-game
+    (new-game/load-save
      state
      (str (:name save) "/" (nth (:saves save) (ui/get-menu-cursor state (.menu-type menu)))))))
 

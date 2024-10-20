@@ -109,11 +109,6 @@
 (defn- update-state
   "Main loop."
   [state time-elapsed-ns]
-  (let [{:keys [new-game load-game]} @state]
-    (if new-game
-      (new-game/start state))
-    (if load-game
-      (new-game/load-save state)))
   (update-animations state time-elapsed-ns)
   (let [nodes (:nodes @state)]
     (if (contains? nodes :player)
