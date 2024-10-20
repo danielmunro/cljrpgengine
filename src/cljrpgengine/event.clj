@@ -138,3 +138,9 @@
      (= (:type %) :dialog)
      (conditions-met state (:conditions %) target-mob))
    (:events @state)))
+
+(defn fire-room-loaded-event
+  [state room]
+  (dorun
+   (for [event (get-room-loaded-events state (keyword room))]
+     (apply-outcomes! state (:outcomes event)))))
