@@ -1,7 +1,8 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.util :as util])
   (:require [cljrpgengine.item :as item]
-            [cljrpgengine.mob :as mob]))
+            [cljrpgengine.mob :as mob]
+            [clojure.java.io :as io]))
 
 (defn speaking-to
   [mob]
@@ -144,3 +145,17 @@
   (dorun
    (for [event (get-room-loaded-events state (keyword room))]
      (apply-outcomes! state (:outcomes event)))))
+
+(defn load-room-events
+  [state area room]
+  (let [file-path (str "resources/" (name area) "/" (name room) "/events")
+        dir (io/file file-path)]
+    (if (.exists dir)
+      (let [event-files (.listFiles dir)]
+        (dosync
+         (dorun
+          (for [event-file event-files]
+            (let [events-data (read-string (slurp (str file-path "/" (.getName event-file))))]
+              (dorun
+               (for [event events-data]
+                 (dosync (alter state update-in [:events] conj event))))))))))))

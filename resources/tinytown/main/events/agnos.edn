@@ -1,0 +1,33 @@
+[ {:type :dialog
+   :conditions [{:type :speak-to
+                 :mob :agnos}
+                {:type :has-item
+                 :item :brilliant-amulet}]
+   :mob :agnos
+   :dialog ["Oh wow! The amulet look amazing!"]
+   :outcomes [{:type :mob-animation
+               :mob :agnos
+               :animation :dance}
+              {:type :player-animation
+               :animation :dance}]}
+
+ {:type :dialog
+  :conditions [{:type :speak-to
+                :mob :agnos}
+               {:type :has-grant
+                :grant :gain-blemished-item}]
+  :mob :agnos
+  :dialog ["I hope the amulet serves you well."]
+  :outcomes []}
+
+ {:type :dialog
+  :conditions [{:type :speak-to
+                :mob :agnos}
+               {:type :not-has-grant
+                :grant :gain-blemished-item}]
+  :mob :agnos
+  :dialog ["Please, take this amulet."]
+  :outcomes [{:type :gain-item
+              :item :blemished-amulet}
+             {:type :grant
+              :grant :gain-blemished-item}]}]

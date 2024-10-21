@@ -1,0 +1,40 @@
+[{:type :dialog
+  :conditions [{:type :speak-to
+                :mob :andros}
+               {:type :has-item
+                :item :blemished-amulet}]
+  :mob :andros
+  :dialog ["Oh, that amulet has true potential. Let me clean it up for you."]
+  :outcomes [{:type :lose-item
+              :item :blemished-amulet}
+             {:type :grant
+              :grant :lose-blemished-amulet}]}
+
+ {:type :dialog
+  :conditions [{:type :speak-to
+                :mob  :andros}
+               {:type :has-grant
+                :grant :lose-blemished-amulet}
+               {:type :not-has-item
+                :item :brilliant-amulet}]
+  :mob :andros
+  :dialog ["Here it is. Much better!"]
+  :outcomes [{:type :gain-item
+              :item :brilliant-amulet}]}
+
+ {:type :dialog
+  :conditions [{:type :speak-to
+                :mob :andros}
+               {:type :has-grant
+                :grant :intro-andros}]
+  :mob :andros
+  :dialog ["It was a pleasure to meet you."]
+  :outcomes []}
+
+ {:type :dialog
+  :conditions [{:type :speak-to
+                :mob :andros}]
+  :mob :andros
+  :dialog ["Hello traveller. Please, take a seat. I must tell you a story."]
+  :outcomes [{:type :grant
+              :grant :intro-andros}]}]

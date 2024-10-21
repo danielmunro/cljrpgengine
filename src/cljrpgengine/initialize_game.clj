@@ -16,8 +16,9 @@
 (defn- room-loaded
   [state]
   (let [room (get-in @state [:map :room])]
-    (println "room-loaded")
-    (mob/load-room-mobs state (get-in @state [:map :name]) room)
+    (let [area (get-in @state [:map :name])]
+      (mob/load-room-mobs state area room)
+      (event/load-room-events state area room))
     (event/fire-room-loaded-event state room)))
 
 (defn- close-ui-if-open
