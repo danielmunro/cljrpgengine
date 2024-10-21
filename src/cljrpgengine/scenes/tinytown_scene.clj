@@ -1,5 +1,6 @@
 (ns cljrpgengine.scenes.tinytown-scene
-  (:require [cljrpgengine.scene :as scene]
+  (:require [cljrpgengine.mob :as mob]
+            [cljrpgengine.scene :as scene]
             [cljrpgengine.state :as state]))
 
 (def mobs (atom {}))
@@ -9,7 +10,8 @@
   (state/update-nodes state #{:player :mobs :map}))
 
 (defn update-scene
-  [_])
+  [state]
+  (mob/update-room-mobs state @mobs))
 
 (deftype TinytownScene [state]
   scene/Scene
