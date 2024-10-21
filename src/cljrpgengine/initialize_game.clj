@@ -3,6 +3,7 @@
             [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]))
@@ -12,9 +13,12 @@
   (.initialize-scene scene)
   (.update-scene scene))
 
-(defn- fire-room-loaded-event
+(defn- room-loaded
   [state]
-  (event/fire-room-loaded-event state (get-in @state [:map :room])))
+  (let [room (get-in @state [:map :room])]
+    (println "room-loaded")
+    (mob/load-room-mobs state (get-in @state [:map :name]) room)
+    (event/fire-room-loaded-event state room)))
 
 (defn- close-ui-if-open
   [state]
@@ -36,7 +40,7 @@
             (alter state dissoc :new-game))
     (init-scene scene))
   (map/init-map state)
-  (fire-room-loaded-event state)
+  (room-loaded state)
   (close-ui-if-open state))
 
 (defn load-save
@@ -47,5 +51,5 @@
             (alter state dissoc :load-game)
             (alter state assoc :scene scene))
     (init-scene scene)
-    (fire-room-loaded-event state)
+    (room-loaded state)
     (close-ui-if-open state)))

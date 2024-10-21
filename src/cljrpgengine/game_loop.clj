@@ -78,6 +78,7 @@
             :x x
             :y y)))
   (.update-scene (:scene @state))
+  (mob/load-room-mobs state (get-in @state [:map :name]) room)
   (event/fire-room-loaded-event state room))
 
 (defn- check-exits

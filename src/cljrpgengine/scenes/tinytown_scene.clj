@@ -75,13 +75,6 @@
 
 (defn initialize-scene
   [state]
-  (swap! mobs
-         (constantly {:item-shop
-                      {:gareth (mob/create-mob :gareth "Gareth" :down 240 80 (sprite/create :edwyn))}
-                      :main
-                      {:andros (mob/create-mob :andros "Andros" :down 352 224 (sprite/create :edwyn))
-                       :sordna (mob/create-mob :sordna "Sordna" :down 544 320 (sprite/create :cyrus))
-                       :agnos  (mob/create-mob :agnos "Agnos" :down 240 288 (sprite/create :edwyn))}}))
   (sordna-events state)
   (andros-events state)
   (agnos-events state)

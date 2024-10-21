@@ -2,7 +2,8 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
-            [cljrpgengine.class :as class]))
+            [cljrpgengine.class :as class]
+            [clojure.java.io :as io]))
 
 (defn is-standing-still
   [mob]
@@ -216,3 +217,22 @@
      (let [{:keys [sprite identifier]} m
            {:keys [current-animation]} sprite]
        (update-sprite! state [:mobs identifier :sprite :animations current-animation] time-elapsed-ns m)))))
+
+(defn load-room-mobs
+  [state area room]
+  (let [file-path (str "resources/" (name area) "/" (name room) "/mobs")
+        dir (io/file file-path)]
+    (if (.exists dir)
+      (let [mob-files (.listFiles dir)]
+        (dosync
+         (dorun
+          (for [mob-file mob-files]
+            (let [mob-data (read-string (slurp (str file-path "/" (.getName mob-file))))
+                  {:keys [identifier name direction coords sprite]} mob-data
+                  mob (create-mob identifier
+                                  name
+                                  direction
+                                  (first coords)
+                                  (second coords)
+                                  (sprite/create sprite))]
+              (alter state assoc-in [:mobs identifier] mob)))))))))

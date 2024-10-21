@@ -1,0 +1,5 @@
+{:identifier :sordna
+ :name "Sordna"
+ :direction :down
+ :coords [544 320]
+ :sprite :cyrus}

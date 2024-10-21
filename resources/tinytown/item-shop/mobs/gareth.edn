@@ -1,0 +1,5 @@
+{:identifier :gareth
+ :name "Gareth"
+ :direction :down
+ :coords [240 80]
+ :sprite :cyrus}
