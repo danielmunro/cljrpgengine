@@ -10,4 +10,7 @@
                      :right {:frames [3 4 3 5]
                              :props  #{:loop :flip}}
                      :up    {:frames [6 7 6 8]
-                             :props  #{:loop}}}}
+                             :props  #{:loop}}
+                     :dance {:frames [0 3 6 {:frame 3 :flip true}]
+                             :delay 100
+                             :props #{}}}}
