@@ -50,28 +50,6 @@
    :mob mob
    :coords coords})
 
-(defn set-mob-coords
-  [mob coords]
-  {:type   :set-mob-coords
-   :mob    mob
-   :coords coords})
-
-(defn mob-animation
-  [mob animation]
-  {:type :mob-animation
-   :mob mob
-   :animation animation})
-
-(defn player-animation
-  [animation]
-  {:type :player-animation
-   :animation animation})
-
-(defn room-loaded
-  [room]
-  {:type :room-loaded
-   :room room})
-
 (defn create-dialog-event!
   ([state conditions mob dialog outcomes]
    (dosync (alter state update-in [:events] conj {:type :dialog
@@ -81,13 +59,6 @@
                                                   :outcomes outcomes})))
   ([state conditions mob dialog]
    (create-dialog-event! state conditions mob dialog [])))
-
-(defn create-room-loaded-event!
-  [state conditions room outcomes]
-  (dosync (alter state update-in [:events] conj {:type :room-loaded
-                                                 :conditions (conj conditions (room-loaded room))
-                                                 :room room
-                                                 :outcomes outcomes})))
 
 (defn conditions-met
   [state conditions compare]

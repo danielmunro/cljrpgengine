@@ -115,6 +115,7 @@
     (dosync (alter state assoc
                    :engagement {:dialog (:dialog event)
                                 :dialog-index 0
+                                :message-index 0
                                 :mob identifier
                                 :event event
                                 :mob-direction (get-in mob [:sprite :current-animation])})
@@ -124,22 +125,32 @@
 
 (defn- engagement-done?
   [engagement]
-  (= (:dialog-index engagement) (dec (count (:dialog engagement)))))
-
-(defn- inc-engagement!
-  [state]
-  (dosync (alter state update-in [:engagement :dialog-index] inc)))
+  (= (count (:dialog engagement)) (:dialog-index engagement)))
 
 (defn- clear-engagement!
-  [state engagement]
-  (let [{:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
+  [state]
+  (let [{:keys [engagement]} @state
+        {:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
         current-animation-path [:mobs mob :sprite :current-animation]]
     (let [current-animation (get-in @state current-animation-path)]
       (event/apply-outcomes! state outcomes)
       (dosync
-       (if (= current-animation (get-in @state current-animation-path))
-         (alter state assoc-in current-animation-path mob-direction))
-       (alter state dissoc :engagement)))))
+        (if (= current-animation (get-in @state current-animation-path))
+          (alter state assoc-in current-animation-path mob-direction))
+        (alter state dissoc :engagement)))))
+
+(defn- inc-engagement!
+  [state]
+  (dosync (alter state update-in [:engagement :message-index] inc))
+  (let [dialog-index (get-in @state [:engagement :dialog-index])]
+    (if (= (count (get-in @state [:engagement :dialog dialog-index :messages]))
+           (get-in @state [:engagement :message-index]))
+      (do
+        (dosync
+       (alter state assoc-in [:engagement :message-index] 0)
+       (alter state update-in [:engagement :dialog-index] inc))
+        (if (engagement-done? (:engagement @state))
+          (clear-engagement! state))))))
 
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]
@@ -173,7 +184,7 @@
         [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement
       (if (engagement-done? engagement)
-        (clear-engagement! state engagement)
+        (clear-engagement! state)
         (inc-engagement! state))
       (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals mobs))]
         (create-engagement! state mob)

@@ -1,6 +1,5 @@
 (ns cljrpgengine.game-loop
   (:require [cljrpgengine.event :as event]
-            [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -11,10 +10,19 @@
 
 (def animation-update (atom 0))
 (def last-time (atom (System/nanoTime)))
-(def time-diff (atom 0))
 (def timer (atom 0))
 (def draws (atom 0))
 (def sleep-length (atom 12))
+
+(defn- draw-dialog
+  [state engagement]
+  (let [{:keys [dialog dialog-index message-index]} engagement
+        monolog (get dialog dialog-index)
+        mob-identifier (:mob monolog)
+        mob (if (= :player mob-identifier)
+              (get-in @state [:player :party 0])
+              (get-in @state [:mobs mob-identifier]))]
+    (ui/dialog mob ((:messages monolog) message-index))))
 
 (defn- draw
   "Redraw the screen, including backgrounds, mobs, and player."
@@ -51,7 +59,7 @@
       (map/draw-foreground @window/graphics scene-map adjusted-x adjusted-y)))
   (let [{:keys [engagement menus]} @state]
     (if engagement
-      (ui/dialog ((:dialog engagement) (:dialog-index engagement))))
+      (draw-dialog state engagement))
     (ui/draw-menus menus))
   (effect/apply-effects state))
 
@@ -124,13 +132,13 @@
   [state]
   (while true
     (Thread/sleep @sleep-length)
-    (let [current-time (System/nanoTime)]
-      (swap! time-diff (fn [_] (- current-time @last-time)))
+    (let [current-time (System/nanoTime)
+          time-diff (- current-time @last-time)]
       (window/new-graphics)
-      (update-state state @time-diff)
+      (update-state state time-diff)
       (draw state)
       (window/draw-graphics)
-      (swap! timer (fn [amount] (+ amount @time-diff)))
+      (swap! timer (fn [amount] (+ amount time-diff)))
       (swap! draws inc)
       (if (< constants/nano-per-second @timer)
         (do

@@ -3,8 +3,8 @@
                  :mob :agnos}
                 {:type :has-item
                  :item :brilliant-amulet}]
-   :mob :agnos
-   :dialog ["Oh wow! The amulet look amazing!"]
+   :dialog [{:mob :agnos
+             :messages ["Oh wow! The amulet look amazing!"]}]
    :outcomes [{:type :mob-animation
                :mob :agnos
                :animation :dance}
@@ -16,8 +16,8 @@
                 :mob :agnos}
                {:type :has-grant
                 :grant :gain-blemished-item}]
-  :mob :agnos
-  :dialog ["I hope the amulet serves you well."]
+  :dialog [{:mob :agnos
+            :messages ["I hope the amulet serves you well."]}]
   :outcomes []}
 
  {:type :dialog
@@ -25,8 +25,12 @@
                 :mob :agnos}
                {:type :not-has-grant
                 :grant :gain-blemished-item}]
-  :mob :agnos
-  :dialog ["Please, take this amulet."]
+  :dialog [{:mob :agnos
+            :messages ["Please, take this amulet."]}
+           {:mob :player
+            :messages ["Are you sure?"]}
+           {:mob :agnos
+            :messages ["Yes."]}]
   :outcomes [{:type :gain-item
               :item :blemished-amulet}
              {:type :grant
