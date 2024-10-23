@@ -176,12 +176,14 @@
 
 (defn- change-cursor!
   [state f]
-  (let [m (last-menu-index state)]
-    (dosync (alter state update-in [:menus m :cursor] f))
-    (if (= (.cursor-length (get-in @state [:menus m :menu])) (get-in @state [:menus m :cursor]))
-      (dosync (alter state assoc-in [:menus m :cursor] 0))
-      (if (< (get-in @state [:menus m :cursor]) 0)
-        (dosync (alter state assoc-in [:menus m :cursor] (dec (.cursor-length (get-in @state [:menus m :menu])))))))))
+  (let [m (last-menu-index state)
+        cursor-length (.cursor-length (get-in @state [:menus m :menu]))
+        cursor-path [:menus m :cursor]]
+    (dosync (alter state update-in cursor-path f))
+    (if (= cursor-length (get-in @state cursor-path))
+      (dosync (alter state assoc-in cursor-path 0))
+      (if (< (get-in @state cursor-path) 0)
+        (dosync (alter state assoc-in cursor-path (dec cursor-length)))))))
 
 (defn- dec-cursor!
   [state]
