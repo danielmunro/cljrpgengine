@@ -102,9 +102,14 @@
                  "name":"to_greenforest",
                  "properties":[
                         {
+                         "name":"room",
+                         "type":"string",
+                         "value":"main"
+                        }, 
+                        {
                          "name":"scene",
                          "type":"string",
-                         "value":"greenforest"
+                         "value":"shadyforest"
                         }, 
                         {
                          "name":"to",

@@ -1,7 +1,9 @@
 (ns cljrpgengine.map
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [cljrpgengine.util :as util]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [clojure.string :as str])
   (:import (java.awt.geom AffineTransform)
            (java.awt.image BufferedImage)))
 
@@ -50,7 +52,7 @@
           [object]
           (merge
            {:name (object "name")
-            :type (object "type")
+            :type (keyword (object "type"))
             :x (object "x")
             :y (object "y")
             :width (object "width")
@@ -151,19 +153,21 @@
     buf))
 
 (defn load-map
-  [area-name room]
-  (let [tilemap (load-tilemap area-name room)
-        tileset (load-tileset area-name)
-        image (util/load-image (str "areas/" area-name "/" area-name ".png"))
+  [area room]
+  (let [tilemap (load-tilemap area room)
+        tileset (load-tileset area)
+        image (util/load-image (str "areas/" area "/" area ".png"))
         layers (:layers tilemap)
         w (:tilewidth tileset)
         h (:tileheight tileset)
         mapw (:width tilemap)
         maph (:height tilemap)
         iw (:imagewidth tileset)]
+    (log/info (format "loading map :: %s - %s" area room))
+    (log/debug (format "map warps :: %s" (str/join ", " (map #(format "%s - %s - %s" (:scene %) (:room %) (:to %)) (filter #(= :exit (:type %)) (:warps tilemap))))))
     {:tilemap tilemap
      :tileset tileset
-     :name (keyword area-name)
+     :name (keyword area)
      :room (keyword room)
      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
@@ -205,7 +209,7 @@
   [map entrance-name]
   (util/filter-first
    #(= entrance-name (:name %))
-   (filter #(= "entrance" (:type %)) (get-in map [:tilemap :warps]))))
+   (filter #(= :entrance (:type %)) (get-in map [:tilemap :warps]))))
 
 (defn init-map
   [state]

@@ -7,6 +7,7 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window]
+            [cljrpgengine.log :as log]
             [cljrpgengine.scenes.main-menu-scene :as main-menu-scene])
   (:gen-class))
 
@@ -34,7 +35,10 @@
   [& args]
   (if (seq args)
     (doseq [arg args]
-      (if (= "-s" arg)
-        (swap! save-file (constantly (first (next args)))))))
-  (println "starting game...")
+      (cond
+        (= "-s" arg)
+        (swap! save-file (constantly (first (next args))))
+        (= "-l" arg)
+        (swap! log/log-level (constantly (keyword (first (next args))))))))
+  (log/info "starting game...")
   (game-loop/run (setup-state!)))

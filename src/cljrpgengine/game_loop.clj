@@ -1,5 +1,6 @@
 (ns cljrpgengine.game-loop
   (:require [cljrpgengine.event :as event]
+            [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -76,9 +77,10 @@
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
-  [state area-name room entrance-name]
-  (let [new-map (map/load-map area-name room)
-        {:keys [x y]} (map/get-entrance new-map entrance-name)]
+  [state area room entrance]
+  (log/info (format "exit triggered :: area: %s, room: %s, entrance: %s" area room, entrance))
+  (let [new-map (map/load-map area room)
+        {:keys [x y]} (map/get-entrance new-map entrance)]
     (effect/add-fade-in state)
     (dosync
      (alter state assoc-in [:map] new-map)
@@ -100,7 +102,7 @@
       (if-let [exit
                (map/get-interaction-from-coords
                 map
-                (fn [map] (filter #(= "exit" (:type %)) (get-in map [:tilemap :warps])))
+                (fn [map] (filter #(= :exit (:type %)) (get-in map [:tilemap :warps])))
                 x y)]
         (change-map! state (:scene exit) (:room exit) (:to exit))))))
 
