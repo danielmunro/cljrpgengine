@@ -220,7 +220,7 @@
 
 (defn load-room-mobs
   [state area room]
-  (let [file-path (str "resources/" (name area) "/" (name room) "/mobs")
+  (let [file-path (str constants/resources-dir "areas/" (name area) "/" (name room) "/mobs")
         dir (io/file file-path)]
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
