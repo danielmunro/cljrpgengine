@@ -135,9 +135,9 @@
     (let [current-animation (get-in @state current-animation-path)]
       (event/apply-outcomes! state outcomes)
       (dosync
-        (if (= current-animation (get-in @state current-animation-path))
-          (alter state assoc-in current-animation-path mob-direction))
-        (alter state dissoc :engagement)))))
+       (if (= current-animation (get-in @state current-animation-path))
+         (alter state assoc-in current-animation-path mob-direction))
+       (alter state dissoc :engagement)))))
 
 (defn- inc-engagement!
   [state]
@@ -147,8 +147,8 @@
            (get-in @state [:engagement :message-index]))
       (do
         (dosync
-       (alter state assoc-in [:engagement :message-index] 0)
-       (alter state update-in [:engagement :dialog-index] inc))
+         (alter state assoc-in [:engagement :message-index] 0)
+         (alter state update-in [:engagement :dialog-index] inc))
         (if (engagement-done? (:engagement @state))
           (clear-engagement! state))))))
 

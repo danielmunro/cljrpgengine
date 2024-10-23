@@ -132,7 +132,7 @@
 (defn dialog
   [mob message]
   (let [y (- constants/screen-height constants/dialog-height)
-        text (into [(:name mob)] (string-break message))]
+        text (string-break (str (:name mob) ": " message))]
     (draw-window 0 y constants/screen-width constants/dialog-height)
     (dorun
      (for [i (range (count text))]
