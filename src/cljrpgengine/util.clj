@@ -1,4 +1,5 @@
 (ns cljrpgengine.util
+  (:require [cljrpgengine.constants :as constants])
   (:import (java.io File)
            (javax.imageio IIOException ImageIO)))
 
@@ -33,7 +34,7 @@
   "Load an image, path is relative to 'resources/'"
   [path]
   (try
-    (-> (str "resources/" path)
+    (-> (str constants/resources-dir path)
         (File.)
         (ImageIO/read))
     (catch IIOException e

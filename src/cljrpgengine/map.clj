@@ -23,8 +23,8 @@
                 :y @y}})
 
 (defn- load-tileset
-  [area-name]
-  (let [data (-> (str constants/resources-dir "areas/" area-name "/" area-name "-tileset.tsj")
+  [source]
+  (let [data (-> source
                  (slurp)
                  (json/read-str))
         tilewidth (data "tilewidth")
@@ -35,6 +35,7 @@
      :margin (data "margin")
      :spacing (data "spacing")
      :tilecount (data "tilecount")
+     :image (data "image")
      :tileheight tileheight
      :tilewidth tilewidth
      :imagewidth imagewidth
@@ -82,7 +83,7 @@
 
 (defn- load-tilemap
   [area-name room]
-  (let [data (-> (str constants/resources-dir "areas/" area-name "/" room "/" room "-tilemap.tmj")
+  (let [data (-> (str constants/resources-dir "areas/" area-name "/" room "/" area-name "-" room ".tmj")
                  (slurp)
                  (json/read-str))
         arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))
@@ -90,6 +91,7 @@
         shops (util/filter-first #(= "shops" (% "name")) (data "layers"))]
     {:height (data "height")
      :width (data "width")
+     :tileset (get (first (data "tilesets")) "source")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps (warps "objects"))
      :arrive_at (if arrive-at
@@ -155,8 +157,8 @@
 (defn load-map
   [area room]
   (let [tilemap (load-tilemap area room)
-        tileset (load-tileset area)
-        image (util/load-image (str "areas/" area "/" area ".png"))
+        tileset (load-tileset (str constants/areas-dir area "/" room "/" (:tileset tilemap)))
+        image (util/load-image (str constants/tilesets-dir (:image tileset)))
         layers (:layers tilemap)
         w (:tilewidth tileset)
         h (:tileheight tileset)
@@ -196,13 +198,11 @@
 (defn get-interaction-from-coords
   [map interaction x y]
   (let [cw (first constants/character-dimensions)
-        ch (second constants/character-dimensions)
-        tw (get-in map [:tileset :tilewidth])
-        th (get-in map [:tileset :tileheight])]
+        ch (second constants/character-dimensions)]
     (util/filter-first
      #(util/collision-detected?
        x y (+ x cw) (+ y ch)
-       (:x %) (:y %) (+ (:x %) tw) (+ (:y %) th))
+       (:x %) (:y %) (+ (:x %) (:width %)) (+ (:y %) (:height %)))
      (interaction map))))
 
 (defn get-entrance

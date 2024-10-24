@@ -48,4 +48,8 @@
 
 (def sprites-dir (str resources-dir "sprites/"))
 
+(def tilesets-dir "tilesets/")
+
+(def areas-dir (str resources-dir "areas/"))
+
 (def tile-size 16)

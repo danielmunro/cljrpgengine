@@ -66,10 +66,15 @@
                  "y":352
                 }, 
                 {
-                 "height":80.2726,
+                 "height":80,
                  "id":4,
                  "name":"to_tinytown",
                  "properties":[
+                        {
+                         "name":"room",
+                         "type":"string",
+                         "value":"main"
+                        }, 
                         {
                          "name":"scene",
                          "type":"string",
@@ -83,9 +88,9 @@
                  "rotation":0,
                  "type":"exit",
                  "visible":true,
-                 "width":256.721,
-                 "x":255.206,
-                 "y":399.091
+                 "width":256,
+                 "x":256,
+                 "y":400
                 }, 
                 {
                  "height":16,
@@ -201,7 +206,7 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"..\/..\/..\/..\/..\/crpgengine\/examples\/simple_demo\/tilesets\/tinytown.tsx"
+         "source":"..\/..\/..\/tilesets\/town.tsj"
         }],
  "tilewidth":16,
  "type":"map",
