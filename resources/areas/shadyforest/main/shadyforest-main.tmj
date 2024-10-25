@@ -91,23 +91,6 @@
                  "width":256,
                  "x":256,
                  "y":400
-                }, 
-                {
-                 "height":16,
-                 "id":6,
-                 "name":"start",
-                 "properties":[
-                        {
-                         "name":"direction",
-                         "type":"string",
-                         "value":"up"
-                        }],
-                 "rotation":0,
-                 "type":"entrance",
-                 "visible":true,
-                 "width":16,
-                 "x":368,
-                 "y":336
                 }],
          "opacity":1,
          "type":"objectgroup",
