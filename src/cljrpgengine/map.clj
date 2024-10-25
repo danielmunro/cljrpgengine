@@ -78,7 +78,9 @@
           [object]
           (merge {:name (keyword (object "name"))
                   :x (object "x")
-                  :y (object "y")}))
+                  :y (object "y")
+                  :width (object "width")
+                  :height (object "height")}))
         objects))
 
 (defn- load-tilemap
