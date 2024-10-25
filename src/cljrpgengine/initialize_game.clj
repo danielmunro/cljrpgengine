@@ -14,14 +14,12 @@
   (.initialize-scene scene)
   (.update-scene scene))
 
-(defn- room-loaded
-  [state]
-  (let [room (get-in @state [:map :room])]
-    (let [area (get-in @state [:map :name])]
-      (mob/load-room-mobs state area room)
-      (event/load-room-events state area room)
-      (shop/load-shops state area room))
-    (event/fire-room-loaded-event state room)))
+(defn load-room!
+  [state area room]
+  (mob/load-room-mobs state area room)
+  (event/load-room-events state area room)
+  (shop/load-shops state area room)
+  (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open
   [state]
@@ -43,7 +41,7 @@
             (alter state dissoc :new-game))
     (init-scene scene))
   (map/init-map state)
-  (room-loaded state)
+  (load-room! state "tinytown" "main")
   (close-ui-if-open state))
 
 (defn load-save
@@ -54,5 +52,6 @@
             (alter state dissoc :load-game)
             (alter state assoc :scene scene))
     (init-scene scene)
-    (room-loaded state)
+    (let [{{:keys [name room]} :map} @state]
+      (load-room! state name room))
     (close-ui-if-open state)))

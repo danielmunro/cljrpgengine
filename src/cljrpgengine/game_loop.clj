@@ -1,13 +1,12 @@
 (ns cljrpgengine.game-loop
-  (:require [cljrpgengine.event :as event]
-            [cljrpgengine.log :as log]
+  (:require [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.effect :as effect]
-            [cljrpgengine.shop :as shop]
+            [cljrpgengine.initialize-game :as initialize-game]
             [cljrpgengine.window :as window]))
 
 (def animation-update (atom 0))
@@ -89,11 +88,7 @@
             :x x
             :y y)))
   (.update-scene (:scene @state))
-  (let [area (get-in @state [:map :name])]
-    (mob/load-room-mobs state area room)
-    (event/load-room-events state area room)
-    (shop/load-shops state area room))
-  (event/fire-room-loaded-event state room))
+  (initialize-game/load-room! state area room))
 
 (defn- check-exits
   "Check the player's current location for an exit."
