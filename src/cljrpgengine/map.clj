@@ -218,7 +218,6 @@
   (let [map (:map @state)
         {:keys [x y direction]} (get-warp map "start")]
     (dosync
-     (alter state assoc-in [:map] map)
      (alter state update-in [:player] assoc
             :x x
             :y y
