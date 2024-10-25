@@ -5,6 +5,7 @@
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
+            [cljrpgengine.shop :as shop]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]))
 
@@ -18,7 +19,8 @@
   (let [room (get-in @state [:map :room])]
     (let [area (get-in @state [:map :name])]
       (mob/load-room-mobs state area room)
-      (event/load-room-events state area room))
+      (event/load-room-events state area room)
+      (shop/load-shops state area room))
     (event/fire-room-loaded-event state room)))
 
 (defn- close-ui-if-open

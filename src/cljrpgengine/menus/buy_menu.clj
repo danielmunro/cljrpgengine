@@ -8,13 +8,13 @@
 (deftype BuyMenu [state shop]
   menu/Menu
   (draw [menu]
-    (let [x (/ (first constants/window) 8)
-          y (/ (second constants/window) 8)
+    (let [x (/ constants/screen-width 8)
+          y (/ constants/screen-height 8)
           w (* x 6)
           h (* y 5)
           cursor (ui/get-menu-cursor state (.menu-type menu))
           item-map (item/item-quantity-map (:items @state))
-          items ((.shops (:scene @state)) shop)
+          items (get-in @state [:shops shop])
           item-count (count items)]
       (ui/draw-window x y w h)
       (ui/draw-line
@@ -44,7 +44,7 @@
        (+ y h)
        0
        (str (ui/text-fixed-width "Cash on hand" constants/item-name-width) (:money @state)))))
-  (cursor-length [_] (count ((.shops (:scene @state)) shop)))
+  (cursor-length [_] (count (get-in @state [:shops shop])))
   (menu-type [_] :buy)
   (key-pressed [menu]
     (ui/open-menu!
@@ -52,7 +52,7 @@
      (confirm-buy-menu/create-menu
       state
       shop
-      (((.shops (:scene @state)) shop) (ui/get-menu-cursor state (.menu-type menu)))))))
+      ((get-in @state [:shops shop]) (ui/get-menu-cursor state (.menu-type menu)))))))
 
 (defn create-menu
   [state shop]

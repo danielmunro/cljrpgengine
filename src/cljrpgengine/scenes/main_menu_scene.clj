@@ -12,8 +12,7 @@
   (update-scene [_]
     (if (not (ui/is-menu-open? state))
       (ui/open-menu! state (main-menu/create-menu state))))
-  (scene-name [_] :main-menu)
-  (shops [_] {}))
+  (scene-name [_] :main-menu))
 
 (defn create
   [state]

@@ -8,7 +8,7 @@
 
 (def initial-state {:save-name nil
                     :keys #{}
-                    :mobs []
+                    :mobs {}
                     :items {}
                     :events []
                     :menus []
@@ -18,7 +18,8 @@
                     :player {}
                     :money 0
                     :map nil
-                    :effects {}})
+                    :effects {}
+                    :shops {}})
 
 (defn- transform-to-save
   [state]

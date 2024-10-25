@@ -7,6 +7,7 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.effect :as effect]
+            [cljrpgengine.shop :as shop]
             [cljrpgengine.window :as window]))
 
 (def animation-update (atom 0))
@@ -90,7 +91,8 @@
   (.update-scene (:scene @state))
   (let [area (get-in @state [:map :name])]
     (mob/load-room-mobs state area room)
-    (event/load-room-events state area room))
+    (event/load-room-events state area room)
+    (shop/load-shops state area room))
   (event/fire-room-loaded-event state room))
 
 (defn- check-exits
