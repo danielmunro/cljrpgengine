@@ -222,6 +222,7 @@
   [state area room]
   (let [file-path (str constants/resources-dir "areas/" (name area) "/" (name room) "/mobs")
         dir (io/file file-path)]
+    (dosync (alter state assoc :mobs {}))
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
         (dosync
