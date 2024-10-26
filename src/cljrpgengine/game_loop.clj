@@ -77,9 +77,9 @@
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
-  [state area room entrance]
-  (log/info (format "exit triggered :: area: %s, room: %s, entrance: %s" area room, entrance))
-  (let [new-map (map/load-map area room)
+  [state scene room entrance]
+  (log/info (format "exit triggered :: scene: %s, room: %s, entrance: %s" scene room, entrance))
+  (let [new-map (map/load-map scene room)
         {:keys [x y]} (map/get-entrance new-map entrance)]
     (effect/add-fade-in state)
     (dosync
@@ -87,8 +87,7 @@
      (alter state update-in [:player] assoc
             :x x
             :y y)))
-  (.update-scene (:scene @state))
-  (initialize-game/load-room! state area room))
+  (initialize-game/load-room! state scene room))
 
 (defn- check-exits
   "Check the player's current location for an exit."

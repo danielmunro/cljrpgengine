@@ -84,8 +84,8 @@
         objects))
 
 (defn- load-tilemap
-  [area-name room]
-  (let [data (-> (str constants/scenes-dir area-name "/" room "/" area-name "-" room ".tmj")
+  [scene room]
+  (let [data (-> (str constants/scenes-dir scene "/" room "/" scene "-" room ".tmj")
                  (slurp)
                  (json/read-str))
         arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))
@@ -157,9 +157,11 @@
     buf))
 
 (defn load-map
-  [area room]
-  (let [tilemap (load-tilemap area room)
-        tileset (load-tileset (str constants/scenes-dir area "/" room "/" (:tileset tilemap)))
+  [scene room]
+  (let [scene-name (name scene)
+        room-name (name room)
+        tilemap (load-tilemap scene-name room-name)
+        tileset (load-tileset (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tilemap)))
         image (util/load-image (str constants/tilesets-dir (:image tileset)))
         layers (:layers tilemap)
         w (:tilewidth tileset)
@@ -167,11 +169,11 @@
         mapw (:width tilemap)
         maph (:height tilemap)
         iw (:imagewidth tileset)]
-    (log/info (format "loading map :: %s - %s" area room))
+    (log/info (format "loading map :: %s - %s" scene room))
     (log/debug (format "map warps :: %s" (str/join ", " (map #(format "%s - %s - %s" (:scene %) (:room %) (:to %)) (filter #(= :exit (:type %)) (:warps tilemap))))))
     {:tilemap tilemap
      :tileset tileset
-     :name (keyword area)
+     :scene (keyword scene)
      :room (keyword room)
      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))

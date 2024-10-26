@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.main.select-game :as select-game]
-            [cljrpgengine.initialize-game :as new-game]
+            [cljrpgengine.initialize-game :as initialize-game]
             [cljrpgengine.ui :as ui]
             [clojure.java.io :as io]))
 
@@ -37,9 +37,9 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= (nth final-menu-items cursor) "Continue")
-        (new-game/load-save state "last-save.txt")
+        (initialize-game/load-save state "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
-        (new-game/start state)
+        (initialize-game/start state)
         (= (nth final-menu-items cursor) "Load Game")
         (ui/open-menu! state (select-game/create-menu state))
         (= (nth final-menu-items cursor) "Settings")

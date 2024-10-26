@@ -1,24 +1,21 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.create-scene :as create-scene]
             [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
+            [cljrpgengine.scene :as scene]
             [cljrpgengine.shop :as shop]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]))
 
-(defn- init-scene
-  [scene]
-  (.initialize-scene scene)
-  (.update-scene scene))
-
 (defn load-room!
-  [state area room]
-  (mob/load-room-mobs state area room)
-  (event/load-room-events state area room)
-  (shop/load-shops state area room)
+  [state scene room]
+  (if (not= scene (:scene @state))
+    (scene/load-scene state scene room))
+  (mob/load-room-mobs state scene room)
+  (event/load-room-events state scene room)
+  (shop/load-shops state scene room)
   (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open
@@ -28,30 +25,25 @@
 
 (defn start
   [state]
-  (let [scene (create-scene/create state :tinytown)]
-    (dosync (alter state assoc
-                   :player (player/create-new-player)
-                   :map (map/load-map "tinytown" "main")
-                   :save-name (random-uuid)
-                   :money constants/starting-money
-                   :items {:light-health-potion 2
-                           :light-mana-potion 1
-                           :practice-sword 1}
-                   :scene scene)
-            (alter state dissoc :new-game))
-    (init-scene scene))
+  (dosync (alter state assoc
+                 :player (player/create-new-player)
+                 :map (map/load-map :tinytown :main)
+                 :save-name (random-uuid)
+                 :money constants/starting-money
+                 :items {:light-health-potion 2
+                         :light-mana-potion 1
+                         :practice-sword 1})
+          (alter state dissoc :new-game))
   (map/init-map state)
-  (load-room! state "tinytown" "main")
+  (load-room! state :tinytown :main)
   (close-ui-if-open state))
 
 (defn load-save
   [state file]
-  (let [new-state (state/load-save-file file)
-        scene (create-scene/create state (:scene @new-state))]
+  (let [new-state (state/load-save-file file)]
     (dosync (alter state merge @new-state)
-            (alter state dissoc :load-game)
-            (alter state assoc :scene scene))
-    (init-scene scene)
-    (let [{{:keys [name room]} :map} @state]
-      (load-room! state name room))
+            (alter state dissoc :load-game))
+    (let [{:keys [scene room]} @state]
+      (scene/load-scene state scene room)
+      (load-room! state scene room))
     (close-ui-if-open state)))

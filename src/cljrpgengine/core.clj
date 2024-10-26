@@ -1,5 +1,6 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.sprite :as sprite]
+  (:require [cljrpgengine.create-menu :as create-menu]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
@@ -7,8 +8,7 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window]
-            [cljrpgengine.log :as log]
-            [cljrpgengine.scenes.main-menu-scene :as main-menu-scene])
+            [cljrpgengine.log :as log])
   (:gen-class))
 
 (def save-file (atom nil))
@@ -18,15 +18,13 @@
   []
   (ui/init!)
   (sprite/load-sprites)
-  (let [state (state/create-new-state)
-        scene (main-menu-scene/create state)]
+  (let [state (state/create-new-state)]
     (window/create
      constants/screen-width
      constants/screen-height
      #(input/key-pressed! state %)
      #(input/key-released! state %))
-    (dosync (alter state assoc :scene scene))
-    (.initialize-scene scene)
+    (ui/open-menu! state (create-menu/create state :main-menu))
     (effect/add-fade-in state)
     state))
 

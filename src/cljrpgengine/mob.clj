@@ -219,8 +219,8 @@
        (update-sprite! state [:mobs identifier :sprite :animations current-animation] time-elapsed-ns m)))))
 
 (defn load-room-mobs
-  [state area room]
-  (let [file-path (str constants/scenes-dir (name area) "/" (name room) "/mobs")
+  [state scene room]
+  (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/mobs")
         dir (io/file file-path)]
     (dosync (alter state assoc :mobs {}))
     (if (.exists dir)
