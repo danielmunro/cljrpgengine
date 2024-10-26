@@ -50,6 +50,6 @@
 
 (def tilesets-dir "tilesets/")
 
-(def areas-dir (str resources-dir "areas/"))
+(def scenes-dir (str resources-dir "scenes/"))
 
 (def tile-size 16)

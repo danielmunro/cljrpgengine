@@ -85,7 +85,7 @@
 
 (defn- load-tilemap
   [area-name room]
-  (let [data (-> (str constants/resources-dir "areas/" area-name "/" room "/" area-name "-" room ".tmj")
+  (let [data (-> (str constants/scenes-dir area-name "/" room "/" area-name "-" room ".tmj")
                  (slurp)
                  (json/read-str))
         arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))
@@ -159,7 +159,7 @@
 (defn load-map
   [area room]
   (let [tilemap (load-tilemap area room)
-        tileset (load-tileset (str constants/areas-dir area "/" room "/" (:tileset tilemap)))
+        tileset (load-tileset (str constants/scenes-dir area "/" room "/" (:tileset tilemap)))
         image (util/load-image (str constants/tilesets-dir (:image tileset)))
         layers (:layers tilemap)
         w (:tilewidth tileset)
