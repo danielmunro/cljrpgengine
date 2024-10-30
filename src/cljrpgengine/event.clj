@@ -1,6 +1,8 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.util :as util])
-  (:require [cljrpgengine.item :as item]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.item :as item]
+            [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [clojure.java.io :as io]))
 
@@ -118,8 +120,8 @@
      (apply-outcomes! state (:outcomes event)))))
 
 (defn load-room-events
-  [state area room]
-  (let [file-path (str "resources/" (name area) "/" (name room) "/events")
+  [state scene room]
+  (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/events")
         dir (io/file file-path)]
     (if (.exists dir)
       (let [event-files (.listFiles dir)]
@@ -129,4 +131,5 @@
             (let [events-data (read-string (slurp (str file-path "/" (.getName event-file))))]
               (dorun
                (for [event events-data]
-                 (dosync (alter state update-in [:events] conj event))))))))))))
+                 (dosync (alter state update-in [:events] conj event)))))))))
+      (log/info (format "no room events found :: %s - %s" scene room)))))
