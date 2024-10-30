@@ -67,11 +67,11 @@
     (swap! encounter
            (fn [_]
              (into {} (map
-                        (fn [k]
-                          (let [max (:max (get enc k))
-                                min (:min (get enc k))]
-                            {k (mapv (fn [_] (get @beastiary k)) (range (+ (rand-int (- max min)) min)))}))
-                        (keys enc)))))
+                       (fn [k]
+                         (let [max (:max (get enc k))
+                               min (:min (get enc k))]
+                           {k (mapv (fn [_] (get @beastiary k)) (range (+ (rand-int (- max min)) min)))}))
+                       (keys enc)))))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
   (println @encounter)
   #_(System/exit 1))
@@ -87,13 +87,13 @@
    quarter-width quarter-height)
   (let [beast-types (vec (keys @encounter))]
     (dorun
-      (for [i (range 0 (count beast-types))]
-        (let [beast-type (get beast-types i)
-              beasts (get @encounter beast-type)]
-          (ui/draw-line 0
-                        (* quarter-height 3)
-                        i
-                        (str (ui/text-fixed-width (:name (get beasts 0)) 10) "(" (count beasts) ")")))))))
+     (for [i (range 0 (count beast-types))]
+       (let [beast-type (get beast-types i)
+             beasts (get @encounter beast-type)]
+         (ui/draw-line 0
+                       (* quarter-height 3)
+                       i
+                       (str (ui/text-fixed-width (:name (get beasts 0)) 10) "(" (count beasts) ")")))))))
 
 (defn- draw-player-status-menu
   [state]
@@ -102,13 +102,13 @@
    (* 3 quarter-width) quarter-height)
   (let [party (get-in @state [:player :party])]
     (dorun
-      (for [p (range 0 (count party))]
-        (ui/draw-line quarter-width
-                      (* quarter-height 3)
-                      p
-                      (str (ui/text-fixed-width (:name (get party p)) 20)
-                           (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                           (:mana (get party p)) "/" (:max-mana (get party p))))))))
+     (for [p (range 0 (count party))]
+       (ui/draw-line quarter-width
+                     (* quarter-height 3)
+                     p
+                     (str (ui/text-fixed-width (:name (get party p)) 20)
+                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
+                          (:mana (get party p)) "/" (:max-mana (get party p))))))))
 
 (defn- draw-menus
   [state]
