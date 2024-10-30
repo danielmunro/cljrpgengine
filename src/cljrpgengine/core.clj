@@ -1,6 +1,7 @@
 (ns cljrpgengine.core
   (:require [cljrpgengine.create-menu :as create-menu]
             [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.fight :as beast]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.state :as state]
             [cljrpgengine.constants :as constants]
@@ -24,6 +25,7 @@
      constants/screen-height
      #(input/key-pressed! state %)
      #(input/key-released! state %))
+    (beast/load-beastiary!)
     (ui/open-menu! state (create-menu/create state :main-menu))
     (effect/add-fade-in state)
     state))
@@ -39,4 +41,4 @@
         (= "-l" arg)
         (swap! log/log-level (constantly (keyword (first (next args))))))))
   (log/info "starting game...")
-  (game-loop/run (setup-state!)))
+  (game-loop/run-game! (setup-state!)))

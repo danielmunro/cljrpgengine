@@ -1,5 +1,7 @@
 (ns cljrpgengine.game-loop
-  (:require [cljrpgengine.log :as log]
+  (:require [cljrpgengine.fight :as fight]
+            [cljrpgengine.fight :as beast]
+            [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -7,6 +9,7 @@
             [cljrpgengine.constants :as constants]
             [cljrpgengine.effect :as effect]
             [cljrpgengine.initialize-game :as initialize-game]
+            [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]))
 
 (def animation-update (atom 0))
@@ -25,8 +28,7 @@
               (get-in @state [:mobs mob-identifier]))]
     (ui/dialog mob ((:messages monolog) message-index))))
 
-(defn- draw
-  "Redraw the screen, including backgrounds, mobs, and player."
+(defn- draw-map
   [state]
   (if (contains? (:nodes @state) :map)
     (let [{scene-map :map
@@ -50,14 +52,21 @@
       (map/draw-background @window/graphics scene-map adjusted-x adjusted-y)
       (dorun
        (for [m (sort-by :y (vals mobs))]
-         (mob/draw-mob @window/graphics m adjusted-x adjusted-y)))
-      (mob/draw-mob @window/graphics (assoc player-mob
-                                            :x (:x player)
-                                            :y (:y player)
-                                            :x-offset (:x-offset player)
-                                            :y-offset (:y-offset player)
-                                            :direction (:direction player)) adjusted-x adjusted-y)
-      (map/draw-foreground @window/graphics scene-map adjusted-x adjusted-y)))
+         (mob/draw-mob m adjusted-x adjusted-y)))
+      (mob/draw-mob (assoc player-mob
+                           :x (:x player)
+                           :y (:y player)
+                           :x-offset (:x-offset player)
+                           :y-offset (:y-offset player)
+                           :direction (:direction player)) adjusted-x adjusted-y)
+      (map/draw-foreground @window/graphics scene-map adjusted-x adjusted-y))))
+
+(defn- draw
+  "Redraw the screen, including backgrounds, mobs, and player."
+  [state]
+  (if @fight/encounter
+    (fight/draw state)
+    (draw-map state))
   (let [{:keys [engagement menus]} @state]
     (if engagement
       (draw-dialog state engagement))
@@ -94,19 +103,27 @@
   [state]
   (let [{:keys [map player]} @state
         {:keys [x y]} player]
-    (if (mob/is-standing-still player)
-      (if-let [exit
-               (map/get-interaction-from-coords
-                map
-                (fn [map] (filter #(= :exit (:type %)) (get-in map [:tilemap :warps])))
-                x y)]
-        (change-map! state (:scene exit) (:room exit) (:to exit))))))
+    (if-let [exit
+             (map/get-interaction-from-coords
+              map
+              (fn [map] (filter #(= :exit (:type %)) (get-in map [:tilemap :warps])))
+              x y)]
+      (change-map! state (:scene exit) (:room exit) (:to exit)))))
 
 (defn- do-player-updates
   "Main loop player updates."
   [state time-elapsed-ns]
   (check-exits state)
-  (player/update-move-offset! state time-elapsed-ns)
+  (let [is-moving? (:is-moving? @state)]
+    (player/update-move-offset! state time-elapsed-ns)
+    (if (and
+         is-moving?
+         (not (:is-moving? @state)))
+      (let [encounter (fight/check-encounter-collision state)]
+        (if (and
+             encounter
+             (< (rand) (:encounter-rate encounter)))
+          (fight/start! encounter)))))
   (player/check-start-moving state))
 
 (defn- do-mob-updates
@@ -119,14 +136,16 @@
   "Main loop."
   [state time-elapsed-ns]
   (update-animations state time-elapsed-ns)
-  (let [nodes (:nodes @state)]
-    (if (contains? nodes :player)
-      (do-player-updates state time-elapsed-ns))
-    (if (contains? nodes :mobs)
-      (do-mob-updates state time-elapsed-ns)))
+  (if @fight/encounter
+    (fight/update-fight state)
+    (let [nodes (:nodes @state)]
+      (if (contains? nodes :player)
+        (do-player-updates state time-elapsed-ns))
+      (if (contains? nodes :mobs)
+        (do-mob-updates state time-elapsed-ns))))
   state)
 
-(defn run
+(defn run-game!
   [state]
   (while true
     (Thread/sleep @sleep-length)

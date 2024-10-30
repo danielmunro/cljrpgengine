@@ -3,6 +3,7 @@
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]
+            [cljrpgengine.window :as window]
             [clojure.java.io :as io]))
 
 (defn is-standing-still
@@ -13,10 +14,10 @@
      (= 0 y-offset))))
 
 (defn draw-mob
-  [g mob offset-x offset-y]
+  [mob offset-x offset-y]
   (let [x (+ (:x mob) (:x-offset mob))
         y (+ (:y mob) (:y-offset mob))]
-    (sprite/draw g (+ x offset-x) (+ y offset-y) (:sprite mob))))
+    (sprite/draw @window/graphics (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
   ([identifier name class level direction x y sprite portrait]
@@ -142,7 +143,9 @@
     (if (and (or (not= 0 x-offset) (not= 0 y-offset))
              (is-standing-still (get-in @state update-in-path))
              (:is-playing (get-in @state (conj sprite-path :animations current-animation))))
-      (dosync (alter state assoc-in (conj sprite-path :animations current-animation :is-playing) false)))))
+      (dosync
+       (alter state assoc-in (conj sprite-path :animations current-animation :is-playing) false)
+       (alter state assoc :is-moving? false)))))
 
 (defn update-move-offsets!
   [state elapsed-nano]

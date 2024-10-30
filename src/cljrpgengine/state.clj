@@ -21,7 +21,8 @@
                     :money 0
                     :map nil
                     :effects {}
-                    :shops {}})
+                    :shops {}
+                    :is-moving? false})
 
 (defn- transform-to-save
   [state]

@@ -65,14 +65,25 @@
   [objects]
   (mapv (fn
           [object]
-          (merge {:name (object "name")
-                  :x (object "x")
-                  :y (object "y")
-                  :width (object "width")
-                  :height (object "height")}))
+          {:name (object "name")
+           :x (object "x")
+           :y (object "y")
+           :width (object "width")
+           :height (object "height")})
         objects))
 
 (defn- transform-shops
+  [objects]
+  (mapv (fn
+          [object]
+          {:name (keyword (object "name"))
+           :x (object "x")
+           :y (object "y")
+           :width (object "width")
+           :height (object "height")})
+        objects))
+
+(defn- transform-encounters
   [objects]
   (mapv (fn
           [object]
@@ -80,7 +91,8 @@
                   :x (object "x")
                   :y (object "y")
                   :width (object "width")
-                  :height (object "height")}))
+                  :height (object "height")}
+                 (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
         objects))
 
 (defn- load-tilemap
@@ -88,9 +100,11 @@
   (let [data (-> (str constants/scenes-dir scene "/" room "/" scene "-" room ".tmj")
                  (slurp)
                  (json/read-str))
-        arrive-at (util/filter-first #(= "arrive_at" (% "name")) (data "layers"))
-        warps (util/filter-first #(= "warps" (% "name")) (data "layers"))
-        shops (util/filter-first #(= "shops" (% "name")) (data "layers"))]
+        layers (data "layers")
+        arrive-at (util/filter-first #(= "arrive_at" (% "name")) layers)
+        warps (util/filter-first #(= "warps" (% "name")) layers)
+        shops (util/filter-first #(= "shops" (% "name")) layers)
+        encounters (util/filter-first #(= "encounters" (% "name")) layers)]
     {:height (data "height")
      :width (data "width")
      :tileset (get (first (data "tilesets")) "source")
@@ -101,7 +115,10 @@
                   [])
      :shops (if shops
               (transform-shops (shops "objects"))
-              [])}))
+              [])
+     :encounters (if encounters
+                   (transform-encounters (encounters "objects"))
+                   [])}))
 
 (defn is-blocking?
   [tile-map tile-set x y]

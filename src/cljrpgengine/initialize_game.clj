@@ -4,6 +4,7 @@
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
+            [cljrpgengine.fight :as fight]
             [cljrpgengine.scene :as scene]
             [cljrpgengine.shop :as shop]
             [cljrpgengine.state :as state]
@@ -16,6 +17,8 @@
   (mob/load-room-mobs state scene room)
   (event/load-room-events state scene room)
   (shop/load-shops state scene room)
+  (fight/load-encounters! scene room)
+  (fight/set-room-encounters! (get-in @state [:map :tilemap :encounters]))
   (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open

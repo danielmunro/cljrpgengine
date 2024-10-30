@@ -1,0 +1,10 @@
+{:warg {:name "warg"
+        :attributes {:str 1
+                     :int 1
+                     :dex 1}
+        :resist #{:frost}
+        :vuln #{:fire}
+        :level 3
+        :hp 3
+        :gold 1
+        :image "warg.png"}}

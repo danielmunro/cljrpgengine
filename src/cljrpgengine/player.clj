@@ -66,7 +66,8 @@
       (do
         (mob/play-animation! state [:player :party 0] direction)
         (mob/set-mob-move-offsets! state [:player] direction x y new-x new-y)
-        (dosync (alter state update :keys conj direction)))
+        (dosync (alter state update :keys conj direction)
+                (alter state assoc :is-moving? true)))
       (dosync
        (alter state assoc-in [:player :party 0 :sprite :current-animation] direction)
        (alter state assoc-in [:player :direction] direction)))))
