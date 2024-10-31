@@ -9,7 +9,6 @@
             [cljrpgengine.constants :as constants]
             [cljrpgengine.effect :as effect]
             [cljrpgengine.initialize-game :as initialize-game]
-            [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]))
 
 (def animation-update (atom 0))
