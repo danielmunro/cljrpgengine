@@ -26,7 +26,7 @@
    (.drawString @window/graphics
                 text
                 (float (+ x constants/padding))
-                (float (+ y constants/padding (* constants/line-spacing line-number)))))
+                (float (+ y constants/padding constants/text-size (* constants/line-spacing line-number)))))
   ([x y line-number text]
    (draw-line x y line-number text :font-default)))
 
@@ -121,9 +121,9 @@
 
 (defn draw-cursor
   ([x y]
-   (.drawImage @window/graphics @ui-pack x y (+ x 16) (+ y 16) 342 468 358 484 nil))
+   (.drawImage @window/graphics @ui-pack (- (+ x constants/padding) 14) (+ y constants/padding) (+ x 8) (+ y 26) 342 468 358 484 nil))
   ([x y line]
-   (draw-cursor (+ x 10) (+ y 17 (* constants/line-spacing line)))))
+   (draw-cursor x (+ y (* constants/line-spacing line)))))
 
 (defn get-menu-cursor
   [state menu]

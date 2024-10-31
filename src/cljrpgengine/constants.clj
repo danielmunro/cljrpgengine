@@ -5,11 +5,11 @@
 
 (def font-family "natural-mono-bold.ttf")
 
-(def text-size 16)
+(def text-size 14)
 
-(def line-spacing 24)
+(def line-spacing 21)
 
-(def padding 30)
+(def padding 10)
 
 (def screen-width 640)
 (def screen-height 400)
