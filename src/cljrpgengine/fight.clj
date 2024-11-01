@@ -1,5 +1,6 @@
 (ns cljrpgengine.fight
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
@@ -12,6 +13,7 @@
 (def background (atom nil))
 (def quarter-height (/ constants/screen-height 4))
 (def quarter-width (/ constants/screen-width 4))
+(def previous-animation (atom nil))
 
 (defn set-room-encounters!
   [-room-encounters]
@@ -62,7 +64,7 @@
                                {})))))
 
 (defn start!
-  [map-encounter]
+  [state map-encounter]
   (let [enc ((keyword (:encounter map-encounter)) @encounter-types)]
     (swap! encounter
            (fn [_]
@@ -73,7 +75,13 @@
                            {k (mapv (fn [_] (get @beastiary k)) (range (+ (rand-int (- max min)) min)))}))
                        (keys enc)))))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
-  (println @encounter)
+  (swap! previous-animation (fn [_] (get-in @state [:player :party 0 :sprite :current-animation])))
+  (dorun
+   (for [i (range 0 (count (get-in @state [:player :party])))]
+     (dosync
+      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
+      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0))))
+  #_(println @encounter)
   #_(System/exit 1))
 
 (defn- draw-background
@@ -114,27 +122,38 @@
   []
   (let []
     (dorun
-      (for [beast-key (vec (keys @encounter))]
-        (dorun
-          (let [beast-count (count (get @encounter beast-key))]
-            (for [i (range 0 beast-count)]
-              (let [beast (get-in @encounter [beast-key i])]
-                (.drawImage @window/graphics
-                            (:image beast)
-                            100
-                            (* i (.getHeight (:image beast)))
-                            nil)))))))))
+     (for [beast-key (vec (keys @encounter))]
+       (dorun
+        (let [beast-count (count (get @encounter beast-key))]
+          (for [i (range 0 beast-count)]
+            (let [beast (get-in @encounter [beast-key i])]
+              (.drawImage @window/graphics
+                          (:image beast)
+                          100
+                          (* i (.getHeight (:image beast)))
+                          nil)))))))))
+
+(defn- draw-players
+  [state]
+  (let [players (get-in @state [:player :party])
+        vertical-padding (/ (* quarter-height 3) 4)]
+    (dorun
+     (for [i (range 0 (count players))]
+       (sprite/draw (* constants/screen-width 3/4)
+                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
+                    (get-in players [i :sprite]))))))
 
 (defn- draw-menus
   [state]
   (draw-beast-status-menu)
-  (draw-player-status-menu state)
-  (draw-beasts))
+  (draw-player-status-menu state))
 
 (defn draw
   [state]
   (draw-background)
-  (draw-menus state))
+  (draw-menus state)
+  (draw-beasts)
+  (draw-players state))
 
 (defn update-fight
   [state])

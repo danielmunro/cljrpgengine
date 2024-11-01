@@ -122,7 +122,7 @@
         (if (and
              encounter
              (< (rand) (:encounter-rate encounter)))
-          (fight/start! encounter)))))
+          (fight/start! state encounter)))))
   (player/check-start-moving state))
 
 (defn- do-mob-updates

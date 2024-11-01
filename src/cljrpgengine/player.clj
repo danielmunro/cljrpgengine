@@ -1,6 +1,7 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.effect :as effect]
             [cljrpgengine.event :as event]
+            [cljrpgengine.fight :as fight]
             [cljrpgengine.map :as map]
             [cljrpgengine.menus.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
@@ -81,7 +82,8 @@
     (if (and
          (mob/is-standing-still player)
          (not engagement)
-         (= 0 (count menus)))
+         (= 0 (count menus))
+         (not @fight/encounter))
       (cond
         (= last-key :up)
         (start-moving! state :up x (- y tileheight))
