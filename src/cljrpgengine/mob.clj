@@ -17,7 +17,7 @@
   [mob offset-x offset-y]
   (let [x (+ (:x mob) (:x-offset mob))
         y (+ (:y mob) (:y-offset mob))]
-    (sprite/draw @window/graphics (+ x offset-x) (+ y offset-y) (:sprite mob))))
+    (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
   ([identifier name class level direction x y sprite portrait]

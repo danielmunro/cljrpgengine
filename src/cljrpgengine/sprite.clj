@@ -1,6 +1,7 @@
 (ns cljrpgengine.sprite
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.util :as util]
+            [cljrpgengine.window :as window]
             [clojure.java.io :as io]
             [clojure.string :as str])
   (:import (java.awt.geom AffineTransform)
@@ -41,9 +42,9 @@
       frame)))
 
 (defn draw
-  [g player-x player-y {:keys [image animations current-animation]
-                        [width height] :dimensions
-                        [rows columns] :size}]
+  [player-x player-y {:keys [image animations current-animation]
+                      [width height] :dimensions
+                      [rows columns] :size}]
   (let [animation (get animations current-animation)
         {:keys [frame frames]
          {:keys [flip]} :props} animation
@@ -66,7 +67,7 @@
                 nil)
     (let [transform (AffineTransform.)]
       (.translate transform player-x (- player-y y-diff))
-      (.drawImage g
+      (.drawImage @window/graphics
                   bi
                   transform
                   nil))))
