@@ -110,10 +110,26 @@
                           (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
                           (:mana (get party p)) "/" (:max-mana (get party p))))))))
 
+(defn- draw-beasts
+  []
+  (let []
+    (dorun
+      (for [beast-key (vec (keys @encounter))]
+        (dorun
+          (let [beast-count (count (get @encounter beast-key))]
+            (for [i (range 0 beast-count)]
+              (let [beast (get-in @encounter [beast-key i])]
+                (.drawImage @window/graphics
+                            (:image beast)
+                            100
+                            (* i (.getHeight (:image beast)))
+                            nil)))))))))
+
 (defn- draw-menus
   [state]
   (draw-beast-status-menu)
-  (draw-player-status-menu state))
+  (draw-player-status-menu state)
+  (draw-beasts))
 
 (defn draw
   [state]
