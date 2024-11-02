@@ -90,14 +90,23 @@
 (defn- draw-beast-status-menu
   []
   (ui/draw-window
-   0 (* quarter-height 3)
-   quarter-width quarter-height)
-  (dorun
-    (for [i (range 0 (count @encounter))]
-      (ui/draw-line 0
-                    (* quarter-height 3)
-                    i
-                    (:name (get @encounter i))))))
+    0 (* quarter-height 3)
+    quarter-width quarter-height)
+  (let [beast-types (into #{} (map #(:type %) @encounter))
+        beast-counts (atom (into {} (map (fn [t] {t {:count 0
+                                                     :name (:name (util/filter-first (fn [e] (= t (:type e)))
+                                                                                      @encounter))}}) beast-types)))]
+    (doseq [i (range 0 (count @encounter))]
+      (swap! beast-counts update-in [(get-in @encounter [i :type]) :count] inc))
+    (let [i (atom 0)]
+      (doseq [beast-type (keys @beast-counts)]
+        (ui/draw-line 0
+                      (* quarter-height 3)
+                      @i
+                      (str
+                        (ui/text-fixed-width (get-in @beast-counts [beast-type :name]) 8)
+                        "(" (get-in @beast-counts [beast-type :count]) ")"))
+        (swap! i inc)))))
 
 (defn- draw-player-status-menu
   [state]
@@ -110,7 +119,7 @@
        (ui/draw-line quarter-width
                      (* quarter-height 3)
                      p
-                     (str (ui/text-fixed-width (:name (get party p)) 20)
+                     (str (ui/text-fixed-width (:name (get party p)) 15)
                           (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
                           (:mana (get party p)) "/" (:max-mana (get party p))))))))
 
