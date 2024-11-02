@@ -69,19 +69,18 @@
     (swap! encounter
            (fn [_]
              (mapv
-               (fn [mob]
-                 (let [mob-key (first (keys mob))]
-                   (assoc (get @beastiary mob-key) :type mob-key
-                                                   :x (int (* (get-in mob [mob-key :x]) constants/screen-width))
-                                                   :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
-               enc)))
+              (fn [mob]
+                (let [mob-key (first (keys mob))]
+                  (assoc (get @beastiary mob-key) :type mob-key
+                         :x (int (* (get-in mob [mob-key :x]) constants/screen-width))
+                         :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
+              enc)))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
   (swap! previous-animation (fn [_] (get-in @state [:player :party 0 :sprite :current-animation])))
-  (dorun
-   (for [i (range 0 (count (get-in @state [:player :party])))]
-     (dosync
-      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
-      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))))
+  (doseq [i (range 0 (count (get-in @state [:player :party])))]
+    (dosync
+     (alter state assoc-in [:player :party i :sprite :current-animation] :left)
+     (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0))))
 
 (defn- draw-background
   []
@@ -90,12 +89,12 @@
 (defn- draw-beast-status-menu
   []
   (ui/draw-window
-    0 (* quarter-height 3)
-    quarter-width quarter-height)
+   0 (* quarter-height 3)
+   quarter-width quarter-height)
   (let [beast-types (into #{} (map #(:type %) @encounter))
         beast-counts (atom (into {} (map (fn [t] {t {:count 0
                                                      :name (:name (util/filter-first (fn [e] (= t (:type e)))
-                                                                                      @encounter))}}) beast-types)))]
+                                                                                     @encounter))}}) beast-types)))]
     (doseq [i (range 0 (count @encounter))]
       (swap! beast-counts update-in [(get-in @encounter [i :type]) :count] inc))
     (let [i (atom 0)]
@@ -104,8 +103,8 @@
                       (* quarter-height 3)
                       @i
                       (str
-                        (ui/text-fixed-width (get-in @beast-counts [beast-type :name]) 8)
-                        "(" (get-in @beast-counts [beast-type :count]) ")"))
+                       (ui/text-fixed-width (get-in @beast-counts [beast-type :name]) 8)
+                       "(" (get-in @beast-counts [beast-type :count]) ")"))
         (swap! i inc)))))
 
 (defn- draw-player-status-menu
@@ -114,34 +113,31 @@
    quarter-width (* quarter-height 3)
    (* 3 quarter-width) quarter-height)
   (let [party (get-in @state [:player :party])]
-    (dorun
-     (for [p (range 0 (count party))]
-       (ui/draw-line quarter-width
-                     (* quarter-height 3)
-                     p
-                     (str (ui/text-fixed-width (:name (get party p)) 15)
-                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                          (:mana (get party p)) "/" (:max-mana (get party p))))))))
+    (doseq [p (range 0 (count party))]
+      (ui/draw-line quarter-width
+                    (* quarter-height 3)
+                    p
+                    (str (ui/text-fixed-width (:name (get party p)) 15)
+                         (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
+                         (:mana (get party p)) "/" (:max-mana (get party p)))))))
 
 (defn- draw-beasts
   []
-  (dorun
-    (for [beast @encounter]
-      (.drawImage @window/graphics
-                  (:image beast)
-                  (:x beast)
-                  (:y beast)
-                  nil))))
+  (doseq [beast @encounter]
+    (.drawImage @window/graphics
+                (:image beast)
+                (:x beast)
+                (:y beast)
+                nil)))
 
 (defn- draw-players
   [state]
   (let [players (get-in @state [:player :party])
         vertical-padding (/ (* quarter-height 3) 4)]
-    (dorun
-     (for [i (range 0 (count players))]
-       (sprite/draw (* constants/screen-width 3/4)
-                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
-                    (get-in players [i :sprite]))))))
+    (doseq [i (range 0 (count players))]
+      (sprite/draw (* constants/screen-width 3/4)
+                   (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
+                   (get-in players [i :sprite])))))
 
 (defn- draw-menus
   [state]
