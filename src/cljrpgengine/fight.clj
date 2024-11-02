@@ -65,24 +65,23 @@
 
 (defn start!
   [state map-encounter]
-  (let [enc ((keyword (:encounter map-encounter)) @encounter-types)]
+  (let [enc (rand-nth ((keyword (:encounter map-encounter)) @encounter-types))]
     (swap! encounter
            (fn [_]
-             (into {} (map
-                       (fn [k]
-                         (let [max (:max (get enc k))
-                               min (:min (get enc k))]
-                           {k (mapv (fn [_] (get @beastiary k)) (range (+ (rand-int (- max min)) min)))}))
-                       (keys enc)))))
+             (mapv
+               (fn [mob]
+                 (let [mob-key (first (keys mob))]
+                   (assoc (get @beastiary mob-key) :type mob-key
+                                                   :x (int (* (get-in mob [mob-key :x]) constants/screen-width))
+                                                   :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
+               enc)))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
   (swap! previous-animation (fn [_] (get-in @state [:player :party 0 :sprite :current-animation])))
   (dorun
    (for [i (range 0 (count (get-in @state [:player :party])))]
      (dosync
       (alter state assoc-in [:player :party i :sprite :current-animation] :left)
-      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0))))
-  #_(println @encounter)
-  #_(System/exit 1))
+      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))))
 
 (defn- draw-background
   []
@@ -93,15 +92,12 @@
   (ui/draw-window
    0 (* quarter-height 3)
    quarter-width quarter-height)
-  (let [beast-types (vec (keys @encounter))]
-    (dorun
-     (for [i (range 0 (count beast-types))]
-       (let [beast-type (get beast-types i)
-             beasts (get @encounter beast-type)]
-         (ui/draw-line 0
-                       (* quarter-height 3)
-                       i
-                       (str (ui/text-fixed-width (:name (get beasts 0)) 10) "(" (count beasts) ")")))))))
+  (dorun
+    (for [i (range 0 (count @encounter))]
+      (ui/draw-line 0
+                    (* quarter-height 3)
+                    i
+                    (:name (get @encounter i))))))
 
 (defn- draw-player-status-menu
   [state]
@@ -120,18 +116,13 @@
 
 (defn- draw-beasts
   []
-  (let []
-    (dorun
-     (for [beast-key (vec (keys @encounter))]
-       (dorun
-        (let [beast-count (count (get @encounter beast-key))]
-          (for [i (range 0 beast-count)]
-            (let [beast (get-in @encounter [beast-key i])]
-              (.drawImage @window/graphics
-                          (:image beast)
-                          100
-                          (* i (.getHeight (:image beast)))
-                          nil)))))))))
+  (dorun
+    (for [beast @encounter]
+      (.drawImage @window/graphics
+                  (:image beast)
+                  (:x beast)
+                  (:y beast)
+                  nil))))
 
 (defn- draw-players
   [state]
