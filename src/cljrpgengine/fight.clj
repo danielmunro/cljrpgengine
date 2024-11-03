@@ -84,7 +84,9 @@
     (dosync
      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
-  (swap! player-atb-gauge (fn [_] (vec (repeat (count (get-in @state [:player :party])) 0)))))
+  (swap! player-atb-gauge (fn [_]
+                            (vec (repeatedly (count (get-in @state [:player :party]))
+                                             #(rand-int (/ constants/atb-width 2)))))))
 
 (defn- draw-background
   []
@@ -130,22 +132,7 @@
              width
              10
              3
-             3)))
-  #_(if to-fill
-    (.fillRoundRect @window/graphics
-                    (* quarter-width 3)
-                    (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
-                    width
-                    10
-                    3
-                    3)
-    (.drawRoundRect @window/graphics
-                    (* quarter-width 3)
-                    (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
-                    width
-                    10
-                    3
-                    3)))
+             3))))
 
 (defn- draw-player-status-menu
   [state]
@@ -160,9 +147,9 @@
                     (str (ui/text-fixed-width (:name (get party p)) 15)
                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
                          (:mana (get party p)) "/" (:max-mana (get party p))))
-      (draw-atb-gauge p 64 Color/DARK_GRAY true)
+      (draw-atb-gauge p constants/atb-width Color/DARK_GRAY true)
       (draw-atb-gauge p (get @player-atb-gauge p) Color/LIGHT_GRAY true)
-      (draw-atb-gauge p 64 Color/GRAY false))))
+      (draw-atb-gauge p constants/atb-width Color/GRAY false))))
 
 (defn- draw-beasts
   []
@@ -197,5 +184,9 @@
 (defn update-fight
   [state time-elapsed-ns]
   (doseq [i (range 0 (count @player-atb-gauge))]
-    (if (< (get @player-atb-gauge i) 64)
-      (swap! player-atb-gauge (fn [g] (update-in g [i] (fn [a] (min 64 (+ a (/ time-elapsed-ns 60000000))))))))))
+    (if (< (get @player-atb-gauge i) constants/atb-width)
+      (swap! player-atb-gauge
+             (fn [g]
+               (update-in g [i]
+                          (fn [a]
+                            (min constants/atb-width (+ a (/ time-elapsed-ns 90000000))))))))))

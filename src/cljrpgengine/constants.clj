@@ -53,3 +53,5 @@
 (def scenes-dir (str resources-dir "scenes/"))
 
 (def tile-size 16)
+
+(def atb-width 64)
