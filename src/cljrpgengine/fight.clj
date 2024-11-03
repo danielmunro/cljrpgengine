@@ -17,6 +17,7 @@
 (def quarter-width (/ constants/screen-width 4))
 (def previous-animation (atom nil))
 (def player-atb-gauge (atom nil))
+(def cursors (atom {:player-select 0}))
 
 (defn set-room-encounters!
   [-room-encounters]
@@ -134,6 +135,10 @@
              3
              3))))
 
+(defn- is-party-member-ready?
+  [i]
+  (= constants/atb-width (get @player-atb-gauge i)))
+
 (defn- draw-player-status-menu
   [state]
   (ui/draw-window
@@ -146,10 +151,18 @@
                     p
                     (str (ui/text-fixed-width (:name (get party p)) 15)
                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                         (:mana (get party p)) "/" (:max-mana (get party p))))
+                         (:mana (get party p)) "/" (:max-mana (get party p)))
+                    (if (is-party-member-ready? p)
+                      :font-default
+                      :font-disabled))
       (draw-atb-gauge p constants/atb-width Color/DARK_GRAY true)
       (draw-atb-gauge p (get @player-atb-gauge p) Color/LIGHT_GRAY true)
-      (draw-atb-gauge p constants/atb-width Color/GRAY false))))
+      (draw-atb-gauge p constants/atb-width Color/GRAY false)))
+  (let [c (:player-select @cursors)]
+    (if (is-party-member-ready? c)
+      (ui/draw-cursor quarter-width
+                      (* quarter-height 3)
+                      c))))
 
 (defn- draw-beasts
   []
@@ -185,8 +198,13 @@
   [state time-elapsed-ns]
   (doseq [i (range 0 (count @player-atb-gauge))]
     (if (< (get @player-atb-gauge i) constants/atb-width)
-      (swap! player-atb-gauge
+      (do
+        (swap! player-atb-gauge
              (fn [g]
                (update-in g [i]
                           (fn [a]
-                            (min constants/atb-width (+ a (/ time-elapsed-ns 90000000))))))))))
+                            (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))
+        (if (and
+              (not (is-party-member-ready? (:player-select @cursors)))
+              (is-party-member-ready? i))
+          (swap! cursors (fn [c] (assoc-in c [:player-select] i))))))))
