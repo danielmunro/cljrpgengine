@@ -136,7 +136,7 @@
   [state time-elapsed-ns]
   (update-animations state time-elapsed-ns)
   (if @fight/encounter
-    (fight/update-fight state)
+    (fight/update-fight state time-elapsed-ns)
     (let [nodes (:nodes @state)]
       (if (contains? nodes :player)
         (do-player-updates state time-elapsed-ns))

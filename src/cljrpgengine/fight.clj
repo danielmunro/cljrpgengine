@@ -4,7 +4,9 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import (java.awt Color)
+           (java.awt.geom RoundRectangle2D$Double)))
 
 (def beastiary (atom {}))
 (def encounter (atom nil))
@@ -14,6 +16,7 @@
 (def quarter-height (/ constants/screen-height 4))
 (def quarter-width (/ constants/screen-width 4))
 (def previous-animation (atom nil))
+(def player-atb-gauge (atom nil))
 
 (defn set-room-encounters!
   [-room-encounters]
@@ -80,7 +83,8 @@
   (doseq [i (range 0 (count (get-in @state [:player :party])))]
     (dosync
      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
-     (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0))))
+     (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
+  (swap! player-atb-gauge (fn [_] (vec (repeat (count (get-in @state [:player :party])) 0)))))
 
 (defn- draw-background
   []
@@ -107,6 +111,42 @@
                        "(" (get-in @beast-counts [beast-type :count]) ")"))
         (swap! i inc)))))
 
+(defn- draw-atb-gauge
+  [row width color to-fill]
+  (.setColor @window/graphics color)
+  (if to-fill
+    (.fill @window/graphics
+           (RoundRectangle2D$Double.
+             (* quarter-width 3)
+             (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
+             width
+             10
+             3
+             3))
+    (.draw @window/graphics
+           (RoundRectangle2D$Double.
+             (* quarter-width 3)
+             (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
+             width
+             10
+             3
+             3)))
+  #_(if to-fill
+    (.fillRoundRect @window/graphics
+                    (* quarter-width 3)
+                    (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
+                    width
+                    10
+                    3
+                    3)
+    (.drawRoundRect @window/graphics
+                    (* quarter-width 3)
+                    (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
+                    width
+                    10
+                    3
+                    3)))
+
 (defn- draw-player-status-menu
   [state]
   (ui/draw-window
@@ -119,7 +159,10 @@
                     p
                     (str (ui/text-fixed-width (:name (get party p)) 15)
                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                         (:mana (get party p)) "/" (:max-mana (get party p)))))))
+                         (:mana (get party p)) "/" (:max-mana (get party p))))
+      (draw-atb-gauge p 64 Color/DARK_GRAY true)
+      (draw-atb-gauge p (get @player-atb-gauge p) Color/LIGHT_GRAY true)
+      (draw-atb-gauge p 64 Color/GRAY false))))
 
 (defn- draw-beasts
   []
@@ -152,4 +195,7 @@
   (draw-players state))
 
 (defn update-fight
-  [state])
+  [state time-elapsed-ns]
+  (doseq [i (range 0 (count @player-atb-gauge))]
+    (if (< (get @player-atb-gauge i) 64)
+      (swap! player-atb-gauge (fn [g] (update-in g [i] (fn [a] (min 64 (+ a (/ time-elapsed-ns 60000000))))))))))
