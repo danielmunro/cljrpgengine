@@ -3,6 +3,8 @@
   (:import (java.io File)
            (javax.imageio IIOException ImageIO)))
 
+(def player-atb-gauge (atom nil))
+
 (defn filter-first
   [f data]
   (first (filter f data)))
@@ -40,3 +42,7 @@
     (catch IIOException e
       (println "could not find path: " path)
       (throw e))))
+
+(defn is-party-member-atb-full?
+  [i]
+  (= constants/atb-width (get @player-atb-gauge i)))

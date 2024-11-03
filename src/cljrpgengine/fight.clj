@@ -4,9 +4,8 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
-            [clojure.java.io :as io])
-  (:import (java.awt Color)
-           (java.awt.geom RoundRectangle2D$Double)))
+            [clojure.java.io :as io]
+            [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]))
 
 (def beastiary (atom {}))
 (def encounter (atom nil))
@@ -16,7 +15,6 @@
 (def quarter-height (/ constants/screen-height 4))
 (def quarter-width (/ constants/screen-width 4))
 (def previous-animation (atom nil))
-(def player-atb-gauge (atom nil))
 (def cursors (atom {:player-select 0}))
 
 (defn set-room-encounters!
@@ -85,9 +83,10 @@
     (dosync
      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
-  (swap! player-atb-gauge (fn [_]
-                            (vec (repeatedly (count (get-in @state [:player :party]))
-                                             #(rand-int (/ constants/atb-width 2)))))))
+  (swap! util/player-atb-gauge (fn [_]
+                                 (vec (repeatedly (count (get-in @state [:player :party]))
+                                                  #(rand-int (/ constants/atb-width 2))))))
+  (ui/open-menu! state (player-select-menu/create-menu state)))
 
 (defn- draw-background
   []
@@ -114,56 +113,6 @@
                        "(" (get-in @beast-counts [beast-type :count]) ")"))
         (swap! i inc)))))
 
-(defn- draw-atb-gauge
-  [row width color to-fill]
-  (.setColor @window/graphics color)
-  (if to-fill
-    (.fill @window/graphics
-           (RoundRectangle2D$Double.
-             (* quarter-width 3)
-             (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
-             width
-             10
-             3
-             3))
-    (.draw @window/graphics
-           (RoundRectangle2D$Double.
-             (* quarter-width 3)
-             (+ (* quarter-height 3) (* constants/line-spacing row) constants/text-size)
-             width
-             10
-             3
-             3))))
-
-(defn- is-party-member-ready?
-  [i]
-  (= constants/atb-width (get @player-atb-gauge i)))
-
-(defn- draw-player-status-menu
-  [state]
-  (ui/draw-window
-   quarter-width (* quarter-height 3)
-   (* 3 quarter-width) quarter-height)
-  (let [party (get-in @state [:player :party])]
-    (doseq [p (range 0 (count party))]
-      (ui/draw-line quarter-width
-                    (* quarter-height 3)
-                    p
-                    (str (ui/text-fixed-width (:name (get party p)) 15)
-                         (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                         (:mana (get party p)) "/" (:max-mana (get party p)))
-                    (if (is-party-member-ready? p)
-                      :font-default
-                      :font-disabled))
-      (draw-atb-gauge p constants/atb-width Color/DARK_GRAY true)
-      (draw-atb-gauge p (get @player-atb-gauge p) Color/LIGHT_GRAY true)
-      (draw-atb-gauge p constants/atb-width Color/GRAY false)))
-  (let [c (:player-select @cursors)]
-    (if (is-party-member-ready? c)
-      (ui/draw-cursor quarter-width
-                      (* quarter-height 3)
-                      c))))
-
 (defn- draw-beasts
   []
   (doseq [beast @encounter]
@@ -185,7 +134,7 @@
 (defn- draw-menus
   [state]
   (draw-beast-status-menu)
-  (draw-player-status-menu state))
+  #_(draw-player-status-menu state))
 
 (defn draw
   [state]
@@ -196,15 +145,15 @@
 
 (defn update-fight
   [state time-elapsed-ns]
-  (doseq [i (range 0 (count @player-atb-gauge))]
-    (if (< (get @player-atb-gauge i) constants/atb-width)
+  (doseq [i (range 0 (count @util/player-atb-gauge))]
+    (if (< (get @util/player-atb-gauge i) constants/atb-width)
       (do
-        (swap! player-atb-gauge
-             (fn [g]
-               (update-in g [i]
-                          (fn [a]
-                            (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))
+        (swap! util/player-atb-gauge
+               (fn [g]
+                 (update-in g [i]
+                            (fn [a]
+                              (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))
         (if (and
-              (not (is-party-member-ready? (:player-select @cursors)))
-              (is-party-member-ready? i))
-          (swap! cursors (fn [c] (assoc-in c [:player-select] i))))))))
+             (not (util/is-party-member-atb-full? (ui/get-menu-cursor state :fight-party-select)))
+             (util/is-party-member-atb-full? i))
+          (ui/change-cursor! state (constantly i) :fight-party-select))))))
