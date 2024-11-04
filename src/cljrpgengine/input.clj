@@ -47,9 +47,9 @@
 (defn- should-quit-menu?
   [state key]
   (and
-    (= key :q)
-    (ui/is-menu-open? state)
-    (not (contains? menu/non-closeable-menus (ui/get-last-menu state)))))
+   (= key :q)
+   (ui/is-menu-open? state)
+   (not (contains? menu/non-closeable-menus (ui/get-last-menu state)))))
 
 (defn- evaluate-menu-action?
   [state key]

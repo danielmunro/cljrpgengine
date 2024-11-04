@@ -12,10 +12,7 @@
 (def room-encounters (atom []))
 (def encounter-types (atom {}))
 (def background (atom nil))
-(def quarter-height (/ constants/screen-height 4))
-(def quarter-width (/ constants/screen-width 4))
 (def previous-animation (atom nil))
-(def cursors (atom {:player-select 0}))
 
 (defn set-room-encounters!
   [-room-encounters]
@@ -95,8 +92,8 @@
 (defn- draw-beast-status-menu
   []
   (ui/draw-window
-   0 (* quarter-height 3)
-   quarter-width quarter-height)
+   0 (* constants/quarter-height 3)
+   constants/quarter-width constants/quarter-height)
   (let [beast-types (into #{} (map #(:type %) @encounter))
         beast-counts (atom (into {} (map (fn [t] {t {:count 0
                                                      :name (:name (util/filter-first (fn [e] (= t (:type e)))
@@ -106,7 +103,7 @@
     (let [i (atom 0)]
       (doseq [beast-type (keys @beast-counts)]
         (ui/draw-line 0
-                      (* quarter-height 3)
+                      (* constants/quarter-height 3)
                       @i
                       (str
                        (ui/text-fixed-width (get-in @beast-counts [beast-type :name]) 8)
@@ -125,21 +122,20 @@
 (defn- draw-players
   [state]
   (let [players (get-in @state [:player :party])
-        vertical-padding (/ (* quarter-height 3) 4)]
+        vertical-padding (/ (* constants/quarter-height 3) 4)]
     (doseq [i (range 0 (count players))]
       (sprite/draw (* constants/screen-width 3/4)
                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
                    (get-in players [i :sprite])))))
 
 (defn- draw-menus
-  [state]
-  (draw-beast-status-menu)
-  #_(draw-player-status-menu state))
+  []
+  (draw-beast-status-menu))
 
 (defn draw
   [state]
   (draw-background)
-  (draw-menus state)
+  (draw-menus)
   (draw-beasts)
   (draw-players state))
 

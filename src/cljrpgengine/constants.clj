@@ -14,6 +14,9 @@
 (def screen-width 640)
 (def screen-height 400)
 
+(def quarter-height (/ screen-height 4))
+(def quarter-width (/ screen-width 4))
+
 (def window [screen-width screen-height])
 
 (def draw-blocking false)
