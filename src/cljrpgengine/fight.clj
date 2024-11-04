@@ -4,8 +4,7 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
-            [clojure.java.io :as io]
-            [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]))
+            [clojure.java.io :as io]))
 
 (def beastiary (atom {}))
 (def encounter (atom nil))
@@ -82,8 +81,7 @@
      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
   (swap! util/player-atb-gauge (fn [_]
                                  (vec (repeatedly (count (get-in @state [:player :party]))
-                                                  #(rand-int (/ constants/atb-width 2))))))
-  (ui/open-menu! state (player-select-menu/create-menu state)))
+                                                  #(rand-int (/ constants/atb-width 2)))))))
 
 (defn- draw-background
   []

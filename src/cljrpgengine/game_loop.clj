@@ -1,6 +1,5 @@
 (ns cljrpgengine.game-loop
   (:require [cljrpgengine.fight :as fight]
-            [cljrpgengine.fight :as beast]
             [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
@@ -9,7 +8,8 @@
             [cljrpgengine.constants :as constants]
             [cljrpgengine.effect :as effect]
             [cljrpgengine.initialize-game :as initialize-game]
-            [cljrpgengine.window :as window]))
+            [cljrpgengine.window :as window]
+            [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]))
 
 (def animation-update (atom 0))
 (def last-time (atom (System/nanoTime)))
@@ -18,6 +18,7 @@
 (def sleep-length (atom 12))
 
 (defn- draw-dialog
+  "Draw the dialog the player is currently engaged in."
   [state engagement]
   (let [{:keys [dialog dialog-index message-index]} engagement
         monolog (get dialog dialog-index)
@@ -28,6 +29,7 @@
     (ui/dialog mob ((:messages monolog) message-index))))
 
 (defn- draw-map
+  "Draw the map layers, mobs, and player."
   [state]
   (if (contains? (:nodes @state) :map)
     (let [{scene-map :map
@@ -122,7 +124,9 @@
         (if (and
              encounter
              (< (rand) (:encounter-rate encounter)))
-          (fight/start! state encounter)))))
+          (do
+            (ui/open-menu! state (player-select-menu/create-menu state))
+            (fight/start! state encounter))))))
   (player/check-start-moving state))
 
 (defn- do-mob-updates
