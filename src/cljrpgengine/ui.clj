@@ -166,13 +166,17 @@
         (if (< i (dec (count menus)))
           (recur (inc i)))))))
 
+(defn get-last-menu
+  [state]
+  (.menu-type (:menu (last (:menus @state)))))
+
 (defn last-menu-index
   [state]
   (dec (count (:menus @state))))
 
 (defn- cursor-can-move?
   [state]
-  (> (.cursor-length (get-in @state [:menus (last-menu-index state) :menu])) 0))
+  (> (.cursor-length (:menu (last (:menus @state)))) 0))
 
 (defn change-cursor!
   ([state f menu]
