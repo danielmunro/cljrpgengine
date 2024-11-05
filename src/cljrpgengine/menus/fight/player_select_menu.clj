@@ -58,9 +58,11 @@
   (cursor-length [_] (count (get-in @state [:player :party])))
   (menu-type [_] :fight-party-select)
   (key-pressed [menu]
-    (ui/open-menu! state (action-select-menu/create-menu
-                          state
-                          (ui/get-menu-cursor state (.menu-type menu))))))
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+      (if (util/is-party-member-atb-full? cursor)
+        (ui/open-menu! state (action-select-menu/create-menu
+                               state
+                               cursor))))))
 
 (defn create-menu
   [state]
