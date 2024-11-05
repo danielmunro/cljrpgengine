@@ -2,7 +2,8 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.fight.target-beast-menu :as target-beast-menu]))
+            [cljrpgengine.menus.fight.target-beast-menu :as target-beast-menu]
+            [cljrpgengine.menus.fight.magic-select-menu :as magic-select-menu]))
 
 (def menu-width constants/quarter-width)
 (def menu-height 120)
@@ -36,8 +37,13 @@
                       cursor)))
   (cursor-length [_] 5)
   (menu-type [_] :fight-action-select)
-  (key-pressed [_]
-    (ui/open-menu! state (target-beast-menu/create-menu state))))
+  (key-pressed [menu]
+    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+      (cond
+        (= 0 cursor)
+        (ui/open-menu! state (target-beast-menu/create-menu state))
+        (= 1 cursor)
+        (ui/open-menu! state (magic-select-menu/create-menu state party-index))))))
 
 (defn create-menu
   [state party-index]

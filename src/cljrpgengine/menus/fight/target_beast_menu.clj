@@ -12,7 +12,7 @@
                       y)))
   (cursor-length [_] (count @fight/encounter))
   (menu-type [_] :target-beast)
-  (key-pressed [menu]))
+  (key-pressed [_]))
 
 (defn create-menu
   [state]

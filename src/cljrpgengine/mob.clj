@@ -41,7 +41,8 @@
       :hp hp
       :max-hp hp
       :mana mana
-      :max-mana mana}))
+      :max-mana mana
+      :spells #{}}))
   ([identifier name class level direction x y sprite]
    (create-mob identifier name class level direction x y sprite nil))
   ([identifier name direction x y sprite]

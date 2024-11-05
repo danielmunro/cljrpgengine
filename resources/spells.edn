@@ -1,0 +1,11 @@
+{:cure-light {:name "cure light wounds"
+              :cost 3
+              :effect :gain-hp
+              :intent :curative
+              :amount {:dice [1 4]}}
+ :magic-missile {:name "magic missile"
+                 :cost 5
+                 :effect :lose-hp
+                 :intent :harmful
+                 :amount {:dice [1 2]
+                          :count [2 4]}}}
