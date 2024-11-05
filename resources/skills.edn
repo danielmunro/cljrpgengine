@@ -1,0 +1,21 @@
+{:cure-light {:name "cure light wounds"
+              :cost {:mana 3}
+              :effect :gain-hp
+              :intent :curative
+              :amount {:dice [1 4]}}
+ :magic-missile {:name "magic missile"
+                 :cost {:mana 5}
+                 :effect :lose-hp
+                 :intent :harmful
+                 :amount {:dice  [1 2]
+                          :count [2 4]}}
+ :bash {:name "bash"
+        :cost {:time 500}
+        :effect :stun
+        :intent :harmful
+        :amount {:dice [2 4]}}
+ :hamstring {:name "hamstring"
+             :cost {:time 500}
+             :effect :slow
+             :intent :harmful
+             :amount {:dice [2 4]}}}
