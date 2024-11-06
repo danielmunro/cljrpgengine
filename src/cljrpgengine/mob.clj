@@ -20,7 +20,7 @@
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
-  ([identifier name class level direction x y sprite portrait]
+  ([identifier name class level direction x y sprite portrait skills]
    (println "creating mob" name)
    (let [hp (reduce + (repeatedly level #(class/hp-for-level class)))
          mana (reduce + (repeatedly level #(class/mana-for-level class)))]
@@ -41,11 +41,12 @@
       :hp hp
       :max-hp hp
       :mana mana
-      :max-mana mana}))
+      :max-mana mana
+      :skills skills}))
   ([identifier name class level direction x y sprite]
-   (create-mob identifier name class level direction x y sprite nil))
+   (create-mob identifier name class level direction x y sprite nil #{}))
   ([identifier name direction x y sprite]
-   (create-mob identifier name :none 0 direction x y sprite nil)))
+   (create-mob identifier name :none 0 direction x y sprite nil #{})))
 
 (defn update-room-mobs
   [state mobs]

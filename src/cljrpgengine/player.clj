@@ -1,6 +1,5 @@
 (ns cljrpgengine.player
-  (:require [cljrpgengine.effect :as effect]
-            [cljrpgengine.event :as event]
+  (:require [cljrpgengine.event :as event]
             [cljrpgengine.fight :as fight]
             [cljrpgengine.map :as map]
             [cljrpgengine.menus.shop-menu :as shop-menu]
@@ -17,28 +16,32 @@
             :warrior 1
             :down 0 0
             (sprite/create :edwyn)
-            "portraits/edwyn.png")
+            "portraits/edwyn.png"
+            #{:bash})
            (mob/create-mob
             :edwyn
             "Dingus"
             :mage 1
             :down 0 0
             (sprite/create :edwyn)
-            "portraits/edwyn.png")
+            "portraits/edwyn.png"
+            #{:magic-missile})
            (mob/create-mob
             :edwyn
             "Prabble"
             :rogue 1
             :down 0 0
             (sprite/create :edwyn)
-            "portraits/edwyn.png")
+            "portraits/edwyn.png"
+            #{:hamstring})
            (mob/create-mob
             :edwyn
             "Floodlegor"
             :cleric 1
             :down 0 0
             (sprite/create :edwyn)
-            "portraits/edwyn.png")]
+            "portraits/edwyn.png"
+            #{:cure-light})]
    :x     0
    :y     0
    :x-offset 0

@@ -11,8 +11,6 @@
 (def room-encounters (atom []))
 (def encounter-types (atom {}))
 (def background (atom nil))
-(def quarter-height (/ constants/screen-height 4))
-(def quarter-width (/ constants/screen-width 4))
 (def previous-animation (atom nil))
 
 (defn set-room-encounters!
@@ -65,24 +63,25 @@
 
 (defn start!
   [state map-encounter]
-  (let [enc ((keyword (:encounter map-encounter)) @encounter-types)]
+  (let [enc (rand-nth ((keyword (:encounter map-encounter)) @encounter-types))]
     (swap! encounter
            (fn [_]
-             (into {} (map
-                       (fn [k]
-                         (let [max (:max (get enc k))
-                               min (:min (get enc k))]
-                           {k (mapv (fn [_] (get @beastiary k)) (range (+ (rand-int (- max min)) min)))}))
-                       (keys enc)))))
+             (mapv
+              (fn [mob]
+                (let [mob-key (first (keys mob))]
+                  (assoc (get @beastiary mob-key) :type mob-key
+                         :x (int (* (get-in mob [mob-key :x]) constants/screen-width))
+                         :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
+              enc)))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
   (swap! previous-animation (fn [_] (get-in @state [:player :party 0 :sprite :current-animation])))
-  (dorun
-   (for [i (range 0 (count (get-in @state [:player :party])))]
-     (dosync
-      (alter state assoc-in [:player :party i :sprite :current-animation] :left)
-      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0))))
-  #_(println @encounter)
-  #_(System/exit 1))
+  (doseq [i (range 0 (count (get-in @state [:player :party])))]
+    (dosync
+     (alter state assoc-in [:player :party i :sprite :current-animation] :left)
+     (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
+  (swap! util/player-atb-gauge (fn [_]
+                                 (vec (repeatedly (count (get-in @state [:player :party]))
+                                                  #(rand-int (/ constants/atb-width 2)))))))
 
 (defn- draw-background
   []
@@ -91,69 +90,64 @@
 (defn- draw-beast-status-menu
   []
   (ui/draw-window
-   0 (* quarter-height 3)
-   quarter-width quarter-height)
-  (let [beast-types (vec (keys @encounter))]
-    (dorun
-     (for [i (range 0 (count beast-types))]
-       (let [beast-type (get beast-types i)
-             beasts (get @encounter beast-type)]
-         (ui/draw-line 0
-                       (* quarter-height 3)
-                       i
-                       (str (ui/text-fixed-width (:name (get beasts 0)) 10) "(" (count beasts) ")")))))))
-
-(defn- draw-player-status-menu
-  [state]
-  (ui/draw-window
-   quarter-width (* quarter-height 3)
-   (* 3 quarter-width) quarter-height)
-  (let [party (get-in @state [:player :party])]
-    (dorun
-     (for [p (range 0 (count party))]
-       (ui/draw-line quarter-width
-                     (* quarter-height 3)
-                     p
-                     (str (ui/text-fixed-width (:name (get party p)) 20)
-                          (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                          (:mana (get party p)) "/" (:max-mana (get party p))))))))
+   0 (* constants/quarter-height 3)
+   constants/quarter-width constants/quarter-height)
+  (let [beast-types (into #{} (map #(:type %) @encounter))
+        beast-counts (atom (into {} (map (fn [t] {t {:count 0
+                                                     :name (:name (util/filter-first (fn [e] (= t (:type e)))
+                                                                                     @encounter))}}) beast-types)))]
+    (doseq [i (range 0 (count @encounter))]
+      (swap! beast-counts update-in [(get-in @encounter [i :type]) :count] inc))
+    (let [i (atom 0)]
+      (doseq [beast-type (keys @beast-counts)]
+        (ui/draw-line 0
+                      (* constants/quarter-height 3)
+                      @i
+                      (str
+                       (ui/text-fixed-width (get-in @beast-counts [beast-type :name]) 8)
+                       "(" (get-in @beast-counts [beast-type :count]) ")"))
+        (swap! i inc)))))
 
 (defn- draw-beasts
   []
-  (let []
-    (dorun
-     (for [beast-key (vec (keys @encounter))]
-       (dorun
-        (let [beast-count (count (get @encounter beast-key))]
-          (for [i (range 0 beast-count)]
-            (let [beast (get-in @encounter [beast-key i])]
-              (.drawImage @window/graphics
-                          (:image beast)
-                          100
-                          (* i (.getHeight (:image beast)))
-                          nil)))))))))
+  (doseq [beast @encounter]
+    (.drawImage @window/graphics
+                (:image beast)
+                (:x beast)
+                (:y beast)
+                nil)))
 
 (defn- draw-players
   [state]
   (let [players (get-in @state [:player :party])
-        vertical-padding (/ (* quarter-height 3) 4)]
-    (dorun
-     (for [i (range 0 (count players))]
-       (sprite/draw (* constants/screen-width 3/4)
-                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
-                    (get-in players [i :sprite]))))))
+        vertical-padding (/ (* constants/quarter-height 3) 4)]
+    (doseq [i (range 0 (count players))]
+      (sprite/draw (* constants/screen-width 3/4)
+                   (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
+                   (get-in players [i :sprite])))))
 
 (defn- draw-menus
-  [state]
-  (draw-beast-status-menu)
-  (draw-player-status-menu state))
+  []
+  (draw-beast-status-menu))
 
 (defn draw
   [state]
   (draw-background)
-  (draw-menus state)
+  (draw-menus)
   (draw-beasts)
   (draw-players state))
 
 (defn update-fight
-  [state])
+  [state time-elapsed-ns]
+  (doseq [i (range 0 (count @util/player-atb-gauge))]
+    (if (< (get @util/player-atb-gauge i) constants/atb-width)
+      (do
+        (swap! util/player-atb-gauge
+               (fn [g]
+                 (update-in g [i]
+                            (fn [a]
+                              (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))
+        (if (and
+             (not (util/is-party-member-atb-full? (ui/get-menu-cursor state :fight-party-select)))
+             (util/is-party-member-atb-full? i))
+          (ui/change-cursor! state (constantly i) :fight-party-select))))))

@@ -166,30 +166,36 @@
         (if (< i (dec (count menus)))
           (recur (inc i)))))))
 
+(defn get-last-menu
+  [state]
+  (.menu-type (:menu (last (:menus @state)))))
+
 (defn last-menu-index
   [state]
   (dec (count (:menus @state))))
 
 (defn- cursor-can-move?
   [state]
-  (> (.cursor-length (get-in @state [:menus (last-menu-index state) :menu])) 0))
+  (> (.cursor-length (:menu (last (:menus @state)))) 0))
 
-(defn- change-cursor!
-  [state f]
-  (let [m (last-menu-index state)
-        cursor-length (.cursor-length (get-in @state [:menus m :menu]))
-        cursor-path [:menus m :cursor]]
-    (dosync (alter state update-in cursor-path f))
-    (if (= cursor-length (get-in @state cursor-path))
-      (dosync (alter state assoc-in cursor-path 0))
-      (if (< (get-in @state cursor-path) 0)
-        (dosync (alter state assoc-in cursor-path (dec cursor-length)))))))
+(defn change-cursor!
+  ([state f menu]
+   (let [menu-index (get-menu-index state menu)
+         cursor-length (.cursor-length (get-in @state [:menus menu-index :menu]))
+         cursor-path [:menus menu-index :cursor]]
+     (dosync (alter state update-in cursor-path f))
+     (if (= cursor-length (get-in @state cursor-path))
+       (dosync (alter state assoc-in cursor-path 0))
+       (if (< (get-in @state cursor-path) 0)
+         (dosync (alter state assoc-in cursor-path (dec cursor-length)))))))
+  ([state f]
+   (change-cursor! state f (.menu-type (:menu (last (:menus @state)))))))
 
 (defn- dec-cursor!
   [state]
   (change-cursor! state dec))
 
-(defn- inc-cursor!
+(defn inc-cursor!
   [state]
   (change-cursor! state inc))
 

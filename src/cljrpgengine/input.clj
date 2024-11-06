@@ -1,5 +1,6 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.mob :as mob]
+  (:require [cljrpgengine.menu :as menu]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
@@ -47,7 +48,8 @@
   [state key]
   (and
    (= key :q)
-   (ui/is-menu-open? state)))
+   (ui/is-menu-open? state)
+   (not (contains? menu/non-closeable-menus (ui/get-last-menu state)))))
 
 (defn- evaluate-menu-action?
   [state key]
