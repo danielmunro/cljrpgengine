@@ -61,8 +61,8 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (if (util/is-party-member-atb-full? cursor)
         (ui/open-menu! state (action-select-menu/create-menu
-                               state
-                               cursor))))))
+                              state
+                              cursor))))))
 
 (defn create-menu
   [state]
