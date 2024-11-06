@@ -43,7 +43,8 @@
                                    max-hp
                                    mana
                                    max-mana
-                                   portrait]}]
+                                   portrait
+                                   skills]}]
                         {:name name
                          :identifier identifier
                          :class class
@@ -52,7 +53,8 @@
                          :max-hp max-hp
                          :mana mana
                          :max-mana max-mana
-                         :portrait (:filename portrait)}) party)
+                         :portrait (:filename portrait)
+                         :skills skills}) party)
               :x x
               :y y
               :direction direction}}))
@@ -76,7 +78,8 @@
    0
    0
    (sprite/create (:identifier data))
-   (:portrait data)))
+   (:portrait data)
+   (:skills data)))
 
 (defn load-player
   [data]
