@@ -44,12 +44,12 @@
                     (fn [k]
                       {k (let [beast (get data k)
                                mana (:mana beast 0)]
-                           (merge
+                           (assoc
                             beast
-                            {:image (util/load-image (str "beasts/" (:image beast)))
-                             :max-hp (:hp beast)
-                             :mana mana
-                             :max-mana mana}))}))
+                            :image (util/load-image (str "beasts/" (:image beast)))
+                            :max-hp (:hp beast)
+                            :mana mana
+                            :max-mana mana))}))
                    (keys data))))))
 
 (defn load-encounters!
