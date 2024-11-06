@@ -26,7 +26,7 @@
         (loop [i 0]
           (if (< i (count items))
             (do
-              (let [item (get item/items (nth (keys items) i))]
+              (let [item (get @item/items (nth (keys items) i))]
                 (ui/draw-line
                  x
                  y

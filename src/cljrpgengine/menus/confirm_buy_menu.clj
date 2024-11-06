@@ -23,8 +23,8 @@
           cursor (ui/get-menu-cursor state (.menu-type menu))
           quantity (:quantity @state)]
       (ui/draw-window x y w h)
-      (ui/draw-line x y 0 (str "Purchasing " (:name (item/items item))))
-      (ui/draw-line x y 1 (str "Cost " (* quantity (:worth (item/items item)))))
+      (ui/draw-line x y 0 (str "Purchasing " (:name (get @item/items item))))
+      (ui/draw-line x y 1 (str "Cost " (* quantity (:worth (get @item/items item)))))
       (ui/draw-line x y 3 (str "Quantity " quantity))
       (ui/draw-line x y 4 "Yes")
       (ui/draw-line x y 5 "No")
@@ -37,7 +37,7 @@
       (cond
         (= 1 cursor)
         (do
-          (complete-purchase! state item quantity (* (:worth (item/items item)) quantity))
+          (complete-purchase! state item quantity (* (:worth (get @item/items item)) quantity))
           (ui/close-menu! state)
           (ui/open-menu! state (purchase-complete-menu/create-menu state shop item quantity)))
         (= 2 cursor)
@@ -45,5 +45,5 @@
 
 (defn create-menu
   [state shop item]
-  (ui/reset-quantity! state 1 (Math/floor (/ (:money @state) (:worth (item/items item)))))
+  (ui/reset-quantity! state 1 (Math/floor (/ (:money @state) (:worth (get @item/items item)))))
   (ConfirmBuyMenu. state shop item))

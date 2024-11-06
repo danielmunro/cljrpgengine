@@ -1,5 +1,6 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.menus.main.main-menu :as main-menu]
+  (:require [cljrpgengine.item :as item]
+            [cljrpgengine.menus.main.main-menu :as main-menu]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.fight :as beast]
             [cljrpgengine.ui :as ui]
@@ -26,6 +27,7 @@
      #(input/key-pressed! state %)
      #(input/key-released! state %))
     (beast/load-beastiary!)
+    (item/load-items!)
     (ui/open-menu! state (main-menu/create-menu state))
     (effect/add-fade-in state)
     state))

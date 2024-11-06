@@ -27,7 +27,7 @@
         "Owned"))
       (loop [i 0]
         (if (< i item-count)
-          (let [item (item/items (items i))]
+          (let [item (get @item/items (get items i))]
             (ui/draw-line
              x
              y
@@ -35,7 +35,7 @@
              (str
               (ui/text-fixed-width (:name item) constants/item-name-width)
               (ui/text-fixed-width (:worth item) constants/cost-width)
-              ((items i) item-map)))
+              ((get items i) item-map)))
             (recur (inc i)))))
       (ui/draw-cursor x y (+ 2 cursor))
       (ui/draw-window x (+ y h) w y)
