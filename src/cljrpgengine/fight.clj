@@ -14,6 +14,7 @@
 (def previous-animation (atom nil))
 (def actions (atom []))
 (def current-action (atom nil))
+(def xp-to-gain (atom 0))
 
 (defn set-room-encounters!
   [-room-encounters]
@@ -83,7 +84,8 @@
      (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
   (swap! util/player-atb-gauge (fn [_]
                                  (vec (repeatedly (count (get-in @state [:player :party]))
-                                                  #(rand-int (/ constants/atb-width 2)))))))
+                                                  #(rand-int (/ constants/atb-width 2))))))
+  (swap! xp-to-gain (constantly 0)))
 
 (defn- draw-background
   []
@@ -140,7 +142,7 @@
   (draw-players state))
 
 (defn- update-atb-gauges
-  [state time-elapsed-ns]
+  [time-elapsed-ns]
   (doseq [i (range 0 (count @util/player-atb-gauge))]
     (if (< (get @util/player-atb-gauge i) constants/atb-width)
       (do
@@ -148,11 +150,7 @@
                (fn [g]
                  (update-in g [i]
                             (fn [a]
-                              (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))
-        (if (and
-             (not (util/is-party-member-atb-full? (ui/get-menu-cursor state :fight-party-select)))
-             (util/is-party-member-atb-full? i))
-          (ui/change-cursor! state (constantly i) :fight-party-select))))))
+                              (min constants/atb-width (+ a (/ time-elapsed-ns 90000000)))))))))))
 
 (defn- beast-to-target
   []
@@ -171,6 +169,12 @@
   (cond
     (= :player-attack (:action @current-action))
     (player-attack state))
+  (if (= 0 (get-in @encounter [(beast-to-target) :hp]))
+    (swap! xp-to-gain (fn [gain] (+ gain (get-in @encounter [(beast-to-target) :xp]))))
+    #_(dosync
+      (doseq [i (range 0 (count (get-in @state [:player :party])))]
+        (alter state update-in [:player :party i :xp]
+               (fn [xp] (+ xp (get-in @encounter [(beast-to-target) :xp])))))))
   (swap! current-action (constantly nil)))
 
 (defn- set-current-action
@@ -193,7 +197,7 @@
 
 (defn update-fight
   [state time-elapsed-ns]
-  (update-atb-gauges state time-elapsed-ns)
+  (update-atb-gauges time-elapsed-ns)
   (if @current-action
     (evaluate-action state)
     (set-current-action))

@@ -6,5 +6,6 @@
         :vuln #{:fire}
         :level 3
         :hp 3
+        :xp 7
         :gold 1
         :image "warg.png"}}

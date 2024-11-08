@@ -154,8 +154,12 @@
                                     :cursor 0})))
 
 (defn close-menu!
-  [state]
-  (dosync (alter state update-in [:menus] pop)))
+  ([state amount]
+   (dosync
+     (doseq [_ (range 0 amount)]
+       (alter state update-in [:menus] pop))))
+  ([state]
+   (close-menu! state 1)))
 
 (defn get-menu-index
   [state menu]

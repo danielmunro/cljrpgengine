@@ -18,8 +18,7 @@
              (conj actions {:action :player-attack
                             :player party-index
                             :beast (ui/get-menu-cursor state (.menu-type menu))})))
-    (ui/close-menu! state)
-    (ui/close-menu! state)))
+    (ui/close-menu! state 2)))
 
 (defn create-menu
   [state party-index]
