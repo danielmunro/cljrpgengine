@@ -17,7 +17,8 @@
             :down 0 0
             (sprite/create :edwyn)
             "portraits/edwyn.png"
-            #{:bash})
+            #{:bash}
+            0)
            (mob/create-mob
             :edwyn
             "Dingus"
@@ -25,7 +26,8 @@
             :down 0 0
             (sprite/create :edwyn)
             "portraits/edwyn.png"
-            #{:magic-missile})
+            #{:magic-missile}
+            0)
            (mob/create-mob
             :edwyn
             "Prabble"
@@ -33,7 +35,8 @@
             :down 0 0
             (sprite/create :edwyn)
             "portraits/edwyn.png"
-            #{:hamstring})
+            #{:hamstring}
+            0)
            (mob/create-mob
             :edwyn
             "Floodlegor"
@@ -41,7 +44,8 @@
             :down 0 0
             (sprite/create :edwyn)
             "portraits/edwyn.png"
-            #{:cure-light})]
+            #{:cure-light}
+            0)]
    :x     0
    :y     0
    :x-offset 0

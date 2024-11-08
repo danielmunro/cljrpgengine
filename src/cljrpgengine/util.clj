@@ -1,5 +1,6 @@
 (ns cljrpgengine.util
-  (:require [cljrpgengine.constants :as constants])
+  (:require [cljrpgengine.constants :as constants]
+            [clojure.math :as math])
   (:import (java.io File)
            (javax.imageio IIOException ImageIO)))
 
@@ -46,3 +47,13 @@
 (defn is-party-member-atb-full?
   [i]
   (= constants/atb-width (get @player-atb-gauge i)))
+
+(defn get-xp-to-level
+  [xp]
+  (loop [i 0
+         remaining-xp xp]
+    (let [xp-for-level (math/round (* 100 (* i (/ i 2))))
+          xp-minus-level (- remaining-xp xp-for-level)]
+      (if (< xp-minus-level 0)
+        (- xp-for-level remaining-xp)
+        (recur (inc i) xp-minus-level)))))

@@ -3,7 +3,6 @@
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]
-            [cljrpgengine.window :as window]
             [clojure.java.io :as io]))
 
 (defn is-standing-still
@@ -20,7 +19,7 @@
     (sprite/draw (+ x offset-x) (+ y offset-y) (:sprite mob))))
 
 (defn create-mob
-  ([identifier name class level direction x y sprite portrait skills]
+  ([identifier name class level direction x y sprite portrait skills xp]
    (println "creating mob" name)
    (let [hp (reduce + (repeatedly level #(class/hp-for-level class)))
          mana (reduce + (repeatedly level #(class/mana-for-level class)))]
@@ -42,11 +41,12 @@
       :max-hp hp
       :mana mana
       :max-mana mana
-      :skills skills}))
+      :skills skills
+      :xp xp}))
   ([identifier name class level direction x y sprite]
-   (create-mob identifier name class level direction x y sprite nil #{}))
+   (create-mob identifier name class level direction x y sprite nil #{} 0))
   ([identifier name direction x y sprite]
-   (create-mob identifier name :none 0 direction x y sprite nil #{})))
+   (create-mob identifier name :none 0 direction x y sprite nil #{} 0)))
 
 (defn update-room-mobs
   [state mobs]

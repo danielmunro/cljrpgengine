@@ -279,7 +279,7 @@
                           (+ (* (second constants/portrait-size) i))
                           (+ (* constants/padding i)))
            {:keys [affect amount]} item
-           {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name]} i} :party} :player} @state
+           {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name xp level]} i} :party} :player} @state
            amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
        (.drawImage @window/graphics (:image portrait) constants/padding (+ 20 portrait-y) nil)
@@ -299,6 +299,16 @@
              (if (and (= i selected-mob)
                       (= :restore-mana affect))
                (format " +%d" amount-mana))))
+       (draw-line
+        (+ portrait-x 200)
+        portrait-y
+        1
+        (format "level %d" level))
+       (draw-line
+        (+ portrait-x 200)
+        portrait-y
+        2
+        (format "%d xp to level" (util/get-xp-to-level xp)))
        (if (< i (dec (count party)))
          (recur (inc i))))))
   ([state]
