@@ -41,7 +41,7 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! state (target-beast-menu/create-menu state))
+        (ui/open-menu! state (target-beast-menu/create-menu state party-index))
         (= 1 cursor)
         (ui/open-menu! state (magic-select-menu/create-menu state party-index))))))
 

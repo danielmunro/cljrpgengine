@@ -3,7 +3,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
-(deftype TargetBeastMenu [state]
+(deftype TargetBeastMenu [state party-index]
   menu/Menu
   (draw [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
@@ -12,8 +12,15 @@
                       y)))
   (cursor-length [_] (count @fight/encounter))
   (menu-type [_] :target-beast)
-  (key-pressed [_]))
+  (key-pressed [menu]
+    (swap! fight/actions
+           (fn [actions]
+             (conj actions {:action :player-attack
+                            :player party-index
+                            :beast (ui/get-menu-cursor state (.menu-type menu))})))
+    (ui/close-menu! state)
+    (ui/close-menu! state)))
 
 (defn create-menu
-  [state]
-  (TargetBeastMenu. state))
+  [state party-index]
+  (TargetBeastMenu. state party-index))
