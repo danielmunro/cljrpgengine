@@ -156,8 +156,8 @@
 (defn close-menu!
   ([state amount]
    (dosync
-     (doseq [_ (range 0 amount)]
-       (alter state update-in [:menus] pop))))
+    (doseq [_ (range 0 amount)]
+      (alter state update-in [:menus] pop))))
   ([state]
    (close-menu! state 1)))
 

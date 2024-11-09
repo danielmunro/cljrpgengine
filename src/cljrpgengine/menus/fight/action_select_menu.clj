@@ -32,9 +32,10 @@
                   4
                   "Flee")
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
-      (ui/draw-cursor menu-x
-                      menu-y
-                      cursor)))
+      (if cursor
+        (ui/draw-cursor menu-x
+                        menu-y
+                        cursor))))
   (cursor-length [_] 5)
   (menu-type [_] :fight-action-select)
   (key-pressed [menu]

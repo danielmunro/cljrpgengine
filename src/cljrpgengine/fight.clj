@@ -160,21 +160,17 @@
       0)))
 
 (defn- player-attack
-  [state]
+  []
   (swap! encounter (fn [e] (update-in e [(beast-to-target) :hp] (fn [hp] (- hp 1)))))
   (swap! util/player-atb-gauge (fn [g] (assoc g (:player @current-action) 0))))
 
 (defn- evaluate-action
-  [state]
+  []
   (cond
     (= :player-attack (:action @current-action))
-    (player-attack state))
+    (player-attack))
   (if (= 0 (get-in @encounter [(beast-to-target) :hp]))
-    (swap! xp-to-gain (fn [gain] (+ gain (get-in @encounter [(beast-to-target) :xp]))))
-    #_(dosync
-      (doseq [i (range 0 (count (get-in @state [:player :party])))]
-        (alter state update-in [:player :party i :xp]
-               (fn [xp] (+ xp (get-in @encounter [(beast-to-target) :xp])))))))
+    (swap! xp-to-gain (fn [gain] (+ gain (get-in @encounter [(beast-to-target) :xp])))))
   (swap! current-action (constantly nil)))
 
 (defn- set-current-action
@@ -188,19 +184,20 @@
          (fn [enc]
            (filterv #(< 0 (:hp %)) enc))))
 
-(defn- check-end-fight
-  [state]
-  (if (= 0 (count @encounter))
-    (do
-      (swap! encounter (constantly nil))
-      (ui/close-menu! state))))
+(defn end
+  []
+  (swap! encounter (constantly nil)))
+
+(defn is-active?
+  []
+  (< 0 (count @encounter)))
 
 (defn update-fight
   [state time-elapsed-ns]
-  (update-atb-gauges time-elapsed-ns)
+  (if (is-active?)
+    (update-atb-gauges time-elapsed-ns))
   (if @current-action
-    (evaluate-action state)
+    (evaluate-action)
     (set-current-action))
-  (remove-dead-beasts)
-  (check-end-fight state))
+  (remove-dead-beasts))
 

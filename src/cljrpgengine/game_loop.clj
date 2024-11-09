@@ -9,7 +9,8 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.initialize-game :as initialize-game]
             [cljrpgengine.window :as window]
-            [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]))
+            [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]
+            [cljrpgengine.menus.fight.gains-menu :as gains-menu]))
 
 (def animation-update (atom 0))
 (def last-time (atom (System/nanoTime)))
@@ -139,8 +140,11 @@
   "Main loop."
   [state time-elapsed-ns]
   (update-animations state time-elapsed-ns)
-  (if @fight/encounter
-    (fight/update-fight state time-elapsed-ns)
+  (if (fight/is-active?)
+    (do
+      (fight/update-fight state time-elapsed-ns)
+      (if (not (fight/is-active?))
+        (ui/open-menu! state (gains-menu/create-menu state))))
     (let [nodes (:nodes @state)]
       (if (contains? nodes :player)
         (do-player-updates state time-elapsed-ns))
