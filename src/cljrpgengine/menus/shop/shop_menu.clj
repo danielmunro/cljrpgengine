@@ -1,9 +1,9 @@
-(ns cljrpgengine.menus.shop-menu
+(ns cljrpgengine.menus.shop.shop-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.menus.buy-menu :as buy-menu]
-            [cljrpgengine.menus.sell-menu :as sell-menu]))
+            [cljrpgengine.menus.shop.buy-menu :as buy-menu]
+            [cljrpgengine.menus.shop.sell-menu :as sell-menu]))
 
 (deftype ShopMenu [state shop]
   menu/Menu

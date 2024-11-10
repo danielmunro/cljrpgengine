@@ -1,9 +1,9 @@
-(ns cljrpgengine.menus.confirm-buy-menu
+(ns cljrpgengine.menus.shop.confirm-buy-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.purchase-complete-menu :as purchase-complete-menu]))
+            [cljrpgengine.menus.shop.purchase-complete-menu :as purchase-complete-menu]))
 
 (defn- complete-purchase!
   [state item quantity purchase-price]

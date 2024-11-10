@@ -1,9 +1,9 @@
-(ns cljrpgengine.menus.confirm-sell-menu
+(ns cljrpgengine.menus.shop.confirm-sell-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.sale-complete-menu :as sale-complete-menu]))
+            [cljrpgengine.menus.shop.sale-complete-menu :as sale-complete-menu]))
 
 (defn- complete-sale!
   [state item-keyword quantity sale-price]

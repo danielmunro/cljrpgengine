@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
-            [cljrpgengine.menus.shop-menu :as shop-menu]
+            [cljrpgengine.menus.shop.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
