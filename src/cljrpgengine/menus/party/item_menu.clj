@@ -1,8 +1,8 @@
-(ns cljrpgengine.menus.item-menu
+(ns cljrpgengine.menus.party.item-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
-            [cljrpgengine.menus.consume-item-menu :as consume-item-menu]
+            [cljrpgengine.menus.party.consume-item-menu :as consume-item-menu]
             [cljrpgengine.ui :as ui]))
 
 (deftype ItemsMenu [state]

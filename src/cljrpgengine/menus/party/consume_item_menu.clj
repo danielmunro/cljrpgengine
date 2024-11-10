@@ -1,4 +1,4 @@
-(ns cljrpgengine.menus.consume-item-menu
+(ns cljrpgengine.menus.party.consume-item-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]

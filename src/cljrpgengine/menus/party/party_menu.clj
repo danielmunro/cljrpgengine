@@ -1,10 +1,10 @@
-(ns cljrpgengine.menus.party-menu
+(ns cljrpgengine.menus.party.party-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.item-menu :as item-menu]
-            [cljrpgengine.menus.quit-menu :as quit-menu]))
+            [cljrpgengine.menus.party.item-menu :as item-menu]
+            [cljrpgengine.menus.party.quit-menu :as quit-menu]))
 
 (deftype PartyMenu [state]
   menu/Menu

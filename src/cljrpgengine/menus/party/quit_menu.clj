@@ -1,4 +1,4 @@
-(ns cljrpgengine.menus.quit-menu
+(ns cljrpgengine.menus.party.quit-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))

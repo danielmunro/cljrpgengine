@@ -1,10 +1,9 @@
 (ns cljrpgengine.input
   (:require [cljrpgengine.menu :as menu]
-            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.party-menu :as party-menu])
+            [cljrpgengine.menus.party.party-menu :as party-menu])
   (:import (java.awt.event KeyEvent)))
 
 (defn get-key-from-key-code
