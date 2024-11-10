@@ -1,5 +1,6 @@
 (ns cljrpgengine.fight
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
@@ -22,7 +23,7 @@
 
 (defn check-encounter-collision
   [state]
-  (let [{{:keys [x y]} :player} @state]
+  (let [{:keys [x y]} @player/player]
     (util/filter-first
      #(let [b-x (:x %)
             b-y (:y %)
@@ -77,13 +78,12 @@
                          :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
               enc)))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
-  (swap! previous-animation (fn [_] (get-in @state [:player :party 0 :sprite :current-animation])))
-  (doseq [i (range 0 (count (get-in @state [:player :party])))]
-    (dosync
-     (alter state assoc-in [:player :party i :sprite :current-animation] :left)
-     (alter state assoc-in [:player :party i :sprite :animations :left :frame] 0)))
+  (swap! previous-animation (fn [_] (get-in @player/party [0 :sprite :current-animation])))
+  (doseq [i (range 0 (count @player/party))]
+    (swap! player/party assoc-in [i :sprite :current-animation] :left)
+    (swap! player/party assoc-in [i :sprite :animations :left :frame] 0))
   (swap! util/player-atb-gauge (fn [_]
-                                 (vec (repeatedly (count (get-in @state [:player :party]))
+                                 (vec (repeatedly (count @player/party)
                                                   #(rand-int (/ constants/atb-width 2))))))
   (swap! xp-to-gain (constantly 0)))
 
@@ -122,24 +122,23 @@
                 nil)))
 
 (defn- draw-players
-  [state]
-  (let [players (get-in @state [:player :party])
-        vertical-padding (/ (* constants/quarter-height 3) 4)]
-    (doseq [i (range 0 (count players))]
+  []
+  (let [vertical-padding (/ (* constants/quarter-height 3) 4)]
+    (doseq [i (range 0 (count @player/party))]
       (sprite/draw (* constants/screen-width 3/4)
                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
-                   (get-in players [i :sprite])))))
+                   (get-in @player/party [i :sprite])))))
 
 (defn- draw-menus
   []
   (draw-beast-status-menu))
 
 (defn draw
-  [state]
+  []
   (draw-background)
   (draw-menus)
   (draw-beasts)
-  (draw-players state))
+  (draw-players))
 
 (defn- update-atb-gauges
   [time-elapsed-ns]
@@ -193,7 +192,7 @@
   (< 0 (count @encounter)))
 
 (defn update-fight
-  [state time-elapsed-ns]
+  [time-elapsed-ns]
   (if (is-active?)
     (update-atb-gauges time-elapsed-ns))
   (if @current-action

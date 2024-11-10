@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.fight :as fight]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
 (deftype GainsMenu [state]
@@ -17,8 +18,8 @@
   (menu-type [_] :gains)
   (key-pressed [_]
     (dosync
-     (doseq [i (range 0 (count (get-in @state [:player :party])))]
-       (alter state update-in [:player :party i :xp] (fn [xp] (+ xp @fight/xp-to-gain)))))
+     (doseq [i (range 0 (count (:party @player/player)))]
+       (swap! player/player update-in [:party i :xp] (fn [xp] (+ xp @fight/xp-to-gain)))))
     (ui/close-menu! state 2)
     (fight/end)))
 

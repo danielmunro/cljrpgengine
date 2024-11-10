@@ -276,14 +276,14 @@
           (recur (inc i)))))))
 
 (defn draw-portraits
-  ([state item selected-mob]
+  ([party item selected-mob]
    (loop [i 0]
      (let [portrait-x 50
            portrait-y (-> (* 10 i)
                           (+ (* (second constants/portrait-size) i))
                           (+ (* constants/padding i)))
            {:keys [affect amount]} item
-           {{:keys [party] {{:keys [hp max-hp mana max-mana portrait name xp level]} i} :party} :player} @state
+           {{:keys [hp max-hp mana max-mana portrait name xp level]} i} party
            amount-hp (if (= :restore-hp affect) (util/restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (util/restore-amount amount mana max-mana))]
        (.drawImage @window/graphics (:image portrait) constants/padding (+ 20 portrait-y) nil)
@@ -315,5 +315,5 @@
         (format "%d xp to level" (util/get-xp-to-level xp)))
        (if (< i (dec (count party)))
          (recur (inc i))))))
-  ([state]
-   (draw-portraits state nil -1)))
+  ([party]
+   (draw-portraits party nil -1)))

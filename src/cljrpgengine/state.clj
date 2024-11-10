@@ -3,6 +3,7 @@
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.map :as map]
+            [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [clojure.java.io :as io]
             [java-time.api :as jt]))
@@ -17,17 +18,15 @@
                     :scene :main-menu
                     :room nil
                     :nodes #{}
-                    :player {}
                     :money 0
                     :map nil
                     :effects {}
-                    :shops {}
-                    :is-moving? false})
+                    :shops {}})
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room grants items money]
-         {:keys [party x y direction]} :player} @state]
+  (let [{:keys [save-name scene room grants items money]} @state
+        {:keys [x y direction]} @player/player]
     {:save-name save-name
      :scene scene
      :room room
@@ -56,7 +55,7 @@
                          :max-mana max-mana
                          :portrait (:filename portrait)
                          :skills skills
-                         :xp xp}) party)
+                         :xp xp}) @player/party)
               :x x
               :y y
               :direction direction}}))
@@ -87,18 +86,22 @@
 (defn load-player
   [data]
   (let [{{:keys [x y direction party]} :player} data]
-    {:x x
-     :x-offset 0
-     :y y
-     :y-offset 0
-     :direction direction
-     :party (mapv mob-from-data party)}))
+    (swap! player/player
+           (fn [_]
+             {:x x
+              :x-offset 0
+              :y y
+              :y-offset 0
+              :direction direction}))
+    (swap! player/party
+           (fn [_] (mapv mob-from-data party)))))
 
 (defn load-save-file
   [save-file]
   (log/info (str "loading save file :: " constants/save-dir save-file))
   (let [data (read-string (slurp (str constants/save-dir save-file)))
         {:keys [scene room save-name grants items money]} data]
+    (load-player data)
     (ref
      (merge
       initial-state
@@ -108,7 +111,6 @@
        :grants grants
        :items items
        :money money
-       :player (load-player data)
        :map (map/load-map scene room)}))))
 
 (defn create-new-state

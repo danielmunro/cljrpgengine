@@ -37,11 +37,13 @@
 
 (def portrait-size [40 40])
 
-(def time-per-frame-nano 200000000)
+(def time-per-frame-ns 200000000)
 
 (def nano-per-second 1000000000)
 
-(def move-delay 14000000)
+(def animation-delay-ns 1000000)
+
+(def move-delay-ns 14000000)
 
 (def dialog-height 140)
 

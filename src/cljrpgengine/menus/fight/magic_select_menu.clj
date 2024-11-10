@@ -1,6 +1,7 @@
 (ns cljrpgengine.menus.fight.magic-select-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
 (deftype MagicSelectMenu [state player-index]
@@ -13,7 +14,7 @@
      constants/quarter-width
      (* constants/quarter-height 3)
      (ui/get-menu-cursor state (.menu-type menu))))
-  (cursor-length [_] (count (get-in @state [:player :party player-index :spells])))
+  (cursor-length [_] (count (get-in @player/player [:party player-index :spells])))
   (menu-type [_] :fight-magic-select)
   (key-pressed [_]))
 

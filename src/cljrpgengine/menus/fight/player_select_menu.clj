@@ -1,6 +1,7 @@
 (ns cljrpgengine.menus.fight.player-select-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
@@ -35,7 +36,7 @@
     (ui/draw-window
      constants/quarter-width (* constants/quarter-height 3)
      (* 3 constants/quarter-width) constants/quarter-height)
-    (let [party (get-in @state [:player :party])]
+    (let [party @player/party]
       (doseq [p (range 0 (count party))]
         (ui/draw-line constants/quarter-width
                       (* constants/quarter-height 3)
@@ -55,7 +56,7 @@
                         (* constants/quarter-height 3)
                         cursor)
         (ui/inc-cursor! state))))
-  (cursor-length [_] (count (get-in @state [:player :party])))
+  (cursor-length [_] (count @player/party))
   (menu-type [_] :fight-party-select)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))]

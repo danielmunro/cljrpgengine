@@ -8,20 +8,20 @@
   (testing "can start moving left"
     (sprite/load-sprites)
     (let [state (test-util/create-new-state)
-          {{:keys [x y]} :player
-           {{:keys [tilewidth]} :tileset} :map} @state]
+          {{{:keys [tilewidth]} :tileset} :map} @state
+          {:keys [x y]} @player/player]
       (player/start-moving!
        state
        :left
        (+ x tilewidth)
        y)
       (is (contains? (:keys @state) :left))
-      (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :left))))
+      (is (= (get-in @player/party [0 :sprite :current-animation]) :left))))
   (testing "can reset moving"
     (sprite/load-sprites)
     (let [state (test-util/create-new-state)
-          {{:keys [x y]} :player
-           {{:keys [tilewidth]} :tileset} :map} @state]
+          {{{:keys [tilewidth]} :tileset} :map} @state
+          {:keys [x y]} @player/player]
       (player/start-moving!
        state
        :right
@@ -29,4 +29,4 @@
        y)
       (dosync (alter state update :keys disj :right))
       (is (empty? (:keys @state)))
-      (is (= (get-in @state [:player :party 0 :sprite :current-animation]) :right)))))
+      (is (= (get-in @player/party [0 :sprite :current-animation]) :right)))))

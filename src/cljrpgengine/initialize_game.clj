@@ -26,10 +26,22 @@
   (if (ui/is-menu-open? state)
     (ui/close-menu! state)))
 
+(defn- init-map
+  [state]
+  (let [map (:map @state)
+        {:keys [x y direction]} (map/get-warp map "start")]
+    (swap! player/player
+           assoc
+           :x x
+           :y y
+           :x-offset 0
+           :y-offset 0
+           :direction direction)))
+
 (defn start
   [state]
+  (player/create-new-player)
   (dosync (alter state assoc
-                 :player (player/create-new-player)
                  :map (map/load-map :tinytown :main)
                  :save-name (random-uuid)
                  :money constants/starting-money
@@ -37,7 +49,7 @@
                          :light-mana-potion 1
                          :practice-sword 1})
           (alter state dissoc :new-game))
-  (map/init-map state)
+  (init-map state)
   (load-room! state :tinytown :main)
   (close-ui-if-open state))
 

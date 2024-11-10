@@ -25,7 +25,7 @@
         monolog (get dialog dialog-index)
         mob-identifier (:mob monolog)
         mob (if (= :player mob-identifier)
-              (get-in @state [:player :party 0])
+              (get @player/party 0)
               (get-in @state [:mobs mob-identifier]))]
     (ui/dialog mob ((:messages monolog) message-index))))
 
@@ -34,9 +34,9 @@
   [state]
   (if (contains? (:nodes @state) :map)
     (let [{scene-map :map
-           :keys [mobs player]
-           {[player-mob] :party} :player} @state
-          {:keys [x y x-offset y-offset]} player
+           :keys [mobs]} @state
+          {:keys [x y x-offset y-offset]} @player/player
+          [player-mob] @player/party
           x-plus-offset (+ x x-offset)
           y-plus-offset (+ y y-offset)
           x-window-offset (-> constants/screen-width
@@ -56,18 +56,18 @@
        (for [m (sort-by :y (vals mobs))]
          (mob/draw-mob m adjusted-x adjusted-y)))
       (mob/draw-mob (assoc player-mob
-                           :x (:x player)
-                           :y (:y player)
-                           :x-offset (:x-offset player)
-                           :y-offset (:y-offset player)
-                           :direction (:direction player)) adjusted-x adjusted-y)
+                           :x (:x @player/player)
+                           :y (:y @player/player)
+                           :x-offset (:x-offset @player/player)
+                           :y-offset (:y-offset @player/player)
+                           :direction (:direction @player/player)) adjusted-x adjusted-y)
       (map/draw-foreground @window/graphics scene-map adjusted-x adjusted-y))))
 
 (defn- draw
   "Redraw the screen, including backgrounds, mobs, and player."
   [state]
   (if @fight/encounter
-    (fight/draw state)
+    (fight/draw)
     (draw-map state))
   (let [{:keys [engagement menus]} @state]
     (if engagement
@@ -81,10 +81,10 @@
   (swap! animation-update (fn [current] (+ current elapsed-nano)))
   (let [nodes (:nodes @state)]
     (if (contains? nodes :player)
-      (player/update-player-sprite! state elapsed-nano))
+      (player/update-player-sprite! elapsed-nano))
     (if (contains? nodes :mobs)
       (mob/update-mob-sprites! state elapsed-nano))
-    (swap! animation-update (fn [amount] (- amount constants/time-per-frame-nano)))))
+    (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns)))))
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
@@ -95,16 +95,14 @@
     (effect/add-fade-in state)
     (dosync
      (alter state assoc-in [:map] new-map)
-     (alter state update-in [:player] assoc
-            :x x
-            :y y)))
+     (swap! player/player assoc :x x :y y)))
   (initialize-game/load-room! state scene room))
 
 (defn- check-exits
   "Check the player's current location for an exit."
   [state]
-  (let [{:keys [map player]} @state
-        {:keys [x y]} player]
+  (let [{:keys [map]} @state
+        {:keys [x y]} @player/player]
     (if-let [exit
              (map/get-interaction-from-coords
               map
@@ -116,11 +114,11 @@
   "Main loop player updates."
   [state time-elapsed-ns]
   (check-exits state)
-  (let [is-moving? (:is-moving? @state)]
-    (player/update-move-offset! state time-elapsed-ns)
+  (let [is-moving? (:is-moving? @player/player)]
+    (player/update-move-offset! time-elapsed-ns)
     (if (and
          is-moving?
-         (not (:is-moving? @state)))
+         (not (:is-moving? @player/player)))
       (let [encounter (fight/check-encounter-collision state)]
         (if (and
              encounter
@@ -142,7 +140,7 @@
   (update-animations state time-elapsed-ns)
   (if (fight/is-active?)
     (do
-      (fight/update-fight state time-elapsed-ns)
+      (fight/update-fight time-elapsed-ns)
       (if (not (fight/is-active?))
         (ui/open-menu! state (gains-menu/create-menu state))))
     (let [nodes (:nodes @state)]
@@ -159,8 +157,8 @@
     (let [current-time (System/nanoTime)
           time-diff (- current-time @last-time)]
       (window/new-graphics)
-      (update-state state time-diff)
       (draw state)
+      (update-state state time-diff)
       (window/draw-graphics)
       (swap! timer (fn [amount] (+ amount time-diff)))
       (swap! draws inc)

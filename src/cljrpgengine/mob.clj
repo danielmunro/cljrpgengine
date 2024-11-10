@@ -1,5 +1,6 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]
@@ -20,7 +21,7 @@
 
 (defn create-mob
   ([identifier name class level direction x y sprite portrait skills xp]
-   (println "creating mob" name)
+   (log/debug (format "creating mob %s" name))
    (let [hp (reduce + (repeatedly level #(class/hp-for-level class)))
          mana (reduce + (repeatedly level #(class/mana-for-level class)))]
      {:identifier identifier
@@ -78,7 +79,7 @@
          (+ (% :y) tile-size)))
       (vals mobs)))))
 
-(defn set-destination
+(defn set-destination!
   [state mob coords]
   (dosync (alter state assoc-in [:mobs mob :destination] coords)))
 
@@ -130,7 +131,7 @@
 
 (defn update-move-offset!
   [state x-offset y-offset update-in-path sprite-path elapsed-nano]
-  (let [amount (/ elapsed-nano constants/move-delay)]
+  (let [amount (/ elapsed-nano constants/move-delay-ns)]
     (cond
       (< x-offset 0)
       (do-update-move-offset! state update-in-path :x-offset sprite-path min amount)

@@ -16,3 +16,8 @@
   [message]
   (if (< 0 (get log-levels @log-level))
     (println message)))
+
+(defn error
+  [message]
+  (if (< 0 (get log-levels @log-level))
+    (println message)))

@@ -91,7 +91,7 @@
        (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))
        (= :move-mob (:type outcome))
-       (mob/set-destination state (:mob outcome) (:coords outcome))
+       (mob/set-destination! state (:mob outcome) (:coords outcome))
        (= :mob-animation (:type outcome))
        (mob/play-animation! state [:mobs (:mob outcome)] (:animation outcome))
        (= :player-animation (:type outcome))

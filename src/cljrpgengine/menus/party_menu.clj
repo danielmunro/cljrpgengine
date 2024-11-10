@@ -1,6 +1,7 @@
 (ns cljrpgengine.menus.party-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.item-menu :as item-menu]
             [cljrpgengine.menus.quit-menu :as quit-menu]))
@@ -12,7 +13,7 @@
     (let [cursor (ui/get-menu-cursor state (.menu-type menu))
           x (* 3/4 (first constants/window))
           menu-item (partial ui/draw-line x 0)]
-      (ui/draw-portraits state)
+      (ui/draw-portraits @player/party)
       (ui/draw-cursor x 0 cursor)
       (menu-item 0 "Items")
       (menu-item 1 "Equipment")

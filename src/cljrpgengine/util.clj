@@ -1,5 +1,6 @@
 (ns cljrpgengine.util
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [clojure.math :as math])
   (:import (java.io File)
            (javax.imageio IIOException ImageIO)))
@@ -41,7 +42,7 @@
         (File.)
         (ImageIO/read))
     (catch IIOException e
-      (println "could not find path: " path)
+      (log/error (format "could not find path :: %s" path))
       (throw e))))
 
 (defn is-party-member-atb-full?
