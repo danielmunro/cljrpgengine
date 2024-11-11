@@ -20,21 +20,20 @@
 
 (defn- draw-dialog
   "Draw the dialog the player is currently engaged in."
-  [state engagement]
+  [engagement]
   (let [{:keys [dialog dialog-index message-index]} engagement
         monolog (get dialog dialog-index)
         mob-identifier (:mob monolog)
         mob (if (= :player mob-identifier)
               (player/party-leader)
-              (get-in @state [:mobs mob-identifier]))]
+              (get @mob/mobs mob-identifier))]
     (ui/dialog mob ((:messages monolog) message-index))))
 
 (defn- draw-map
   "Draw the map layers, mobs, and player."
   [state]
   (if (contains? (:nodes @state) :map)
-    (let [{scene-map :map
-           :keys [mobs]} @state
+    (let [{scene-map :map} @state
           {:keys [x y x-offset y-offset]} @player/player
           player-mob (player/party-leader)
           x-plus-offset (+ x x-offset)
@@ -53,7 +52,7 @@
           adjusted-y (- y-window-offset character-y)]
       (map/draw-background @window/graphics scene-map adjusted-x adjusted-y)
       (dorun
-       (for [m (sort-by :y (vals mobs))]
+       (for [m (sort-by :y (vals @mob/mobs))]
          (mob/draw-mob m adjusted-x adjusted-y)))
       (mob/draw-mob (assoc player-mob
                            :x (:x @player/player)
@@ -71,7 +70,7 @@
     (draw-map state))
   (let [{:keys [engagement menus]} @state]
     (if engagement
-      (draw-dialog state engagement))
+      (draw-dialog engagement))
     (ui/draw-menus menus))
   (effect/apply-effects state))
 
@@ -83,7 +82,7 @@
     (if (contains? nodes :player)
       (player/update-player-sprite! elapsed-nano))
     (if (contains? nodes :mobs)
-      (mob/update-mob-sprites! state elapsed-nano))
+      (mob/update-mob-sprites! elapsed-nano))
     (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns)))))
 
 (defn- change-map!

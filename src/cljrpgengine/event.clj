@@ -4,6 +4,7 @@
             [cljrpgengine.item :as item]
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
+            [cljrpgengine.player :as player]
             [clojure.java.io :as io]))
 
 (defn speaking-to
@@ -91,11 +92,11 @@
        (= :gain-item (:type outcome))
        (item/add-item! state (:item outcome))
        (= :move-mob (:type outcome))
-       (mob/set-destination! state (:mob outcome) (:coords outcome))
+       (mob/set-destination! (:mob outcome) (:coords outcome))
        (= :mob-animation (:type outcome))
-       (mob/play-animation! state [:mobs (:mob outcome)] (:animation outcome))
+       (mob/play-animation! mob/mobs (:mob outcome) (:animation outcome))
        (= :player-animation (:type outcome))
-       (mob/play-animation! state [:player :party 0] (:animation outcome))
+       (mob/play-animation! player/party (:identifier (player/party-leader)) (:animation outcome))
        (= :set-mob-coords (:type outcome))
        (mob/set-position! state [:mobs (:mob outcome)] (:coords outcome))))))
 
@@ -133,3 +134,45 @@
                (for [event events-data]
                  (dosync (alter state update-in [:events] conj event)))))))))
       (log/info (format "no room events found :: %s - %s" scene room)))))
+
+(defn create-engagement!
+  [state mob]
+  (let [identifier (:identifier mob)
+        event (get-dialog-event state identifier)]
+    (dosync (alter state assoc
+                   :engagement {:dialog (:dialog event)
+                                :dialog-index 0
+                                :message-index 0
+                                :mob identifier
+                                :event event
+                                :mob-direction (get-in mob [:sprite :current-animation])}))
+    (swap! mob/mobs assoc-in [identifier :sprite :current-animation]
+           (util/opposite-direction (:direction @player/player)))))
+
+(defn engagement-done?
+  [engagement]
+  (= (count (:dialog engagement)) (:dialog-index engagement)))
+
+(defn clear-engagement!
+  [state]
+  (let [{:keys [engagement]} @state
+        {:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
+        current-animation-path [mob :sprite :current-animation]]
+    (let [current-animation (get-in @mob/mobs current-animation-path)]
+      (apply-outcomes! state outcomes)
+      (if (= current-animation (get-in @mob/mobs current-animation-path))
+        (swap! mob/mobs assoc-in [mob :sprite :current-animation] mob-direction))
+      (dosync (alter state dissoc :engagement)))))
+
+(defn inc-engagement!
+  [state]
+  (dosync (alter state update-in [:engagement :message-index] inc))
+  (let [dialog-index (get-in @state [:engagement :dialog-index])]
+    (if (= (count (get-in @state [:engagement :dialog dialog-index :messages]))
+           (get-in @state [:engagement :message-index]))
+      (do
+        (dosync
+         (alter state assoc-in [:engagement :message-index] 0)
+         (alter state update-in [:engagement :dialog-index] inc))
+        (if (engagement-done? (:engagement @state))
+          (clear-engagement! state))))))

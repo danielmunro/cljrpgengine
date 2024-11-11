@@ -10,7 +10,6 @@
 
 (def initial-state {:save-name nil
                     :keys #{}
-                    :mobs {}
                     :items {}
                     :events []
                     :menus []

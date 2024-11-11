@@ -14,7 +14,7 @@
   [state scene room]
   (if (not= scene (:scene @state))
     (scene/load-scene state scene room))
-  (mob/load-room-mobs state scene room)
+  (mob/load-room-mobs scene room)
   (event/load-room-events state scene room)
   (shop/load-shops state scene room)
   (fight/load-encounters! scene room)

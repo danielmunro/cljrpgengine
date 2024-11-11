@@ -1,12 +1,8 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.event :as event]
             [cljrpgengine.map :as map]
-            [cljrpgengine.menus.shop.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.sprite :as sprite]
-            [cljrpgengine.ui :as ui]
-            [cljrpgengine.util :as util]))
+            [cljrpgengine.sprite :as sprite]))
 
 (def player (atom nil))
 (def party (atom nil))
@@ -75,14 +71,13 @@
 
 (defn start-moving!
   [state direction new-x new-y]
-  (let [{:keys [mobs]
-         {:keys [tileset tilemap]} :map} @state
+  (let [{{:keys [tileset tilemap]} :map} @state
         {:keys [x y]} @player]
     (if
      (and
       (not
        (mob/blocked-by-mob?
-        mobs
+        @mob/mobs
         new-x
         new-y
         (:tilewidth tileset)))
@@ -183,50 +178,6 @@
         (swap! party assoc-in [(:identifier leader) :sprite :animations current-animation :is-playing] false)
         (swap! player assoc :is-moving? false)))))
 
-(defn- create-engagement!
-  [state mob]
-  (let [identifier (:identifier mob)
-        event (event/get-dialog-event state identifier)]
-    (dosync (alter state assoc
-                   :engagement {:dialog (:dialog event)
-                                :dialog-index 0
-                                :message-index 0
-                                :mob identifier
-                                :event event
-                                :mob-direction (get-in mob [:sprite :current-animation])})
-            (alter state assoc-in
-                   [:mobs identifier :sprite :current-animation]
-                   (util/opposite-direction (:direction @player))))))
-
-(defn- engagement-done?
-  [engagement]
-  (= (count (:dialog engagement)) (:dialog-index engagement)))
-
-(defn- clear-engagement!
-  [state]
-  (let [{:keys [engagement]} @state
-        {:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
-        current-animation-path [:mobs mob :sprite :current-animation]]
-    (let [current-animation (get-in @state current-animation-path)]
-      (event/apply-outcomes! state outcomes)
-      (dosync
-       (if (= current-animation (get-in @state current-animation-path))
-         (alter state assoc-in current-animation-path mob-direction))
-       (alter state dissoc :engagement)))))
-
-(defn- inc-engagement!
-  [state]
-  (dosync (alter state update-in [:engagement :message-index] inc))
-  (let [dialog-index (get-in @state [:engagement :dialog-index])]
-    (if (= (count (get-in @state [:engagement :dialog dialog-index :messages]))
-           (get-in @state [:engagement :message-index]))
-      (do
-        (dosync
-         (alter state assoc-in [:engagement :message-index] 0)
-         (alter state update-in [:engagement :dialog-index] inc))
-        (if (engagement-done? (:engagement @state))
-          (clear-engagement! state))))))
-
 (defn- get-inspect
   [tile-position dir-1 dir-2 direction-facing tile-size]
   (if (= dir-1 direction-facing)
@@ -235,7 +186,7 @@
       (+ tile-position tile-size)
       tile-position)))
 
-(defn- get-inspect-coords
+(defn get-inspect-coords
   "Get the coordinates that the player is inspecting.  The inspected coords
   depends on the position and direction of the player.
       1
@@ -246,26 +197,3 @@
   [x y direction tilewidth tileheight]
   [(get-inspect x :left :right direction tilewidth)
    (get-inspect y :up :down direction tileheight)])
-
-(defn action-engaged!
-  "Player is attempting to engage with something.  If on a shop, the game will
-  open a shop dialog.  If next to a mob, a player will open a dialog with the
-  mob.  If the player is already engaged with a mob then proceed through the
-  engagement, and clear the engagement if all steps are complete."
-  [state]
-  (let [{:keys [engagement mobs map]
-         {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        {:keys [direction x y]} @player
-        [inspect-x inspect-y] (get-inspect-coords x y direction tilewidth tileheight)]
-    (if engagement
-      (if (engagement-done? engagement)
-        (clear-engagement! state)
-        (inc-engagement! state))
-      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals mobs))]
-        (create-engagement! state mob)
-        (if-let [shop (:name (map/get-interaction-from-coords
-                              map
-                              #(get-in % [:tilemap :shops])
-                              x
-                              y))]
-          (ui/open-menu! state (shop-menu/create-menu state shop)))))))
