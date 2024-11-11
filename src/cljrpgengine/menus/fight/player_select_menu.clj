@@ -36,14 +36,14 @@
     (ui/draw-window
      constants/quarter-width (* constants/quarter-height 3)
      (* 3 constants/quarter-width) constants/quarter-height)
-    (let [party @player/party]
+    (let [party (vec (vals @player/party))]
       (doseq [p (range 0 (count party))]
         (ui/draw-line constants/quarter-width
                       (* constants/quarter-height 3)
                       p
-                      (str (ui/text-fixed-width (:name (get party p)) 15)
-                           (ui/text-fixed-width (str (:hp (get party p)) "/" (:max-hp (get party p))) 10)
-                           (:mana (get party p)) "/" (:max-mana (get party p)))
+                      (str (ui/text-fixed-width (get-in party [p :name]) 15)
+                           (ui/text-fixed-width (str (get-in party [p :hp]) "/" (get-in party [p :max-hp])) 10)
+                           (get-in party [p :mana]) "/" (get-in party [p :max-mana]))
                       (if (util/is-party-member-atb-full? p)
                         :font-default
                         :font-disabled))

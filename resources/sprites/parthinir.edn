@@ -1,0 +1,16 @@
+{:name              :parthinir
+ :file              "edwyn.png"
+ :dimensions        [16 24]
+ :size              [3 3]
+ :default-animation :down
+ :animations        {:down  {:frames [0 1 0 2]
+                             :props  #{:loop}}
+                     :left  {:frames [3 4 3 5]
+                             :props  #{:loop}}
+                     :right {:frames [3 4 3 5]
+                             :props  #{:loop :flip}}
+                     :up    {:frames [6 7 6 8]
+                             :props  #{:loop}}
+                     :dance {:frames [0 3 6 {:frame 3 :flip true}]
+                             :delay 100
+                             :props #{}}}}

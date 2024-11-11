@@ -22,8 +22,9 @@
             :direction :down}))
   (swap! party
          (fn [_]
-           [(mob/create-mob
-             :edwyn
+           {:fireas
+            (mob/create-mob
+             :fireas
              "Fireas"
              :warrior 1
              :down 0 0
@@ -31,8 +32,9 @@
              "portraits/edwyn.png"
              #{:bash}
              0)
+            :faedrim
             (mob/create-mob
-             :edwyn
+             :faedrim
              "Dingus"
              :mage 1
              :down 0 0
@@ -40,29 +42,36 @@
              "portraits/edwyn.png"
              #{:magic-missile}
              0)
+            :dudelgor
             (mob/create-mob
-             :edwyn
-             "Prabble"
+             :dudelgor
+             "Dudelgor"
              :rogue 1
              :down 0 0
              (sprite/create :edwyn)
              "portraits/edwyn.png"
              #{:hamstring}
              0)
+            :parthinir
             (mob/create-mob
-             :edwyn
-             "Floodlegor"
+             :parthinir
+             "Parthinir"
              :cleric 1
              :down 0 0
              (sprite/create :edwyn)
              "portraits/edwyn.png"
              #{:cure-light}
-             0)])))
+             0)})))
+
+(defn party-leader
+  []
+  (val (first @party)))
 
 (defn play-animation!
   [animation]
-  (swap! party assoc-in [0 :sprite :current-animation] animation)
-  (swap! party assoc-in [0 :sprite :animations (keyword animation) :is-playing] true))
+  (let [{:keys [identifier]} (party-leader)]
+    (swap! party assoc-in [identifier :sprite :current-animation] animation)
+    (swap! party assoc-in [identifier :sprite :animations (keyword animation) :is-playing] true)))
 
 (defn start-moving!
   [state direction new-x new-y]
@@ -88,7 +97,7 @@
         (swap! player assoc :direction direction :x new-x :y new-y :x-offset (- x new-x) :y-offset (- y new-y) :moved 0 :is-moving? true)
         (dosync (alter state update :keys conj direction)))
       (do
-        (swap! party assoc-in [0 :sprite :current-animation] direction)
+        (swap! party assoc-in [(:identifier (party-leader)) :sprite :current-animation] direction)
         (swap! player assoc :direction direction)))))
 
 (defn check-start-moving
@@ -113,11 +122,12 @@
 
 (defn update-player-sprite!
   [time-elapsed-ns]
-  (let [[{:keys [sprite] {:keys [current-animation]} :sprite}] @party
+  (let [leader (party-leader)
+        {:keys [sprite] {:keys [current-animation]} :sprite} leader
         animation (get-in sprite [:animations current-animation])
         {:keys [frame delay is-playing]} animation
         next-frame (sprite/get-sprite-frame sprite frame)
-        time-elapsed-path [0 :sprite :animations current-animation :time-elapsed]]
+        time-elapsed-path [(:identifier leader) :sprite :animations current-animation :time-elapsed]]
     (if (and
          is-playing
          (not (contains? sprite/move-animations current-animation)))
@@ -130,28 +140,33 @@
             (if (and (not (contains? (:props animation) :loop))
                      (= 0 next-frame))
               (do
-                (swap! party assoc-in [0 :sprite :animations current-animation :is-playing] false)
-                (swap! party assoc-in [0 :sprite :animations current-animation :frame] 0))
-              (swap! party assoc-in [0 :sprite :animations current-animation :frame] next-frame))))))))
+                (swap! party assoc-in
+                       [(:identifier leader) :sprite :animations current-animation :is-playing] false)
+                (swap! party assoc-in
+                       [(:identifier leader) :sprite :animations current-animation :frame] 0))
+              (swap! party assoc-in
+                     [(:identifier leader) :sprite :animations current-animation :frame] next-frame))))))))
 
 (defn- do-update-move-offset!
   [offset-prop min-or-max amount]
   (let [frame-increment (/ constants/tile-size 2)
-        current-animation (get-in @party [0 :sprite :current-animation])]
+        leader (party-leader)
+        current-animation (get-in leader [:sprite :current-animation])]
     (swap! player update offset-prop (fn [offset] (min-or-max 0 (+ offset amount))))
     (swap! player update :moved (fn [moved] (+ moved (abs amount))))
     (if (<= frame-increment (:moved @player))
       (do
         (swap! player update :moved (fn [moved] (- moved frame-increment)))
-        (swap! party update-in [0 :sprite :animations current-animation :frame]
-               (fn [frame] (sprite/get-sprite-frame (get-in @party [0 :sprite]) frame)))))))
+        (swap! party update-in [(:identifier leader) :sprite :animations current-animation :frame]
+               (fn [frame] (sprite/get-sprite-frame (:sprite leader) frame)))))))
 
 (defn update-move-offset!
   [elapsed-nano]
   (let [amount (/ elapsed-nano constants/move-delay-ns)
         {:keys [x-offset y-offset]} @player
-        current-animation (get-in @party [0 :sprite :current-animation])
-        is-playing (get-in @party [0 :sprite :animations current-animation :is-playing])]
+        leader (party-leader)
+        current-animation (get-in leader [:sprite :current-animation])
+        is-playing (get-in leader [:sprite :animations current-animation :is-playing])]
     (cond
       (< x-offset 0)
       (do-update-move-offset! :x-offset min amount)
@@ -165,7 +180,7 @@
              (mob/is-standing-still @player)
              is-playing)
       (do
-        (swap! party assoc-in [0 :sprite :animations current-animation :is-playing] false)
+        (swap! party assoc-in [(:identifier leader) :sprite :animations current-animation :is-playing] false)
         (swap! player assoc :is-moving? false)))))
 
 (defn- create-engagement!

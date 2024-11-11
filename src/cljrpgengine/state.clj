@@ -33,31 +33,32 @@
      :grants grants
      :items items
      :money money
-     :player {:party (mapv
-                      (fn [{:keys [name
-                                   identifier
-                                   class
-                                   level
-                                   hp
-                                   max-hp
-                                   mana
-                                   max-mana
-                                   portrait
-                                   skills
-                                   xp]}]
-                        {:name name
-                         :identifier identifier
-                         :class class
-                         :level level
-                         :hp hp
-                         :max-hp max-hp
-                         :mana mana
-                         :max-mana max-mana
-                         :portrait (:filename portrait)
-                         :skills skills
-                         :xp xp}) @player/party)
-              :x x
-              :y y
+     :player {:party (into {} (map
+                               (fn [k]
+                                 (let [{:keys [name
+                                               identifier
+                                               class
+                                               level
+                                               hp
+                                               max-hp
+                                               mana
+                                               max-mana
+                                               portrait
+                                               skills
+                                               xp]} (get @player/party k)]
+                                   {k {:name       name
+                                       :identifier identifier
+                                       :class      class
+                                       :level      level
+                                       :hp         hp
+                                       :max-hp     max-hp
+                                       :mana       mana
+                                       :max-mana   max-mana
+                                       :portrait   (:filename portrait)
+                                       :skills     skills
+                                       :xp         xp}})) (keys @player/party)))
+              :x     x
+              :y     y
               :direction direction}}))
 
 (defn save
@@ -70,18 +71,19 @@
 
 (defn mob-from-data
   [data]
-  (mob/create-mob
-   (:identifier data)
-   (:name data)
-   (:class data)
-   (:level data)
-   :down
-   0
-   0
-   (sprite/create (:identifier data))
-   (:portrait data)
-   (:skills data)
-   (:xp data)))
+  (let [mob (second data)]
+    {(first data) (mob/create-mob
+                   (:identifier mob)
+                   (:name mob)
+                   (:class mob)
+                   (:level mob)
+                   :down
+                   0
+                   0
+                   (sprite/create (:identifier mob))
+                   (:portrait mob)
+                   (:skills mob)
+                   (:xp mob))}))
 
 (defn load-player
   [data]
@@ -94,7 +96,7 @@
               :y-offset 0
               :direction direction}))
     (swap! player/party
-           (fn [_] (mapv mob-from-data party)))))
+           (fn [_] (into {} (map mob-from-data party))))))
 
 (defn load-save-file
   [save-file]

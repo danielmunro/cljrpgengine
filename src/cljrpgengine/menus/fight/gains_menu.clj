@@ -18,8 +18,8 @@
   (menu-type [_] :gains)
   (key-pressed [_]
     (dosync
-     (doseq [i (range 0 (count (:party @player/player)))]
-       (swap! player/player update-in [:party i :xp] (fn [xp] (+ xp @fight/xp-to-gain)))))
+     (doseq [i (keys @player/party)]
+       (swap! player/party update-in [i :xp] (fn [xp] (+ xp @fight/xp-to-gain)))))
     (ui/close-menu! state 2)
     (fight/end)))
 

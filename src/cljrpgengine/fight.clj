@@ -22,7 +22,7 @@
   (swap! room-encounters (fn [_] -room-encounters)))
 
 (defn check-encounter-collision
-  [state]
+  []
   (let [{:keys [x y]} @player/player]
     (util/filter-first
      #(let [b-x (:x %)
@@ -66,7 +66,7 @@
                                {})))))
 
 (defn start!
-  [state map-encounter]
+  [map-encounter]
   (let [enc (rand-nth ((keyword (:encounter map-encounter)) @encounter-types))]
     (swap! encounter
            (fn [_]
@@ -79,7 +79,7 @@
               enc)))
     (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
   (swap! previous-animation (fn [_] (get-in @player/party [0 :sprite :current-animation])))
-  (doseq [i (range 0 (count @player/party))]
+  (doseq [i (keys @player/party)]
     (swap! player/party assoc-in [i :sprite :current-animation] :left)
     (swap! player/party assoc-in [i :sprite :animations :left :frame] 0))
   (swap! util/player-atb-gauge (fn [_]
@@ -127,7 +127,7 @@
     (doseq [i (range 0 (count @player/party))]
       (sprite/draw (* constants/screen-width 3/4)
                    (+ vertical-padding (- (* i vertical-padding) (* i (second constants/character-dimensions))))
-                   (get-in @player/party [i :sprite])))))
+                   (get-in @player/party [(nth (keys @player/party) i) :sprite])))))
 
 (defn- draw-menus
   []

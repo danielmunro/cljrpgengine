@@ -25,7 +25,7 @@
         monolog (get dialog dialog-index)
         mob-identifier (:mob monolog)
         mob (if (= :player mob-identifier)
-              (get @player/party 0)
+              (player/party-leader)
               (get-in @state [:mobs mob-identifier]))]
     (ui/dialog mob ((:messages monolog) message-index))))
 
@@ -36,7 +36,7 @@
     (let [{scene-map :map
            :keys [mobs]} @state
           {:keys [x y x-offset y-offset]} @player/player
-          [player-mob] @player/party
+          player-mob (player/party-leader)
           x-plus-offset (+ x x-offset)
           y-plus-offset (+ y y-offset)
           x-window-offset (-> constants/screen-width
@@ -119,13 +119,13 @@
     (if (and
          is-moving?
          (not (:is-moving? @player/player)))
-      (let [encounter (fight/check-encounter-collision state)]
+      (let [encounter (fight/check-encounter-collision)]
         (if (and
              encounter
              (< (rand) (:encounter-rate encounter)))
           (do
             (ui/open-menu! state (player-select-menu/create-menu state))
-            (fight/start! state encounter))))))
+            (fight/start! encounter))))))
   (player/check-start-moving state))
 
 (defn- do-mob-updates
