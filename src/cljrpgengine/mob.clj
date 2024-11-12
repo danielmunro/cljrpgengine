@@ -96,10 +96,7 @@
          :moved 0
          :x new-x
          :y new-y
-         :direction direction)
-  (println "set move")
-  (println @mobs)
-  (println (get @mobs identifier)))
+         :direction direction))
 
 (defn start-moving!
   [{:keys [identifier x y]} direction new-x new-y]
@@ -136,10 +133,7 @@
              (get-in @mobs [identifier :sprite :animations current-animation :is-playing]))
       (do
         (swap! mobs assoc-in [identifier :sprite :animations current-animation :is-playing] false)
-        (swap! mobs assoc [identifier :is-moving?] false)
-        (println "done moving")
-        (println @mobs)
-        (println (get @mobs identifier))))))
+        (swap! mobs assoc-in [identifier :is-moving?] false)))))
 
 (defn update-move-offsets!
   [elapsed-nano]
@@ -196,10 +190,7 @@
            (if (and (not (contains? props :loop))
                     (= 0 next-frame))
              (swap! mobs update-in update-path assoc :is-playing false :frame 0)
-             (swap! mobs update-in update-path assoc :frame next-frame))
-           (println "update sprite")
-           (println @mobs)
-           (println (get @mobs identifier))))))))
+             (swap! mobs update-in update-path assoc :frame next-frame))))))))
 
 (defn update-mob-sprites!
   [time-elapsed-ns]
@@ -213,7 +204,8 @@
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
         (doseq [mob-file mob-files]
-          (let [{:keys [identifier name direction coords sprite]} (read-string (slurp (str file-path "/" (.getName mob-file))))]
+          (let [{:keys [identifier name direction coords sprite]}
+                (read-string (slurp (str file-path "/" (.getName mob-file))))]
             (swap! mobs assoc
                    identifier (create-mob
                                identifier
