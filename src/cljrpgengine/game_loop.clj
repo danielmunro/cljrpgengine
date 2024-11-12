@@ -51,9 +51,8 @@
           adjusted-x (- x-window-offset character-x)
           adjusted-y (- y-window-offset character-y)]
       (map/draw-background @window/graphics scene-map adjusted-x adjusted-y)
-      (dorun
-       (for [m (sort-by :y (vals @mob/mobs))]
-         (mob/draw-mob m adjusted-x adjusted-y)))
+      (doseq [m (sort-by :y (vals @mob/mobs))]
+        (mob/draw-mob m adjusted-x adjusted-y))
       (mob/draw-mob (assoc player-mob
                            :x (:x @player/player)
                            :y (:y @player/player)
@@ -130,7 +129,7 @@
 (defn- do-mob-updates
   "Main loop mob updates."
   [state time-elapsed-ns]
-  (mob/update-move-offsets! state time-elapsed-ns)
+  (mob/update-move-offsets! time-elapsed-ns)
   (mob/update-mobs state))
 
 (defn- update-state

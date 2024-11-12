@@ -81,13 +81,12 @@
   (swap! mobs assoc-in [identifier :sprite :animations (keyword animation) :is-playing] true))
 
 (defn set-position!
-  [state update-path position]
-  (dosync
-   (alter state update-in update-path assoc
-          :x (first position)
-          :y (second position)
-          :x-offset 0
-          :y-offset 0)))
+  [identifier position]
+  (swap! mobs update-in [identifier] assoc
+             :x (first position)
+             :y (second position)
+             :x-offset 0
+             :y-offset 0))
 
 (defn set-mob-move-offsets!
   [mobs identifier direction x y new-x new-y]
@@ -97,7 +96,10 @@
          :moved 0
          :x new-x
          :y new-y
-         :direction direction))
+         :direction direction)
+  (println "set move")
+  (println @mobs)
+  (println (get @mobs identifier)))
 
 (defn start-moving!
   [{:keys [identifier x y]} direction new-x new-y]
@@ -114,7 +116,7 @@
       (do
         (swap! mobs update-in [identifier :moved] (fn [moved] (- moved frame-increment)))
         (swap! mobs update-in [identifier :sprite :animations current-animation :frame]
-               (fn [frame] (sprite/get-sprite-frame (get-in mobs [identifier :sprite]) frame)))))))
+               (fn [frame] (sprite/get-sprite-frame (get-in @mobs [identifier :sprite]) frame)))))))
 
 (defn update-move-offset!
   [mobs identifier x-offset y-offset elapsed-nano]
@@ -134,15 +136,16 @@
              (get-in @mobs [identifier :sprite :animations current-animation :is-playing]))
       (do
         (swap! mobs assoc-in [identifier :sprite :animations current-animation :is-playing] false)
-        (swap! mobs assoc :is-moving? false)))))
+        (swap! mobs assoc [identifier :is-moving?] false)
+        (println "done moving")
+        (println @mobs)
+        (println (get @mobs identifier))))))
 
 (defn update-move-offsets!
-  [state elapsed-nano]
-  (let [{:keys [mobs]} @state]
-    (dorun
-     (for [m (vals mobs)]
-       (let [{:keys [x-offset y-offset identifier]} m]
-         (update-move-offset! mobs identifier x-offset y-offset elapsed-nano))))))
+  [elapsed-nano]
+  (doseq [m (vals @mobs)]
+    (let [{:keys [x-offset y-offset identifier]} m]
+      (update-move-offset! mobs identifier x-offset y-offset elapsed-nano))))
 
 (defn check-start-moving
   [state mob direction-moving]
@@ -193,7 +196,10 @@
            (if (and (not (contains? props :loop))
                     (= 0 next-frame))
              (swap! mobs update-in update-path assoc :is-playing false :frame 0)
-             (swap! mobs update-in update-path assoc :frame next-frame))))))))
+             (swap! mobs update-in update-path assoc :frame next-frame))
+           (println "update sprite")
+           (println @mobs)
+           (println (get @mobs identifier))))))))
 
 (defn update-mob-sprites!
   [time-elapsed-ns]

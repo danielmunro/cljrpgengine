@@ -98,7 +98,7 @@
        (= :player-animation (:type outcome))
        (mob/play-animation! player/party (:identifier (player/party-leader)) (:animation outcome))
        (= :set-mob-coords (:type outcome))
-       (mob/set-position! state [:mobs (:mob outcome)] (:coords outcome))))))
+       (mob/set-position! (:mob outcome) (:coords outcome))))))
 
 (defn get-room-loaded-events
   [state room]
