@@ -14,7 +14,7 @@
      constants/quarter-width
      (* constants/quarter-height 3)
      (ui/get-menu-cursor state (.menu-type menu))))
-  (cursor-length [_] (count (get-in @player/player [:party player-index :spells])))
+  (cursor-length [_] (count (get-in @player/party [(nth (vals @player/party) player-index) :spells])))
   (menu-type [_] :fight-magic-select)
   (key-pressed [_]))
 

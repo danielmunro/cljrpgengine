@@ -69,7 +69,7 @@
   [state]
   (let [{:keys [engagement map]
          {{:keys [tilewidth tileheight]} :tileset} :map} @state
-        {:keys [direction x y]} @player/player
+        {:keys [direction x y]} (player/party-leader)
         [inspect-x inspect-y] (player/get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement
       (if (event/engagement-done? engagement)

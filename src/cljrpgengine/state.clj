@@ -24,8 +24,7 @@
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room grants items money]} @state
-        {:keys [x y direction]} @player/player]
+  (let [{:keys [save-name scene room grants items money]} @state]
     {:save-name save-name
      :scene scene
      :room room
@@ -44,7 +43,9 @@
                                                max-mana
                                                portrait
                                                skills
-                                               xp]} (get @player/party k)]
+                                               xp
+                                               x
+                                               y]} (get @player/party k)]
                                    {k {:name       name
                                        :identifier identifier
                                        :class      class
@@ -55,10 +56,9 @@
                                        :max-mana   max-mana
                                        :portrait   (:filename portrait)
                                        :skills     skills
-                                       :xp         xp}})) (keys @player/party)))
-              :x     x
-              :y     y
-              :direction direction}}))
+                                       :x          x
+                                       :y          y
+                                       :xp         xp}})) (keys @player/party)))}}))
 
 (defn save
   [state]
@@ -77,8 +77,8 @@
                    (:class mob)
                    (:level mob)
                    :down
-                   0
-                   0
+                   (:x mob)
+                   (:y mob)
                    (sprite/create (:identifier mob))
                    (:portrait mob)
                    (:skills mob)
@@ -86,14 +86,7 @@
 
 (defn load-player
   [data]
-  (let [{{:keys [x y direction party]} :player} data]
-    (swap! player/player
-           (fn [_]
-             {:x x
-              :x-offset 0
-              :y y
-              :y-offset 0
-              :direction direction}))
+  (let [{{:keys [party]} :player} data]
     (swap! player/party
            (fn [_] (into {} (map mob-from-data party))))))
 

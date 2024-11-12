@@ -201,6 +201,7 @@
   [scene room]
   (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/mobs")
         dir (io/file file-path)]
+    (swap! mobs (constantly nil))
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
         (doseq [mob-file mob-files]
@@ -213,5 +214,4 @@
                                direction
                                (first coords)
                                (second coords)
-                               (sprite/create sprite))))))
-      (swap! mobs (constantly nil)))))
+                               (sprite/create sprite)))))))))

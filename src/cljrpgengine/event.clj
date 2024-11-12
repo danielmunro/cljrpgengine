@@ -143,7 +143,7 @@
                                 :event event
                                 :mob-direction (get-in mob [:sprite :current-animation])}))
     (swap! mob/mobs assoc-in [identifier :sprite :current-animation]
-           (util/opposite-direction (:direction @player/player)))))
+           (util/opposite-direction (:direction (player/party-leader))))))
 
 (defn engagement-done?
   [engagement]

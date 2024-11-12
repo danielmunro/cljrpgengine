@@ -31,8 +31,11 @@
 (defn- init-map
   [state]
   (let [map (:map @state)
-        {:keys [x y direction]} (map/get-warp map "start")]
-    (swap! player/player
+        {:keys [x y direction]} (map/get-warp map "start")
+        {:keys [identifier]} (player/party-leader)]
+    (swap! player/party
+           update-in
+           [identifier]
            assoc
            :x x
            :y y
