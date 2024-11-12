@@ -20,23 +20,21 @@
 
 (defn- draw-dialog
   "Draw the dialog the player is currently engaged in."
-  [state engagement]
+  [engagement]
   (let [{:keys [dialog dialog-index message-index]} engagement
         monolog (get dialog dialog-index)
         mob-identifier (:mob monolog)
         mob (if (= :player mob-identifier)
               (player/party-leader)
-              (get-in @state [:mobs mob-identifier]))]
+              (get @mob/mobs mob-identifier))]
     (ui/dialog mob ((:messages monolog) message-index))))
 
 (defn- draw-map
   "Draw the map layers, mobs, and player."
   [state]
   (if (contains? (:nodes @state) :map)
-    (let [{scene-map :map
-           :keys [mobs]} @state
-          {:keys [x y x-offset y-offset]} @player/player
-          player-mob (player/party-leader)
+    (let [{scene-map :map} @state
+          {:keys [x y x-offset y-offset] :as leader} (player/party-leader)
           x-plus-offset (+ x x-offset)
           y-plus-offset (+ y y-offset)
           x-window-offset (-> constants/screen-width
@@ -52,15 +50,9 @@
           adjusted-x (- x-window-offset character-x)
           adjusted-y (- y-window-offset character-y)]
       (map/draw-background @window/graphics scene-map adjusted-x adjusted-y)
-      (dorun
-       (for [m (sort-by :y (vals mobs))]
-         (mob/draw-mob m adjusted-x adjusted-y)))
-      (mob/draw-mob (assoc player-mob
-                           :x (:x @player/player)
-                           :y (:y @player/player)
-                           :x-offset (:x-offset @player/player)
-                           :y-offset (:y-offset @player/player)
-                           :direction (:direction @player/player)) adjusted-x adjusted-y)
+      (doseq [m (sort-by :y (vals @mob/mobs))]
+        (mob/draw-mob m adjusted-x adjusted-y))
+      (mob/draw-mob leader adjusted-x adjusted-y)
       (map/draw-foreground @window/graphics scene-map adjusted-x adjusted-y))))
 
 (defn- draw
@@ -71,7 +63,7 @@
     (draw-map state))
   (let [{:keys [engagement menus]} @state]
     (if engagement
-      (draw-dialog state engagement))
+      (draw-dialog engagement))
     (ui/draw-menus menus))
   (effect/apply-effects state))
 
@@ -83,7 +75,7 @@
     (if (contains? nodes :player)
       (player/update-player-sprite! elapsed-nano))
     (if (contains? nodes :mobs)
-      (mob/update-mob-sprites! state elapsed-nano))
+      (mob/update-mob-sprites! elapsed-nano))
     (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns)))))
 
 (defn- change-map!
@@ -91,18 +83,19 @@
   [state scene room entrance]
   (log/info (format "exit triggered :: scene: %s, room: %s, entrance: %s" scene room, entrance))
   (let [new-map (map/load-map scene room)
-        {:keys [x y]} (map/get-entrance new-map entrance)]
+        {:keys [x y]} (map/get-entrance new-map entrance)
+        {:keys [identifier]} (player/party-leader)]
     (effect/add-fade-in state)
     (dosync
      (alter state assoc-in [:map] new-map)
-     (swap! player/player assoc :x x :y y)))
+     (swap! player/party update-in [identifier] assoc :x x :y y)))
   (initialize-game/load-room! state scene room))
 
 (defn- check-exits
   "Check the player's current location for an exit."
   [state]
   (let [{:keys [map]} @state
-        {:keys [x y]} @player/player]
+        {:keys [x y]} (player/party-leader)]
     (if-let [exit
              (map/get-interaction-from-coords
               map
@@ -114,11 +107,11 @@
   "Main loop player updates."
   [state time-elapsed-ns]
   (check-exits state)
-  (let [is-moving? (:is-moving? @player/player)]
-    (player/update-move-offset! time-elapsed-ns)
+  (let [{:keys [is-moving? identifier x-offset y-offset]} (player/party-leader)]
+    (mob/update-move-offset! player/party identifier x-offset y-offset time-elapsed-ns)
     (if (and
          is-moving?
-         (not (:is-moving? @player/player)))
+         (not (:is-moving? (player/party-leader))))
       (let [encounter (fight/check-encounter-collision)]
         (if (and
              encounter
@@ -131,7 +124,7 @@
 (defn- do-mob-updates
   "Main loop mob updates."
   [state time-elapsed-ns]
-  (mob/update-move-offsets! state time-elapsed-ns)
+  (mob/update-move-offsets! time-elapsed-ns)
   (mob/update-mobs state))
 
 (defn- update-state

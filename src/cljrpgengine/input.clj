@@ -1,9 +1,14 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.menu :as menu]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.map :as map]
+            [cljrpgengine.menu :as menu]
+            [cljrpgengine.menus.shop.shop-menu :as shop-menu]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.state :as state]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.menus.party.party-menu :as party-menu])
+            [cljrpgengine.menus.party.party-menu :as party-menu]
+            [cljrpgengine.util :as util])
   (:import (java.awt.event KeyEvent)))
 
 (defn get-key-from-key-code
@@ -56,6 +61,29 @@
    (= key :space)
    (ui/is-menu-open? state)))
 
+(defn action-engaged!
+  "Player is attempting to engage with something.  If on a shop, the game will
+  open a shop dialog.  If next to a mob, a player will open a dialog with the
+  mob.  If the player is already engaged with a mob then proceed through the
+  engagement, and clear the engagement if all steps are complete."
+  [state]
+  (let [{:keys [engagement map]
+         {{:keys [tilewidth tileheight]} :tileset} :map} @state
+        {:keys [direction x y]} (player/party-leader)
+        [inspect-x inspect-y] (player/get-inspect-coords x y direction tilewidth tileheight)]
+    (if engagement
+      (if (event/engagement-done? engagement)
+        (event/clear-engagement! state)
+        (event/inc-engagement! state))
+      (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals @mob/mobs))]
+        (event/create-engagement! state mob)
+        (if-let [shop (:name (map/get-interaction-from-coords
+                              map
+                              #(get-in % [:tilemap :shops])
+                              x
+                              y))]
+          (ui/open-menu! state (shop-menu/create-menu state shop)))))))
+
 (defn key-pressed!
   [state event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
@@ -84,7 +112,7 @@
         (= key :s)
         (state/save state)
         (= key :space)
-        (player/action-engaged! state)
+        (action-engaged! state)
         (= key :m)
         (ui/open-menu! state (party-menu/create-menu state))
         (= key :escape)

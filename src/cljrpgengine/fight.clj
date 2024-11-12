@@ -23,7 +23,7 @@
 
 (defn check-encounter-collision
   []
-  (let [{:keys [x y]} @player/player]
+  (let [{:keys [x y]} (player/party-leader)]
     (util/filter-first
      #(let [b-x (:x %)
             b-y (:y %)

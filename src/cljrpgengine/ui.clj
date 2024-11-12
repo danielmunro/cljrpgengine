@@ -127,7 +127,8 @@
 
 (defn get-menu-cursor
   [state menu]
-  (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state))))
+  (or (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state)))
+      0))
 
 (defn dialog
   [mob message]

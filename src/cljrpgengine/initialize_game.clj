@@ -1,6 +1,7 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
+            [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -12,9 +13,10 @@
 
 (defn load-room!
   [state scene room]
+  (log/info (format "loading room :: %s" room))
   (if (not= scene (:scene @state))
     (scene/load-scene state scene room))
-  (mob/load-room-mobs state scene room)
+  (mob/load-room-mobs scene room)
   (event/load-room-events state scene room)
   (shop/load-shops state scene room)
   (fight/load-encounters! scene room)
@@ -29,8 +31,11 @@
 (defn- init-map
   [state]
   (let [map (:map @state)
-        {:keys [x y direction]} (map/get-warp map "start")]
-    (swap! player/player
+        {:keys [x y direction]} (map/get-warp map "start")
+        {:keys [identifier]} (player/party-leader)]
+    (swap! player/party
+           update-in
+           [identifier]
            assoc
            :x x
            :y y
