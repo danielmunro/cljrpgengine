@@ -1,6 +1,7 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
+            [cljrpgengine.log :as log]
             [cljrpgengine.map :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -12,6 +13,7 @@
 
 (defn load-room!
   [state scene room]
+  (log/info (format "loading room :: %s" room))
   (if (not= scene (:scene @state))
     (scene/load-scene state scene room))
   (mob/load-room-mobs scene room)

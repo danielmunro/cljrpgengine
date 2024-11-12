@@ -116,9 +116,8 @@
 
 (defn fire-room-loaded-event
   [state room]
-  (dorun
-   (for [event (get-room-loaded-events state (keyword room))]
-     (apply-outcomes! state (:outcomes event)))))
+  (doseq [event (get-room-loaded-events state (keyword room))]
+    (apply-outcomes! state (:outcomes event))))
 
 (defn load-room-events
   [state scene room]
@@ -126,14 +125,11 @@
         dir (io/file file-path)]
     (if (.exists dir)
       (let [event-files (.listFiles dir)]
-        (dosync
-         (dorun
-          (for [event-file event-files]
-            (let [events-data (read-string (slurp (str file-path "/" (.getName event-file))))]
-              (dorun
-               (for [event events-data]
-                 (dosync (alter state update-in [:events] conj event)))))))))
-      (log/info (format "no room events found :: %s - %s" scene room)))))
+        (doseq [event-file event-files]
+          (let [events-data (read-string (slurp (str file-path "/" (.getName event-file))))]
+            (doseq [event events-data]
+              (dosync (alter state update-in [:events] conj event))))))
+      (dosync (alter state assoc :events [])))))
 
 (defn create-engagement!
   [state mob]

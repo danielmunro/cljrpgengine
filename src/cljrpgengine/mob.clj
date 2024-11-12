@@ -83,10 +83,10 @@
 (defn set-position!
   [identifier position]
   (swap! mobs update-in [identifier] assoc
-             :x (first position)
-             :y (second position)
-             :x-offset 0
-             :y-offset 0))
+         :x (first position)
+         :y (second position)
+         :x-offset 0
+         :y-offset 0))
 
 (defn set-mob-move-offsets!
   [mobs identifier direction x y new-x new-y]
@@ -183,14 +183,14 @@
          is-playing
          (not (contains? sprite/move-animations current-animation)))
       (do
-       (swap! mobs update-in time-elapsed-path (fn [amount] (+ amount time-elapsed-ns)))
-       (if (< delay (/ (get-in @mobs time-elapsed-path) 1000000))
-         (do
-           (swap! mobs update-in time-elapsed-path (fn [amount] (- amount (* delay 1000000))))
-           (if (and (not (contains? props :loop))
-                    (= 0 next-frame))
-             (swap! mobs update-in update-path assoc :is-playing false :frame 0)
-             (swap! mobs update-in update-path assoc :frame next-frame))))))))
+        (swap! mobs update-in time-elapsed-path (fn [amount] (+ amount time-elapsed-ns)))
+        (if (< delay (/ (get-in @mobs time-elapsed-path) 1000000))
+          (do
+            (swap! mobs update-in time-elapsed-path (fn [amount] (- amount (* delay 1000000))))
+            (if (and (not (contains? props :loop))
+                     (= 0 next-frame))
+              (swap! mobs update-in update-path assoc :is-playing false :frame 0)
+              (swap! mobs update-in update-path assoc :frame next-frame))))))))
 
 (defn update-mob-sprites!
   [time-elapsed-ns]
@@ -213,4 +213,5 @@
                                direction
                                (first coords)
                                (second coords)
-                               (sprite/create sprite)))))))))
+                               (sprite/create sprite))))))
+      (swap! mobs (constantly nil)))))
