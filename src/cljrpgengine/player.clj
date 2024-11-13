@@ -2,8 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.sprite :as sprite]
-            [cljrpgengine.ui :as ui]))
+            [cljrpgengine.sprite :as sprite]))
 
 (def player (atom nil))
 (def party (atom nil))
@@ -64,7 +63,7 @@
     (swap! party assoc-in [identifier :sprite :animations (keyword animation) :is-playing] true)))
 
 (defn start-moving!
-  [state direction new-x new-y]
+  [direction new-x new-y]
   (let [{:keys [tileset tilemap]} @map/tilemap
         {:keys [x y identifier]} (party-leader)]
     (if
@@ -83,29 +82,27 @@
         new-y)))
       (do
         (play-animation! direction)
-        (swap! party update-in [identifier] assoc :direction direction :x new-x :y new-y :x-offset (- x new-x) :y-offset (- y new-y) :moved 0 :is-moving? true)
-        (dosync (alter state update :keys conj direction)))
+        (swap! party update-in [identifier] assoc :direction direction :x new-x :y new-y :x-offset (- x new-x) :y-offset (- y new-y) :moved 0 :is-moving? true))
       (do
         (swap! party assoc-in [identifier :sprite :current-animation] direction)
         (swap! party assoc-in [identifier :direction] direction)))))
 
 (defn check-start-moving
-  [state]
-  (let [{:keys [keys engagement]} @state
+  [state last-key]
+  (let [{:keys [engagement]} @state
         {{:keys [tilewidth tileheight]} :tileset} @map/tilemap
-        {:keys [x y] :as leader} (party-leader)
-        last-key (first keys)]
+        {:keys [x y] :as leader} (party-leader)]
     (if (and (mob/is-standing-still leader)
              (nil? engagement))
       (cond
         (= last-key :up)
-        (start-moving! state :up x (- y tileheight))
+        (start-moving! :up x (- y tileheight))
         (= last-key :down)
-        (start-moving! state :down x (+ y tileheight))
+        (start-moving! :down x (+ y tileheight))
         (= last-key :left)
-        (start-moving! state :left (- x tilewidth) y)
+        (start-moving! :left (- x tilewidth) y)
         (= last-key :right)
-        (start-moving! state :right (+ x tilewidth) y)))))
+        (start-moving! :right (+ x tilewidth) y)))))
 
 (defn update-player-sprite!
   [time-elapsed-ns]

@@ -1,5 +1,6 @@
 (ns cljrpgengine.game-loop
   (:require [cljrpgengine.fight :as fight]
+            [cljrpgengine.input :as input]
             [cljrpgengine.log :as log]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
@@ -114,7 +115,7 @@
           (do
             (ui/open-menu! (player-select-menu/create-menu state))
             (fight/start! encounter))))))
-  (player/check-start-moving state))
+  (player/check-start-moving state (last @input/keys-pressed)))
 
 (defn- do-mob-updates
   "Main loop mob updates."

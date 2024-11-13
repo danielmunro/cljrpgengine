@@ -11,6 +11,8 @@
             [cljrpgengine.util :as util])
   (:import (java.awt.event KeyEvent)))
 
+(def keys-pressed (atom #{}))
+
 (defn get-key-from-key-code
   [key-code]
   (cond
@@ -38,8 +40,7 @@
 (defn key-released!
   [state event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
-    (dosync
-     (alter state update :keys disj key)))
+    (swap! keys-pressed disj key))
   state)
 
 (defn- move-menu-cursor?
@@ -101,13 +102,13 @@
         (evaluate-menu-action? key)
         (.key-pressed (get-in @ui/menus [(ui/last-menu-index) :menu]))
         (= key :up)
-        (dosync (alter state update-in [:keys] conj :up))
+        (swap! keys-pressed conj :up)
         (= key :down)
-        (dosync (alter state update-in [:keys] conj :down))
+        (swap! keys-pressed conj :down)
         (= key :left)
-        (dosync (alter state update-in [:keys] conj :left))
+        (swap! keys-pressed conj :left)
         (= key :right)
-        (dosync (alter state update-in [:keys] conj :right))
+        (swap! keys-pressed conj :right)
         (= key :s)
         (state/save state)
         (= key :space)
