@@ -64,14 +64,14 @@
    (create-dialog-event! state conditions mob dialog [])))
 
 (defn conditions-met
-  [state conditions compare]
+  [conditions compare]
   (every? #(cond
              (= (:type %) :speak-to)
              (= (:mob %) compare)
              (= (:type %) :has-grant)
-             (contains? (:grants @state) (:grant %))
+             (contains? (:grants @player/player) (:grant %))
              (= (:type %) :not-has-grant)
-             (not (contains? (:grants @state) (:grant %)))
+             (not (contains? (:grants @player/player) (:grant %)))
              (= (:type %) :has-item)
              (contains? (:items @player/player) (:item %))
              (= (:type %) :not-has-item)
@@ -81,12 +81,12 @@
           conditions))
 
 (defn apply-outcomes!
-  [state outcomes]
+  [outcomes]
   (dorun
    (for [outcome outcomes]
      (cond
        (= :grant (:type outcome))
-       (dosync (alter state update-in [:grants] conj (:grant outcome)))
+       (player/add-grant! (:grant outcome))
        (= :lose-item (:type outcome))
        (player/remove-item! (:item outcome))
        (= :gain-item (:type outcome))
@@ -104,20 +104,20 @@
   [state room]
   (filter #(and
             (= (:type %) :room-loaded)
-            (conditions-met state (:conditions %) room)) (:events @state)))
+            (conditions-met (:conditions %) room)) (:events @state)))
 
 (defn get-dialog-event
   [state target-mob]
   (util/filter-first
    #(and
      (= (:type %) :dialog)
-     (conditions-met state (:conditions %) target-mob))
+     (conditions-met (:conditions %) target-mob))
    (:events @state)))
 
 (defn fire-room-loaded-event
   [state room]
   (doseq [event (get-room-loaded-events state (keyword room))]
-    (apply-outcomes! state (:outcomes event))))
+    (apply-outcomes! (:outcomes event))))
 
 (defn load-room-events
   [state scene room]
@@ -155,7 +155,7 @@
         {:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
         current-animation-path [mob :sprite :current-animation]]
     (let [current-animation (get-in @mob/mobs current-animation-path)]
-      (apply-outcomes! state outcomes)
+      (apply-outcomes! outcomes)
       (if (= current-animation (get-in @mob/mobs current-animation-path))
         (swap! mob/mobs assoc-in [mob :sprite :current-animation] mob-direction))
       (dosync (alter state dissoc :engagement)))))

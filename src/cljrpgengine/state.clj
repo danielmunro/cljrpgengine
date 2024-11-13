@@ -10,7 +10,6 @@
 
 (def initial-state {:save-name nil
                     :events []
-                    :grants #{}
                     :scene :main-menu
                     :room nil
                     :nodes #{}
@@ -20,13 +19,14 @@
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room grants money]} @state]
+  (let [{:keys [save-name scene room money]} @state
+        {:keys [grants items]} @player/player]
     {:save-name save-name
      :scene scene
      :room room
-     :grants grants
      :money money
-     :items (:items @player/player)
+     :grants grants
+     :items items
      :player {:party (into {} (map
                                (fn [k]
                                  (let [{:keys [name
@@ -84,7 +84,8 @@
   [data]
   (let [{{:keys [party]} :player} data]
     (swap! player/player
-           (fn [_] {:items (:items data)}))
+           (fn [_] {:items (:items data)
+                    :grants (:grants data)}))
     (swap! player/party
            (fn [_] (into {} (map mob-from-data party))))))
 
@@ -101,7 +102,6 @@
       {:scene scene
        :room room
        :save-name save-name
-       :grants grants
        :money money}))))
 
 (defn create-new-state

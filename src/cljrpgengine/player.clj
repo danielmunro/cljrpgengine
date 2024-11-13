@@ -13,7 +13,8 @@
   []
   (swap! player
          (fn [_]
-           {:items {}}))
+           {:items {}
+            :grants #{}}))
   (swap! party
          (fn [_]
            {:fireas
@@ -179,3 +180,7 @@
   ([item-key quantity]
    (doseq [_ (range 0 quantity)]
      (add-item! item-key))))
+
+(defn add-grant!
+  [grant]
+  (swap! player update-in [:grants] conj grant))

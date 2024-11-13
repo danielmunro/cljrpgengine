@@ -8,6 +8,8 @@
 
 (deftest event
   (testing "can give a grant"
+    (sprite/load-sprites)
+    (player/create-new-player)
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
        state
@@ -16,10 +18,12 @@
        ["this is a test"]
        [(event/grant :test-outcome)])
       (let [event (first (:events @state))]
-        (is (event/conditions-met state (:conditions event) :test-mob))
-        (event/apply-outcomes! state (:outcomes event))
-        (is (contains? (:grants @state) :test-outcome)))))
+        (is (event/conditions-met (:conditions event) :test-mob))
+        (event/apply-outcomes! (:outcomes event))
+        (is (contains? (:grants @player/player) :test-outcome)))))
   (testing "has grant"
+    (sprite/load-sprites)
+    (player/create-new-player)
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
        state
@@ -27,9 +31,9 @@
        :test-mob
        ["this is a test"])
       (let [event (first (:events @state))]
-        (is (false? (contains? (:grants @state) :test-outcome)))
-        (dosync (alter state update :grants conj :test-outcome))
-        (is (event/conditions-met state (:conditions event) :test-mob)))))
+        (is (false? (contains? (:grants @player/player) :test-outcome)))
+        (player/add-grant! :test-outcome)
+        (is (event/conditions-met (:conditions event) :test-mob)))))
   (testing "can give an item"
     (sprite/load-sprites)
     (player/create-new-player)
@@ -41,8 +45,8 @@
        ["this is a test"]
        [(event/gain-item :blemished-amulet)])
       (let [event (first (:events @state))]
-        (is (event/conditions-met state (:conditions event) :test-mob))
-        (event/apply-outcomes! state (:outcomes event))
+        (is (event/conditions-met (:conditions event) :test-mob))
+        (event/apply-outcomes! (:outcomes event))
         (is (contains? (:items @player/player) :blemished-amulet)))))
   (testing "has item"
     (sprite/load-sprites)
@@ -54,9 +58,9 @@
        :test-mob
        ["this is a test"])
       (let [event (first (:events @state))]
-        (is (false? (event/conditions-met state (:conditions event) :test-mob)))
+        (is (false? (event/conditions-met (:conditions event) :test-mob)))
         (player/add-item! :blemished-amulet)
-        (is (event/conditions-met state (:conditions event) :test-mob)))))
+        (is (event/conditions-met (:conditions event) :test-mob)))))
   (testing "lose item"
     (let [state (ref state/initial-state)]
       (player/add-item! :blemished-amulet)
@@ -67,7 +71,7 @@
        ["this is a test"]
        [(event/lose-item :blemished-amulet)])
       (let [event (first (:events @state))]
-        (event/apply-outcomes! state (:outcomes event))
+        (event/apply-outcomes! (:outcomes event))
         (is (false? (contains? (:items @state) :blemished-amulet))))))
   (testing "can set a destination"
     (let [state (ref state/initial-state)]
@@ -79,7 +83,7 @@
        ["this is a test"]
        [(event/move-mob :test-mob [1 1])])
       (let [event (first (:events @state))]
-        (event/apply-outcomes! state (:outcomes event))
+        (event/apply-outcomes! (:outcomes event))
         (is (= [1 1] (get-in @mob/mobs [:test-mob :destination]))))))
   (testing "can get an event"
     (let [state (ref state/initial-state)]

@@ -1,12 +1,13 @@
 (ns cljrpgengine.item-test
   (:require [cljrpgengine.player :as player]
+            [cljrpgengine.sprite :as sprite]
             [clojure.test :refer :all]))
 
 (deftest item
   (testing "can add item"
+    (sprite/load-sprites)
     (player/create-new-player)
     (let [item-count (count (:items @player/player))]
-
       (player/add-item! :cotton-tunic)
       (is (= (inc item-count) (count (:items @player/player))))
       (is (contains? (:items @player/player) :cotton-tunic))
