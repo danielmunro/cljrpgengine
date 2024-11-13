@@ -137,9 +137,8 @@
   (let [y (- constants/screen-height constants/dialog-height)
         text (string-break (str (:name mob) ": " message))]
     (draw-window 0 y constants/screen-width constants/dialog-height)
-    (dorun
-     (for [i (range (count text))]
-       (draw-line 0 y i (get text i))))))
+    (doseq [i (range (count text))]
+      (draw-line 0 y i (get text i)))))
 
 (defn draw-menus
   []
@@ -154,9 +153,8 @@
 
 (defn close-menu!
   ([amount]
-   (dosync
-    (doseq [_ (range 0 amount)]
-      (swap! menus pop))))
+   (doseq [_ (range 0 amount)]
+     (swap! menus pop)))
   ([]
    (close-menu! 1)))
 
