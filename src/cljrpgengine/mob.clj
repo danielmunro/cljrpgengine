@@ -1,6 +1,7 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
+            [cljrpgengine.map :as map]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]
@@ -142,9 +143,9 @@
       (update-move-offset! mobs identifier x-offset y-offset elapsed-nano))))
 
 (defn check-start-moving
-  [state mob direction-moving]
+  [mob direction-moving]
   (let [{:keys [x y]} mob
-        {{{:keys [tilewidth tileheight]} :tileset} :map} @state]
+        {{:keys [tilewidth tileheight]} :tileset} @map/scene]
     (if (is-standing-still mob)
       (cond
         (= direction-moving :up)
@@ -157,7 +158,7 @@
         (start-moving! mob :right (+ x tilewidth) y)))))
 
 (defn update-mobs
-  [state]
+  []
   (doseq [mob (vals @mobs)]
     (let [{:keys [x y destination]} mob
           to-x (first destination)
@@ -165,13 +166,13 @@
       (if destination
         (cond
           (< y to-y)
-          (check-start-moving state mob :down)
+          (check-start-moving mob :down)
           (< to-y y)
-          (check-start-moving state mob :up)
+          (check-start-moving mob :up)
           (< x to-x)
-          (check-start-moving state mob :right)
+          (check-start-moving mob :right)
           (< to-x x)
-          (check-start-moving state mob :left))))))
+          (check-start-moving mob :left))))))
 
 (defn update-sprite!
   [{:keys [identifier sprite] {:keys [current-animation]} :sprite} time-elapsed-ns]

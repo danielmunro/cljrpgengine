@@ -20,7 +20,7 @@
   (event/load-room-events state scene room)
   (shop/load-shops state scene room)
   (fight/load-encounters! scene room)
-  (fight/set-room-encounters! (get-in @state [:map :tilemap :encounters]))
+  (fight/set-room-encounters! (get-in @map/scene [:tilemap :encounters]))
   (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open
@@ -29,9 +29,8 @@
     (ui/close-menu!)))
 
 (defn- init-map
-  [state]
-  (let [map (:map @state)
-        {:keys [x y direction]} (map/get-warp map "start")
+  []
+  (let [{:keys [x y direction]} (map/get-warp "start")
         {:keys [identifier]} (player/party-leader)]
     (swap! player/party
            update-in
@@ -46,15 +45,15 @@
 (defn start
   [state]
   (player/create-new-player)
+  (map/load-map :tinytown :main)
   (dosync (alter state assoc
-                 :map (map/load-map :tinytown :main)
                  :save-name (random-uuid)
                  :money constants/starting-money
                  :items {:light-health-potion 2
                          :light-mana-potion 1
                          :practice-sword 1})
           (alter state dissoc :new-game))
-  (init-map state)
+  (init-map)
   (load-room! state :tinytown :main)
   (close-ui-if-open))
 

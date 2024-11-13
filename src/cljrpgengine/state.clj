@@ -17,7 +17,6 @@
                     :room nil
                     :nodes #{}
                     :money 0
-                    :map nil
                     :effects {}
                     :shops {}})
 
@@ -95,6 +94,7 @@
   (let [data (read-string (slurp (str constants/save-dir save-file)))
         {:keys [scene room save-name grants items money]} data]
     (load-player data)
+    (map/load-map scene room)
     (ref
      (merge
       initial-state
@@ -103,8 +103,7 @@
        :save-name save-name
        :grants grants
        :items items
-       :money money
-       :map (map/load-map scene room)}))))
+       :money money}))))
 
 (defn create-new-state
   []
