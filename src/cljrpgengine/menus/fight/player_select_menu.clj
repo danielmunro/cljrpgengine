@@ -50,20 +50,20 @@
         (draw-atb-gauge p constants/atb-width Color/DARK_GRAY true)
         (draw-atb-gauge p (get @util/player-atb-gauge p) Color/LIGHT_GRAY true)
         (draw-atb-gauge p constants/atb-width Color/GRAY false)))
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (if (util/is-party-member-atb-full? cursor)
         (ui/draw-cursor constants/quarter-width
                         (* constants/quarter-height 3)
                         cursor)
-        (ui/inc-cursor! state))))
+        (ui/inc-cursor!))))
   (cursor-length [_] (count @player/party))
   (menu-type [_] :fight-party-select)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (if (util/is-party-member-atb-full? cursor)
-        (ui/open-menu! state (action-select-menu/create-menu
-                              state
-                              cursor))))))
+        (ui/open-menu! (action-select-menu/create-menu
+                        state
+                        cursor))))))
 
 (defn create-menu
   [state]

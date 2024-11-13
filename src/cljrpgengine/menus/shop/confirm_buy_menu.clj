@@ -20,7 +20,7 @@
           y (/ (second constants/window) 5)
           w (* x 3)
           h (* y 3)
-          cursor (ui/get-menu-cursor state (.menu-type menu))
+          cursor (ui/get-menu-cursor (.menu-type menu))
           quantity (:quantity @state)]
       (ui/draw-window x y w h)
       (ui/draw-line x y 0 (str "Purchasing " (:name (get @item/items item))))
@@ -32,16 +32,16 @@
   (cursor-length [_] 3)
   (menu-type [_] :confirm-buy)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))
           quantity (:quantity @state)]
       (cond
         (= 1 cursor)
         (do
           (complete-purchase! state item quantity (* (:worth (get @item/items item)) quantity))
-          (ui/close-menu! state)
-          (ui/open-menu! state (purchase-complete-menu/create-menu state shop item quantity)))
+          (ui/close-menu!)
+          (ui/open-menu! (purchase-complete-menu/create-menu state shop item quantity)))
         (= 2 cursor)
-        (ui/close-menu! state)))))
+        (ui/close-menu!)))))
 
 (defn create-menu
   [state shop item]

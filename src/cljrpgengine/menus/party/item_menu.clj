@@ -9,7 +9,7 @@
   menu/Menu
   (draw [menu]
     (let [y (/ (second constants/window) 10)
-          cursor (ui/get-menu-cursor state (.menu-type menu))
+          cursor (ui/get-menu-cursor (.menu-type menu))
           items (:items @state)
           height (* 9 y)
           max-lines-on-screen (-> height
@@ -43,12 +43,12 @@
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :items)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu_type menu))
+    (let [cursor (ui/get-menu-cursor (.menu_type menu))
           items (:items @state)
           item-selected (item/get-item-at-inventory-index items cursor)
           item (get @item/items item-selected)]
       (when (= :consumable (:type item))
-        (ui/open-menu! state (consume-item-menu/create state item-selected))))))
+        (ui/open-menu! (consume-item-menu/create state item-selected))))))
 
 (defn create-menu
   [state]

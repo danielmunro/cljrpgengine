@@ -10,7 +10,7 @@
   menu/Menu
   (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))
           item-ref (get @item/items item)]
       (ui/draw-portraits @player/party item-ref cursor)
       (ui/draw-cursor
@@ -19,7 +19,7 @@
   (cursor-length [_] (count @player/party))
   (menu-type [_] :consume)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))
           identifier (nth (keys @player/party) cursor)
           {:keys [affect amount]} (get @item/items item)
           {{:keys [hp max-hp mana max-mana]} identifier} @player/party]
@@ -29,7 +29,7 @@
         (swap! player/party update-in [identifier :hp] #(+ % (util/restore-amount amount hp max-hp)))
         (= :restore-mana)
         (swap! player/party update-in [identifier :mana] #(+ % (util/restore-amount amount mana max-mana))))
-      (ui/close-menu! state))))
+      (ui/close-menu!))))
 
 (defn create
   [state item]

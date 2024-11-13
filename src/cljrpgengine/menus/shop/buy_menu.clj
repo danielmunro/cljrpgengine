@@ -12,7 +12,7 @@
           y (/ constants/screen-height 8)
           w (* x 6)
           h (* y 5)
-          cursor (ui/get-menu-cursor state (.menu-type menu))
+          cursor (ui/get-menu-cursor (.menu-type menu))
           item-map (item/item-quantity-map (:items @state))
           items (get-in @state [:shops shop])
           item-count (count items)]
@@ -48,11 +48,10 @@
   (menu-type [_] :buy)
   (key-pressed [menu]
     (ui/open-menu!
-     state
      (confirm-buy-menu/create-menu
       state
       shop
-      ((get-in @state [:shops shop]) (ui/get-menu-cursor state (.menu-type menu)))))))
+      ((get-in @state [:shops shop]) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
   [state shop]

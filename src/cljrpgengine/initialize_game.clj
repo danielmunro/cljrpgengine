@@ -24,9 +24,9 @@
   (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open
-  [state]
-  (if (ui/is-menu-open? state)
-    (ui/close-menu! state)))
+  []
+  (if (ui/is-menu-open?)
+    (ui/close-menu!)))
 
 (defn- init-map
   [state]
@@ -56,7 +56,7 @@
           (alter state dissoc :new-game))
   (init-map state)
   (load-room! state :tinytown :main)
-  (close-ui-if-open state))
+  (close-ui-if-open))
 
 (defn load-save
   [state file]
@@ -66,4 +66,4 @@
     (let [{:keys [scene room]} @state]
       (scene/load-scene state scene room)
       (load-room! state scene room))
-    (close-ui-if-open state)))
+    (close-ui-if-open)))

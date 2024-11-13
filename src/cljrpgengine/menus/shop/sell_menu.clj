@@ -12,7 +12,7 @@
           y (/ (second constants/window) 10)
           w (* x 8)
           h (* y 8)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window x y w h)
       (ui/draw-line
        x
@@ -40,8 +40,8 @@
   (cursor-length [_] (count (:items @state)))
   (menu-type [_] :sell)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
-      (ui/open-menu! state (confirm-sell-menu/create-menu state (nth (keys (:items @state)) cursor))))))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
+      (ui/open-menu! (confirm-sell-menu/create-menu state (nth (keys (:items @state)) cursor))))))
 
 (defn create-menu
   [state]

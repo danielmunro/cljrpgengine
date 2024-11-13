@@ -28,7 +28,7 @@
           height (- constants/screen-height (* padding-y 2))
           menu-item (partial ui/draw-line padding-x padding-y)
           saves (get-saves)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window padding-x padding-y width height)
       (ui/draw-cursor padding-x padding-y cursor)
       (dorun
@@ -39,10 +39,9 @@
   (menu-type [_] :select-game-menu)
   (key-pressed [menu]
     (ui/open-menu!
-     state
      (select-save/create-menu
       state
-      (nth (get-saves) (ui/get-menu-cursor state (.menu-type menu)))))))
+      (nth (get-saves) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
   [state]

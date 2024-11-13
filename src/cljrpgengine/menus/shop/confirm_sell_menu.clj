@@ -17,7 +17,7 @@
           y (/ (second constants/window) 10)
           w (* x 8)
           h (* y 8)
-          cursor (ui/get-menu-cursor state (.menu-type menu))
+          cursor (ui/get-menu-cursor (.menu-type menu))
           quantity (:quantity @state)]
       (ui/draw-window x y w h)
       (ui/draw-line x y 0 (str "Selling " (:name (get @item/items item))))
@@ -29,16 +29,16 @@
   (cursor-length [_] 2)
   (menu-type [_] :confirm-sell)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))
           quantity (:quantity @state)]
       (cond
         (= 0 cursor)
         (do
           (complete-sale! state item quantity (* (:worth (get @item/items item)) quantity))
-          (ui/close-menu! state)
-          (ui/open-menu! state (sale-complete-menu/create-menu state item quantity)))
+          (ui/close-menu!)
+          (ui/open-menu! (sale-complete-menu/create-menu state item quantity)))
         (= 1 cursor)
-        (ui/close-menu! state)))))
+        (ui/close-menu!)))))
 
 (defn create-menu
   [state item]

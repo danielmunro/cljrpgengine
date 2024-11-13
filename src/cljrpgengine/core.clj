@@ -28,7 +28,7 @@
      #(input/key-released! state %))
     (beast/load-beastiary!)
     (item/load-items!)
-    (ui/open-menu! state (main-menu/create-menu state))
+    (ui/open-menu! (main-menu/create-menu state))
     (effect/add-fade-in state)
     state))
 

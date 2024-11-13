@@ -61,10 +61,10 @@
   (if @fight/encounter
     (fight/draw)
     (draw-map state))
-  (let [{:keys [engagement menus]} @state]
+  (let [{:keys [engagement]} @state]
     (if engagement
       (draw-dialog engagement))
-    (ui/draw-menus menus))
+    (ui/draw-menus))
   (effect/apply-effects state))
 
 (defn- update-animations
@@ -117,7 +117,7 @@
              encounter
              (< (rand) (:encounter-rate encounter)))
           (do
-            (ui/open-menu! state (player-select-menu/create-menu state))
+            (ui/open-menu! (player-select-menu/create-menu state))
             (fight/start! encounter))))))
   (player/check-start-moving state))
 
@@ -135,7 +135,7 @@
     (do
       (fight/update-fight time-elapsed-ns)
       (if (not (fight/is-active?))
-        (ui/open-menu! state (gains-menu/create-menu state))))
+        (ui/open-menu! (gains-menu/create-menu state))))
     (let [nodes (:nodes @state)]
       (if (contains? nodes :player)
         (do-player-updates state time-elapsed-ns))

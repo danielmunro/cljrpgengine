@@ -12,7 +12,7 @@
           width (- constants/screen-width (* padding-x 2))
           height (- constants/screen-height (* padding-y 2))
           menu-item (partial ui/draw-line padding-x padding-y)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window padding-x padding-y width height)
       (ui/draw-cursor padding-x padding-y cursor)
       (dorun
@@ -24,7 +24,7 @@
   (key-pressed [menu]
     (new-game/load-save
      state
-     (str (:name save) "/" (nth (:saves save) (ui/get-menu-cursor state (.menu-type menu)))))))
+     (str (:name save) "/" (nth (:saves save) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
   [state saves]

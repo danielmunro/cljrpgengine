@@ -12,7 +12,7 @@
           y (/ (second constants/window) 8)
           w (* x 6)
           h (* y 6)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window x y w h)
       (ui/draw-cursor x y (+ 2 cursor))
       (ui/draw-line x y 0 "Welcome to my shop!")
@@ -22,14 +22,14 @@
   (cursor-length [_] 3)
   (menu-type [_] :shop)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! state (buy-menu/create-menu state shop))
+        (ui/open-menu! (buy-menu/create-menu state shop))
         (= 1 cursor)
-        (ui/open-menu! state (sell-menu/create-menu state))
+        (ui/open-menu! (sell-menu/create-menu state))
         (= 2 cursor)
-        (ui/close-menu! state)))))
+        (ui/close-menu!)))))
 
 (defn create-menu
   [state shop]

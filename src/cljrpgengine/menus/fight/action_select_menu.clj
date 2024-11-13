@@ -31,19 +31,19 @@
     (ui/draw-line menu-x menu-y
                   4
                   "Flee")
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-cursor menu-x
                       menu-y
                       cursor)))
   (cursor-length [_] 5)
   (menu-type [_] :fight-action-select)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! state (target-beast-menu/create-menu state party-index))
+        (ui/open-menu! (target-beast-menu/create-menu state party-index))
         (= 1 cursor)
-        (ui/open-menu! state (magic-select-menu/create-menu state party-index))))))
+        (ui/open-menu! (magic-select-menu/create-menu state party-index))))))
 
 (defn create-menu
   [state party-index]

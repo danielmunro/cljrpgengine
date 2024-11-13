@@ -20,7 +20,7 @@
     (dosync
      (doseq [i (keys @player/party)]
        (swap! player/party update-in [i :xp] (fn [xp] (+ xp @fight/xp-to-gain)))))
-    (ui/close-menu! state 2)
+    (ui/close-menu! 2)
     (fight/end)))
 
 (defn create-menu

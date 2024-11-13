@@ -6,7 +6,7 @@
 (deftype TargetBeastMenu [state party-index]
   menu/Menu
   (draw [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))
           {:keys [x y]} (get @fight/encounter cursor)]
       (ui/draw-cursor x
                       y)))
@@ -17,8 +17,8 @@
            (fn [actions]
              (conj actions {:action :player-attack
                             :player party-index
-                            :beast (ui/get-menu-cursor state (.menu-type menu))})))
-    (ui/close-menu! state 2)))
+                            :beast (ui/get-menu-cursor (.menu-type menu))})))
+    (ui/close-menu! 2)))
 
 (defn create-menu
   [state party-index]

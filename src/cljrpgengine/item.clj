@@ -23,18 +23,18 @@
 
 (defn remove-item!
   ([state item-key quantity menu]
-   (let [menu-index (if menu (ui/get-menu-index state menu))]
+   (let [menu-index (if menu (ui/get-menu-index menu))]
      (dosync
       (alter state update-in [:items item-key] #(- % quantity))
       (if (= 0 (get-in @state [:items item-key]))
         (do
           (alter state update-in [:items] dissoc item-key)
-          (let [{{{:keys [cursor]} menu-index} :menus} @state]
+          (let [{{:keys [cursor]} menu-index} @ui/menus]
             (if (and
                  menu
                  (= cursor (count (:items @state)))
                  (> cursor 0))
-              (alter state update-in [:menus menu-index :cursor] dec))))))))
+              (swap! ui/menus update-in [menu-index :cursor] dec))))))))
   ([state item-key]
    (remove-item! state item-key 1 nil)))
 

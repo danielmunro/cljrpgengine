@@ -1,5 +1,6 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [cljrpgengine.util :as util]
             [cljrpgengine.window :as window]
             [clojure.string :as str])
@@ -9,6 +10,7 @@
 (def panel (atom nil))
 (def ui-pack (atom nil))
 (def main-font (atom nil))
+(def menus (atom []))
 
 (defn init!
   []
@@ -126,8 +128,8 @@
    (draw-cursor x (+ y (* constants/line-spacing line)))))
 
 (defn get-menu-cursor
-  [state menu]
-  (or (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) (:menus @state)))
+  [menu]
+  (or (:cursor (util/filter-first #(= (.menu-type (:menu %)) menu) @menus))
       0))
 
 (defn dialog
@@ -140,69 +142,64 @@
        (draw-line 0 y i (get text i))))))
 
 (defn draw-menus
-  [menus]
-  (dorun
-   (for [m menus]
-     (cond
-       (:open m)
-       (.draw (:menu m))))))
+  []
+  (doseq [menu @menus]
+    (if (:open menu)
+      (.draw (:menu menu)))))
 
 (defn open-menu!
-  [state menu]
-  (dosync
-   (alter state update :menus conj {:menu menu
-                                    :open true
-                                    :cursor 0})))
+  [menu]
+  (log/debug (format "opening menu :: %s" (name (.menu-type menu))))
+  (swap! menus conj {:menu menu :open true :cursor 0}))
 
 (defn close-menu!
-  ([state amount]
+  ([amount]
    (dosync
     (doseq [_ (range 0 amount)]
-      (alter state update-in [:menus] pop))))
-  ([state]
-   (close-menu! state 1)))
+      (swap! menus pop))))
+  ([]
+   (close-menu! 1)))
 
 (defn get-menu-index
-  [state menu]
-  (let [menus (:menus @state)]
-    (loop [i 0]
-      (if (= menu (.menu-type (:menu (menus i))))
-        i
-        (if (< i (dec (count menus)))
-          (recur (inc i)))))))
+  [menu]
+  (loop [i 0]
+    (if (= menu (.menu-type (:menu (@menus i))))
+      i
+      (if (< i (dec (count @menus)))
+        (recur (inc i))))))
 
 (defn get-last-menu
-  [state]
-  (.menu-type (:menu (last (:menus @state)))))
+  []
+  (.menu-type (:menu (last @menus))))
 
 (defn last-menu-index
-  [state]
-  (dec (count (:menus @state))))
+  []
+  (dec (count @menus)))
 
 (defn- cursor-can-move?
-  [state]
-  (> (.cursor-length (:menu (last (:menus @state)))) 0))
+  []
+  (> (.cursor-length (:menu (last @menus))) 0))
 
 (defn change-cursor!
-  ([state f menu]
-   (let [menu-index (get-menu-index state menu)
-         cursor-length (.cursor-length (get-in @state [:menus menu-index :menu]))
-         cursor-path [:menus menu-index :cursor]]
-     (dosync (alter state update-in cursor-path f))
-     (if (= cursor-length (get-in @state cursor-path))
-       (dosync (alter state assoc-in cursor-path 0))
-       (if (< (get-in @state cursor-path) 0)
-         (dosync (alter state assoc-in cursor-path (dec cursor-length)))))))
-  ([state f]
-   (change-cursor! state f (.menu-type (:menu (last (:menus @state)))))))
+  ([f menu]
+   (let [menu-index (get-menu-index menu)
+         cursor-length (.cursor-length (get-in @menus [menu-index :menu]))
+         cursor-path [menu-index :cursor]]
+     (swap! menus update-in cursor-path f)
+     (if (= cursor-length (get-in @menus cursor-path))
+       (swap! menus assoc-in cursor-path 0)
+       (if (< (get-in @menus cursor-path) 0)
+         (swap! menus assoc-in cursor-path (dec cursor-length))))))
+  ([f]
+   (change-cursor! f (.menu-type (:menu (last @menus))))))
 
 (defn- dec-cursor!
-  [state]
-  (change-cursor! state dec))
+  []
+  (change-cursor! dec))
 
 (defn inc-cursor!
-  [state]
-  (change-cursor! state inc))
+  []
+  (change-cursor! inc))
 
 (defn- above-min-quantity?
   [state]
@@ -229,12 +226,12 @@
   (cond
     (and
      (= key :up)
-     (cursor-can-move? state))
-    (dec-cursor! state)
+     (cursor-can-move?))
+    (dec-cursor!)
     (and
      (= key :down)
-     (cursor-can-move? state))
-    (inc-cursor! state)
+     (cursor-can-move?))
+    (inc-cursor!)
     (and
      (= key :left)
      (above-min-quantity? state))
@@ -245,8 +242,8 @@
     (inc-quantity! state)))
 
 (defn is-menu-open?
-  [state]
-  (> (count (:menus @state)) 0))
+  []
+  (> (count @menus) 0))
 
 (defn text-fixed-width
   [text spaces]

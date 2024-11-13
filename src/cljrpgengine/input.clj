@@ -43,23 +43,23 @@
   state)
 
 (defn- move-menu-cursor?
-  [state key-pressed key-check]
+  [key-pressed key-check]
   (and
    (= key-pressed key-check)
-   (ui/is-menu-open? state)))
+   (ui/is-menu-open?)))
 
 (defn- should-quit-menu?
-  [state key]
+  [key]
   (and
    (= key :q)
-   (ui/is-menu-open? state)
-   (not (contains? menu/non-closeable-menus (ui/get-last-menu state)))))
+   (ui/is-menu-open?)
+   (not (contains? menu/non-closeable-menus (ui/get-last-menu)))))
 
 (defn- evaluate-menu-action?
-  [state key]
+  [key]
   (and
    (= key :space)
-   (ui/is-menu-open? state)))
+   (ui/is-menu-open?)))
 
 (defn action-engaged!
   "Player is attempting to engage with something.  If on a shop, the game will
@@ -82,25 +82,25 @@
                               #(get-in % [:tilemap :shops])
                               x
                               y))]
-          (ui/open-menu! state (shop-menu/create-menu state shop)))))))
+          (ui/open-menu! (shop-menu/create-menu state shop)))))))
 
 (defn key-pressed!
   [state event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
     (if (not (:lock @state))
       (cond
-        (move-menu-cursor? state key :up)
+        (move-menu-cursor? key :up)
         (ui/move-cursor! state :up)
-        (move-menu-cursor? state key :down)
+        (move-menu-cursor? key :down)
         (ui/move-cursor! state :down)
-        (move-menu-cursor? state key :left)
+        (move-menu-cursor? key :left)
         (ui/move-cursor! state :left)
-        (move-menu-cursor? state key :right)
+        (move-menu-cursor? key :right)
         (ui/move-cursor! state :right)
-        (should-quit-menu? state key)
-        (ui/close-menu! state)
-        (evaluate-menu-action? state key)
-        (.key-pressed (get-in @state [:menus (ui/last-menu-index state) :menu]))
+        (should-quit-menu? key)
+        (ui/close-menu!)
+        (evaluate-menu-action? key)
+        (.key-pressed (get-in @ui/menus [(ui/last-menu-index) :menu]))
         (= key :up)
         (dosync (alter state update-in [:keys] conj :up))
         (= key :down)
@@ -114,7 +114,7 @@
         (= key :space)
         (action-engaged! state)
         (= key :m)
-        (ui/open-menu! state (party-menu/create-menu state))
+        (ui/open-menu! (party-menu/create-menu state))
         (= key :escape)
         (System/exit 0)
         (= key :d)

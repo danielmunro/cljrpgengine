@@ -12,7 +12,6 @@
                     :keys #{}
                     :items {}
                     :events []
-                    :menus []
                     :grants #{}
                     :scene :main-menu
                     :room nil

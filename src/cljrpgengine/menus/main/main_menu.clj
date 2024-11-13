@@ -25,7 +25,7 @@
           width (- constants/screen-width (* padding-x 2))
           height (- constants/screen-height (* padding-y 2))
           menu-item (partial ui/draw-line padding-x padding-y)
-          cursor (ui/get-menu-cursor state (.menu-type menu))]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window padding-x padding-y width height)
       (ui/draw-cursor padding-x padding-y cursor)
       (dorun
@@ -34,14 +34,14 @@
   (cursor-length [_] (count final-menu-items))
   (menu-type [_] :main-menu)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor state (.menu-type menu))]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= (nth final-menu-items cursor) "Continue")
         (initialize-game/load-save state "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
         (initialize-game/start state)
         (= (nth final-menu-items cursor) "Load Game")
-        (ui/open-menu! state (select-game/create-menu state))
+        (ui/open-menu! (select-game/create-menu state))
         (= (nth final-menu-items cursor) "Settings")
         (println "settings")
         (= (nth final-menu-items cursor) "Quit")
