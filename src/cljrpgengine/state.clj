@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.map :as map]
+            [cljrpgengine.tilemap :as map]
             [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [clojure.java.io :as io]
@@ -94,7 +94,7 @@
   (let [data (read-string (slurp (str constants/save-dir save-file)))
         {:keys [scene room save-name grants items money]} data]
     (load-player data)
-    (map/load-map scene room)
+    (map/load-tilemap scene room)
     (ref
      (merge
       initial-state

@@ -1,5 +1,5 @@
 (ns cljrpgengine.player-test
-  (:require [cljrpgengine.map :as map]
+  (:require [cljrpgengine.tilemap :as map]
             [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.test-util :as test-util]
@@ -13,7 +13,7 @@
       (player/start-moving!
        state
        :left
-       (+ x (get-in @map/scene [:tileset :tilewidth]))
+       (+ x (get-in @map/tilemap [:tileset :tilewidth]))
        y)
       (is (contains? (:keys @state) :left))
       (is (= (get-in @player/party [identifier :sprite :current-animation]) :left))))
@@ -24,7 +24,7 @@
       (player/start-moving!
        state
        :right
-       (- x (get-in @map/scene [:tileset :tilewidth]))
+       (- x (get-in @map/tilemap [:tileset :tilewidth]))
        y)
       (dosync (alter state update :keys disj :right))
       (is (empty? (:keys @state)))

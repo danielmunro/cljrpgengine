@@ -1,4 +1,4 @@
-(ns cljrpgengine.map
+(ns cljrpgengine.tilemap
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
             [cljrpgengine.util :as util]
@@ -10,7 +10,7 @@
 (def cnt (atom 0))
 (def x (atom 0))
 (def y (atom 0))
-(def scene (atom nil))
+(def tilemap (atom nil))
 
 (defn- transform-tile
   [tile tw th iw]
@@ -23,7 +23,7 @@
   {(tile "id") {:x @x
                 :y @y}})
 
-(defn- load-tileset
+(defn- load-tiled-tileset
   [source]
   (let [data (-> source
                  (slurp)
@@ -96,7 +96,7 @@
                  (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
         objects))
 
-(defn- load-tilemap
+(defn- load-tiled-tilemap
   [scene-name room-name]
   (let [data (-> (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmj")
                  (slurp)
@@ -174,46 +174,46 @@
              y)))))
     buf))
 
-(defn load-map
+(defn load-tilemap
   [scene-key room-key]
   (let [scene-name (name scene-key)
         room-name (name room-key)
-        tilemap (load-tilemap scene-name room-name)
-        tileset (load-tileset (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tilemap)))
-        image (util/load-image (str constants/tilesets-dir (:image tileset)))
-        layers (:layers tilemap)
-        w (:tilewidth tileset)
-        h (:tileheight tileset)
-        mapw (:width tilemap)
-        maph (:height tilemap)
-        iw (:imagewidth tileset)]
+        tiled-tilemap (load-tiled-tilemap scene-name room-name)
+        tiled-tileset (load-tiled-tileset (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tiled-tilemap)))
+        image (util/load-image (str constants/tilesets-dir (:image tiled-tileset)))
+        layers (:layers tiled-tilemap)
+        w (:tilewidth tiled-tileset)
+        h (:tileheight tiled-tileset)
+        mapw (:width tiled-tilemap)
+        maph (:height tiled-tilemap)
+        iw (:imagewidth tiled-tileset)]
     (log/info (format "loading map :: %s - %s" scene-key room-key))
-    (log/debug (format "map warps :: %s" (str/join ", " (map #(format "%s - %s - %s" (:scene %) (:room %) (:to %)) (filter #(= :exit (:type %)) (:warps tilemap))))))
-    (swap! scene (constantly
-                  {:tilemap tilemap
-                   :tileset tileset
-                   :scene scene-key
-                   :room room-key
-                   :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
-                   :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))
-                   :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tilemap tileset))}))))
+    (log/debug (format "map warps :: %s" (str/join ", " (map #(format "%s - %s - %s" (:scene %) (:room %) (:to %)) (filter #(= :exit (:type %)) (:warps tiled-tilemap))))))
+    (swap! tilemap (constantly
+                    {:tilemap tiled-tilemap
+                     :tileset tiled-tileset
+                     :scene scene-key
+                     :room room-key
+                     :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
+                     :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
+                     :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))}))))
 
 (defn draw-background
   [g offset-x offset-y]
   (let [transform (AffineTransform.)]
     (.translate transform offset-x offset-y)
-    (.drawImage g (:background @scene) transform nil)
-    (.drawImage g (:midground @scene) transform nil)))
+    (.drawImage g (:background @tilemap) transform nil)
+    (.drawImage g (:midground @tilemap) transform nil)))
 
 (defn draw-foreground
   [g offset-x offset-y]
   (let [transform (AffineTransform.)]
     (.translate transform offset-x offset-y)
-    (.drawImage g (:foreground @scene) transform nil)))
+    (.drawImage g (:foreground @tilemap) transform nil)))
 
 (defn get-warp
   [warp-name]
-  (let [warp (util/filter-first #(= (:name %) warp-name) (get-in @scene [:tilemap :warps]))]
+  (let [warp (util/filter-first #(= (:name %) warp-name) (get-in @tilemap [:tilemap :warps]))]
     (if (not warp)
       (throw (AssertionError. (str "no warp found: " warp-name))))
     warp))
@@ -226,10 +226,10 @@
      #(util/collision-detected?
        x y (+ x cw) (+ y ch)
        (:x %) (:y %) (+ (:x %) (:width %)) (+ (:y %) (:height %)))
-     (interaction @scene))))
+     (interaction @tilemap))))
 
 (defn get-entrance
   [entrance-name]
   (util/filter-first
    #(= entrance-name (:name %))
-   (filter #(= :entrance (:type %)) (get-in @scene [:tilemap :warps]))))
+   (filter #(= :entrance (:type %)) (get-in @tilemap [:tilemap :warps]))))

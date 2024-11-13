@@ -2,7 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
             [cljrpgengine.log :as log]
-            [cljrpgengine.map :as map]
+            [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.fight :as fight]
@@ -20,7 +20,7 @@
   (event/load-room-events state scene room)
   (shop/load-shops state scene room)
   (fight/load-encounters! scene room)
-  (fight/set-room-encounters! (get-in @map/scene [:tilemap :encounters]))
+  (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
   (event/fire-room-loaded-event state room))
 
 (defn- close-ui-if-open
@@ -45,7 +45,7 @@
 (defn start
   [state]
   (player/create-new-player)
-  (map/load-map :tinytown :main)
+  (map/load-tilemap :tinytown :main)
   (dosync (alter state assoc
                  :save-name (random-uuid)
                  :money constants/starting-money

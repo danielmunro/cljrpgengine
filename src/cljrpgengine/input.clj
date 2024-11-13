@@ -1,6 +1,6 @@
 (ns cljrpgengine.input
   (:require [cljrpgengine.event :as event]
-            [cljrpgengine.map :as map]
+            [cljrpgengine.tilemap :as map]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.shop.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
@@ -68,7 +68,7 @@
   engagement, and clear the engagement if all steps are complete."
   [state]
   (let [{:keys [engagement]} @state
-        {{:keys [tilewidth tileheight]} :tileset} @map/scene
+        {{:keys [tilewidth tileheight]} :tileset} @map/tilemap
         {:keys [direction x y]} (player/party-leader)
         [inspect-x inspect-y] (player/get-inspect-coords x y direction tilewidth tileheight)]
     (if engagement

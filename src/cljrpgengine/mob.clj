@@ -1,7 +1,7 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
-            [cljrpgengine.map :as map]
+            [cljrpgengine.tilemap :as map]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.util :as util]
             [cljrpgengine.class :as class]
@@ -145,7 +145,7 @@
 (defn check-start-moving
   [mob direction-moving]
   (let [{:keys [x y]} mob
-        {{:keys [tilewidth tileheight]} :tileset} @map/scene]
+        {{:keys [tilewidth tileheight]} :tileset} @map/tilemap]
     (if (is-standing-still mob)
       (cond
         (= direction-moving :up)

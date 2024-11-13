@@ -1,6 +1,6 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.map :as map]
+            [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.ui :as ui]))
@@ -65,7 +65,7 @@
 
 (defn start-moving!
   [state direction new-x new-y]
-  (let [{:keys [tileset tilemap]} @map/scene
+  (let [{:keys [tileset tilemap]} @map/tilemap
         {:keys [x y identifier]} (party-leader)]
     (if
      (and
@@ -92,7 +92,7 @@
 (defn check-start-moving
   [state]
   (let [{:keys [keys engagement]} @state
-        {{:keys [tilewidth tileheight]} :tileset} @map/scene
+        {{:keys [tilewidth tileheight]} :tileset} @map/tilemap
         {:keys [x y] :as leader} (party-leader)
         last-key (first keys)]
     (if (and (mob/is-standing-still leader)
