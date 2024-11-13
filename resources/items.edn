@@ -33,8 +33,10 @@
  :blemished-amulet
  {:name "a blemished amulet"
   :description "An amulet which has seen better days."
-  :type :other}
+  :type :other
+  :special true}
  :brilliant-amulet
  {:name "a brilliant amulet"
   :description "A flawless, glistening amulet."
-  :type :other}}
+  :type :other
+  :special true}}

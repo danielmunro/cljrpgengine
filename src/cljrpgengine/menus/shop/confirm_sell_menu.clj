@@ -2,13 +2,14 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.shop.sale-complete-menu :as sale-complete-menu]))
 
 (defn- complete-sale!
   [state item-keyword quantity sale-price]
   (dosync (alter state update :money + sale-price))
-  (item/remove-item! state item-keyword quantity :sell))
+  (player/remove-item! item-keyword quantity :sell))
 
 (deftype ConfirmSellMenu [state item]
   menu/Menu

@@ -1,20 +1,20 @@
 (ns cljrpgengine.item-test
-  (:require [cljrpgengine.item :as item]
-            [cljrpgengine.state :as state]
+  (:require [cljrpgengine.player :as player]
             [clojure.test :refer :all]))
 
 (deftest item
   (testing "can add item"
-    (let [state (ref state/initial-state)
-          item-count (count (:items @state))]
-      (item/add-item! state :cotton-tunic)
-      (is (= (inc item-count) (count (:items @state))))
-      (is (contains? (:items @state) :cotton-tunic))
-      (is (= 1 (get-in @state [:items :cotton-tunic])))))
+    (player/create-new-player)
+    (let [item-count (count (:items @player/player))]
+
+      (player/add-item! :cotton-tunic)
+      (is (= (inc item-count) (count (:items @player/player))))
+      (is (contains? (:items @player/player) :cotton-tunic))
+      (is (= 1 (get-in @player/player [:items :cotton-tunic])))))
   (testing "can remove item"
-    (let [state (ref state/initial-state)
-          item-count (count (:items @state))]
-      (item/add-item! state :blemished-amulet)
-      (is (= (inc item-count) (count (:items @state))))
-      (item/remove-item! state :blemished-amulet)
-      (is (= item-count (count (:items @state)))))))
+    (player/create-new-player)
+    (let [item-count (count (:items @player/player))]
+      (player/add-item! :blemished-amulet)
+      (is (= (inc item-count) (count (:items @player/player))))
+      (player/remove-item! :blemished-amulet)
+      (is (= item-count (count (:items @player/player)))))))

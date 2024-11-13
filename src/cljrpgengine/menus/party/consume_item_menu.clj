@@ -23,7 +23,7 @@
           identifier (nth (keys @player/party) cursor)
           {:keys [affect amount]} (get @item/items item)
           {{:keys [hp max-hp mana max-mana]} identifier} @player/party]
-      (item/remove-item! state item 1 :items)
+      (player/remove-item! item 1 :items)
       (cond
         (= :restore-hp affect)
         (swap! player/party update-in [identifier :hp] #(+ % (util/restore-amount amount hp max-hp)))

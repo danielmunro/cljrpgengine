@@ -1,7 +1,8 @@
 (ns cljrpgengine.event-test
   (:require [cljrpgengine.event :as event]
-            [cljrpgengine.item :as item]
             [cljrpgengine.mob :as mob]
+            [cljrpgengine.player :as player]
+            [cljrpgengine.sprite :as sprite]
             [cljrpgengine.state :as state]
             [clojure.test :refer :all]))
 
@@ -30,6 +31,8 @@
         (dosync (alter state update :grants conj :test-outcome))
         (is (event/conditions-met state (:conditions event) :test-mob)))))
   (testing "can give an item"
+    (sprite/load-sprites)
+    (player/create-new-player)
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
        state
@@ -40,8 +43,10 @@
       (let [event (first (:events @state))]
         (is (event/conditions-met state (:conditions event) :test-mob))
         (event/apply-outcomes! state (:outcomes event))
-        (is (contains? (:items @state) :blemished-amulet)))))
+        (is (contains? (:items @player/player) :blemished-amulet)))))
   (testing "has item"
+    (sprite/load-sprites)
+    (player/create-new-player)
     (let [state (ref state/initial-state)]
       (event/create-dialog-event!
        state
@@ -50,11 +55,11 @@
        ["this is a test"])
       (let [event (first (:events @state))]
         (is (false? (event/conditions-met state (:conditions event) :test-mob)))
-        (item/add-item! state :blemished-amulet)
+        (player/add-item! :blemished-amulet)
         (is (event/conditions-met state (:conditions event) :test-mob)))))
   (testing "lose item"
     (let [state (ref state/initial-state)]
-      (item/add-item! state :blemished-amulet)
+      (player/add-item! :blemished-amulet)
       (event/create-dialog-event!
        state
        [(event/has-item :blemished-amulet)]

@@ -28,7 +28,8 @@
         mob (if (= :player mob-identifier)
               (player/party-leader)
               (get @mob/mobs mob-identifier))]
-    (ui/dialog mob ((:messages monolog) message-index))))
+    (if monolog
+      (ui/dialog mob ((:messages monolog) message-index)))))
 
 (defn- draw-map
   "Draw the map layers, mobs, and player."

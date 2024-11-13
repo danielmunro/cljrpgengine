@@ -9,7 +9,6 @@
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
-                    :items {}
                     :events []
                     :grants #{}
                     :scene :main-menu
@@ -21,13 +20,13 @@
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room grants items money]} @state]
+  (let [{:keys [save-name scene room grants money]} @state]
     {:save-name save-name
      :scene scene
      :room room
      :grants grants
-     :items items
      :money money
+     :items (:items @player/player)
      :player {:party (into {} (map
                                (fn [k]
                                  (let [{:keys [name
@@ -84,6 +83,8 @@
 (defn load-player
   [data]
   (let [{{:keys [party]} :player} data]
+    (swap! player/player
+           (fn [_] {:items (:items data)}))
     (swap! player/party
            (fn [_] (into {} (map mob-from-data party))))))
 
@@ -91,7 +92,7 @@
   [save-file]
   (log/info (str "loading save file :: " constants/save-dir save-file))
   (let [data (read-string (slurp (str constants/save-dir save-file)))
-        {:keys [scene room save-name grants items money]} data]
+        {:keys [scene room save-name grants money]} data]
     (load-player data)
     (map/load-tilemap scene room)
     (ref
@@ -101,7 +102,6 @@
        :room room
        :save-name save-name
        :grants grants
-       :items items
        :money money}))))
 
 (defn create-new-state

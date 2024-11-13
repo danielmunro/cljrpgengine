@@ -1,6 +1,7 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
+            [cljrpgengine.item :as item]
             [cljrpgengine.log :as log]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
@@ -48,11 +49,11 @@
   (map/load-tilemap :tinytown :main)
   (dosync (alter state assoc
                  :save-name (random-uuid)
-                 :money constants/starting-money
-                 :items {:light-health-potion 2
-                         :light-mana-potion 1
-                         :practice-sword 1})
+                 :money constants/starting-money)
           (alter state dissoc :new-game))
+  (player/add-item! :light-health-potion 2)
+  (player/add-item! :light-mana-potion)
+  (player/add-item! :practice-sword)
   (init-map)
   (load-room! state :tinytown :main)
   (close-ui-if-open))

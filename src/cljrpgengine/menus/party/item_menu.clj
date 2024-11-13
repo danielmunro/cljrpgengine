@@ -3,6 +3,7 @@
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.party.consume-item-menu :as consume-item-menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
 (deftype ItemsMenu [state]
@@ -10,7 +11,7 @@
   (draw [menu]
     (let [y (/ (second constants/window) 10)
           cursor (ui/get-menu-cursor (.menu-type menu))
-          items (:items @state)
+          items (:items @player/player)
           height (* 9 y)
           max-lines-on-screen (-> height
                                   (- constants/padding)
@@ -40,11 +41,11 @@
       (ui/draw-window 0 (* 9 y) (first constants/window) y)
       (if-let [item (get @item/items (item/get-item-at-inventory-index items cursor))]
         (ui/draw-line 0 (* 9 y) 0 (:description item)))))
-  (cursor-length [_] (count (:items @state)))
+  (cursor-length [_] (count (:items @player/player)))
   (menu-type [_] :items)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor (.menu_type menu))
-          items (:items @state)
+          items (:items @player/player)
           item-selected (item/get-item-at-inventory-index items cursor)
           item (get @item/items item-selected)]
       (when (= :consumable (:type item))

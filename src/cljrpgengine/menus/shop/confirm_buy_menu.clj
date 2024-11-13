@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.shop.purchase-complete-menu :as purchase-complete-menu]))
 
@@ -9,9 +10,7 @@
   [state item quantity purchase-price]
   (dosync
    (alter state update :money - purchase-price))
-  (if (contains? (:items @state) item)
-    (dosync (alter state update-in [:items item] #(+ % quantity)))
-    (dosync (alter state update-in [:items] assoc item quantity))))
+  (player/add-item! item quantity))
 
 (deftype ConfirmBuyMenu [state shop item]
   menu/Menu

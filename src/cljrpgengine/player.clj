@@ -1,14 +1,19 @@
 (ns cljrpgengine.player
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.item :as item]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.sprite :as sprite]))
+            [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.ui :as ui]))
 
 (def player (atom nil))
 (def party (atom nil))
 
 (defn create-new-player
   []
+  (swap! player
+         (fn [_]
+           {:items {}}))
   (swap! party
          (fn [_]
            {:fireas
@@ -150,3 +155,27 @@
   [x y direction tilewidth tileheight]
   [(get-inspect x :left :right direction tilewidth)
    (get-inspect y :up :down direction tileheight)])
+
+(defn remove-item!
+  ([item-key quantity menu]
+   (swap! player update-in [:items item-key] (fn [amount] (- amount quantity)))
+   (if (= 0 (get-in @player [:items item-key]))
+     (let [menu-index (if menu (ui/get-menu-index menu))
+           {{:keys [cursor]} menu-index} @ui/menus]
+       (swap! player update-in [:items] dissoc item-key)
+       (if (and
+            menu
+            (= cursor (count (:items @player)))
+            (> cursor 0))
+         (swap! ui/menus update-in [menu-index :cursor] dec)))))
+  ([item-key]
+   (remove-item! item-key 1 nil)))
+
+(defn add-item!
+  ([item-key]
+   (if (contains? (:items @player) item-key)
+     (swap! player update-in [:items item-key] inc)
+     (swap! player update-in [:items] conj (item/create-inventory-item item-key))))
+  ([item-key quantity]
+   (doseq [_ (range 0 quantity)]
+     (add-item! item-key))))
