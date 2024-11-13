@@ -1,8 +1,6 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.util :as util])
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.item :as item]
-            [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [clojure.java.io :as io]))
