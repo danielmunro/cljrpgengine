@@ -12,18 +12,17 @@
                     :scene :main-menu
                     :room nil
                     :nodes #{}
-                    :money 0
                     :effects {}
                     :shops {}})
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room money]} @state
-        {:keys [grants items]} @player/player]
+  (let [{:keys [save-name scene room]} @state
+        {:keys [grants items gold]} @player/player]
     {:save-name save-name
      :scene scene
      :room room
-     :money money
+     :gold gold
      :grants grants
      :items items
      :player {:party (into {} (map
@@ -84,7 +83,8 @@
   (let [{{:keys [party]} :player} data]
     (swap! player/player
            (fn [_] {:items (:items data)
-                    :grants (:grants data)}))
+                    :grants (:grants data)
+                    :gold (:gold data)}))
     (swap! player/party
            (fn [_] (into {} (map mob-from-data party))))))
 
@@ -92,7 +92,7 @@
   [save-file]
   (log/info (str "loading save file :: " constants/save-dir save-file))
   (let [data (read-string (slurp (str constants/save-dir save-file)))
-        {:keys [scene room save-name money]} data]
+        {:keys [scene room save-name]} data]
     (load-player data)
     (map/load-tilemap scene room)
     (ref
@@ -100,8 +100,7 @@
       initial-state
       {:scene scene
        :room room
-       :save-name save-name
-       :money money}))))
+       :save-name save-name}))))
 
 (defn create-new-state
   []

@@ -7,9 +7,8 @@
             [cljrpgengine.menus.shop.purchase-complete-menu :as purchase-complete-menu]))
 
 (defn- complete-purchase!
-  [state item quantity purchase-price]
-  (dosync
-   (alter state update :money - purchase-price))
+  [item quantity purchase-price]
+  (swap! player/player update-in [:gold] (fn [amount] (- amount purchase-price)))
   (player/add-item! item quantity))
 
 (deftype ConfirmBuyMenu [state shop item]
@@ -36,7 +35,7 @@
       (cond
         (= 1 cursor)
         (do
-          (complete-purchase! state item quantity (* (:worth (get @item/items item)) quantity))
+          (complete-purchase! item quantity (* (:worth (get @item/items item)) quantity))
           (ui/close-menu!)
           (ui/open-menu! (purchase-complete-menu/create-menu state shop item quantity)))
         (= 2 cursor)
@@ -44,5 +43,5 @@
 
 (defn create-menu
   [state shop item]
-  (ui/reset-quantity! state 1 (Math/floor (/ (:money @state) (:worth (get @item/items item)))))
+  (ui/reset-quantity! state 1 (Math/floor (/ (:gold @player/player) (:worth (get @item/items item)))))
   (ConfirmBuyMenu. state shop item))

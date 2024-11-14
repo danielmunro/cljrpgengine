@@ -14,7 +14,8 @@
   (swap! player
          (fn [_]
            {:items {}
-            :grants #{}}))
+            :grants #{}
+            :gold constants/starting-money}))
   (swap! party
          (fn [_]
            {:fireas

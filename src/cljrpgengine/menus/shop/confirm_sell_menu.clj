@@ -7,8 +7,8 @@
             [cljrpgengine.menus.shop.sale-complete-menu :as sale-complete-menu]))
 
 (defn- complete-sale!
-  [state item-keyword quantity sale-price]
-  (dosync (alter state update :money + sale-price))
+  [item-keyword quantity sale-price]
+  (swap! player/player update-in [:gold] (fn [amount] (+ amount sale-price)))
   (player/remove-item! item-keyword quantity :sell))
 
 (deftype ConfirmSellMenu [state item]
@@ -35,7 +35,7 @@
       (cond
         (= 0 cursor)
         (do
-          (complete-sale! state item quantity (* (:worth (get @item/items item)) quantity))
+          (complete-sale! item quantity (* (:worth (get @item/items item)) quantity))
           (ui/close-menu!)
           (ui/open-menu! (sale-complete-menu/create-menu state item quantity)))
         (= 1 cursor)

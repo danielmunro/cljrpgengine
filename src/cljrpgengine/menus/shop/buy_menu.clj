@@ -44,7 +44,7 @@
        x
        (+ y h)
        0
-       (str (ui/text-fixed-width "Cash on hand" constants/item-name-width) (:money @state)))))
+       (str (ui/text-fixed-width "Gold" constants/item-name-width) (:gold @player/player)))))
   (cursor-length [_] (count (get-in @state [:shops shop])))
   (menu-type [_] :buy)
   (key-pressed [menu]

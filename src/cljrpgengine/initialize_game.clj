@@ -47,8 +47,7 @@
   (player/create-new-player)
   (map/load-tilemap :tinytown :main)
   (dosync (alter state assoc
-                 :save-name (random-uuid)
-                 :money constants/starting-money)
+                 :save-name (random-uuid))
           (alter state dissoc :new-game))
   (player/add-item! :light-health-potion 2)
   (player/add-item! :light-mana-potion)
