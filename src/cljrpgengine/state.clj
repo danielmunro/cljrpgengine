@@ -9,7 +9,6 @@
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
-                    :events []
                     :scene :main-menu
                     :room nil
                     :nodes #{}
