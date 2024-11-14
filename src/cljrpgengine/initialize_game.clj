@@ -1,7 +1,6 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.event :as event]
-            [cljrpgengine.item :as item]
             [cljrpgengine.log :as log]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
@@ -18,11 +17,11 @@
   (if (not= scene (:scene @state))
     (scene/load-scene state scene room))
   (mob/load-room-mobs scene room)
-  (event/load-room-events state scene room)
+  (event/load-room-events scene room)
   (shop/load-shops state scene room)
   (fight/load-encounters! scene room)
   (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
-  (event/fire-room-loaded-event state room))
+  (event/fire-room-loaded-event room))
 
 (defn- close-ui-if-open
   []

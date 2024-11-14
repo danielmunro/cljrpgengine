@@ -5,6 +5,8 @@
             [cljrpgengine.player :as player]
             [clojure.java.io :as io]))
 
+(def events (atom []))
+
 (defn speaking-to
   [mob]
   {:type :speak-to
@@ -52,31 +54,33 @@
    :coords coords})
 
 (defn create-dialog-event!
-  ([state conditions mob dialog outcomes]
-   (dosync (alter state update-in [:events] conj {:type :dialog
-                                                  :conditions (conj conditions (speaking-to mob))
-                                                  :mob mob
-                                                  :dialog dialog
-                                                  :outcomes outcomes})))
-  ([state conditions mob dialog]
-   (create-dialog-event! state conditions mob dialog [])))
+  ([conditions mob dialog outcomes]
+   (swap! events conj {:type :dialog
+                       :conditions (conj conditions (speaking-to mob))
+                       :mob mob
+                       :dialog dialog
+                       :outcomes outcomes}))
+  ([conditions mob dialog]
+   (create-dialog-event! conditions mob dialog [])))
 
-(defn conditions-met
-  [conditions compare]
-  (every? #(cond
-             (= (:type %) :speak-to)
-             (= (:mob %) compare)
-             (= (:type %) :has-grant)
-             (contains? (:grants @player/player) (:grant %))
-             (= (:type %) :not-has-grant)
-             (not (contains? (:grants @player/player) (:grant %)))
-             (= (:type %) :has-item)
-             (contains? (:items @player/player) (:item %))
-             (= (:type %) :not-has-item)
-             (not (contains? (:items @player/player) (:item %)))
-             (= (:type %) :room-loaded)
-             (= (:room %) compare))
-          conditions))
+(defn conditions-met?
+  ([conditions compare]
+   (every? #(cond
+              (= (:type %) :speak-to)
+              (= (:mob %) compare)
+              (= (:type %) :has-grant)
+              (contains? (:grants @player/player) (:grant %))
+              (= (:type %) :not-has-grant)
+              (not (contains? (:grants @player/player) (:grant %)))
+              (= (:type %) :has-item)
+              (contains? (:items @player/player) (:item %))
+              (= (:type %) :not-has-item)
+              (not (contains? (:items @player/player) (:item %)))
+              (= (:type %) :room-loaded)
+              (= (:room %) compare))
+           conditions))
+  ([conditions]
+   (conditions-met? conditions nil)))
 
 (defn apply-outcomes!
   [outcomes]
@@ -99,40 +103,44 @@
        (mob/set-position! (:mob outcome) (:coords outcome))))))
 
 (defn get-room-loaded-events
-  [state room]
+  [room]
   (filter #(and
             (= (:type %) :room-loaded)
-            (conditions-met (:conditions %) room)) (:events @state)))
+            (conditions-met? (:conditions %) room)) @events))
 
 (defn get-dialog-event
-  [state target-mob]
+  [target-mob]
   (util/filter-first
    #(and
      (= (:type %) :dialog)
-     (conditions-met (:conditions %) target-mob))
-   (:events @state)))
+     (conditions-met? (:conditions %) target-mob))
+   @events))
+
+(defn reset-events!
+  []
+  (swap! events (fn [_] [])))
 
 (defn fire-room-loaded-event
-  [state room]
-  (doseq [event (get-room-loaded-events state (keyword room))]
+  [room]
+  (doseq [event (get-room-loaded-events (keyword room))]
     (apply-outcomes! (:outcomes event))))
 
 (defn load-room-events
-  [state scene room]
+  [scene room]
   (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/events")
         dir (io/file file-path)]
+    (reset-events!)
     (if (.exists dir)
       (let [event-files (.listFiles dir)]
         (doseq [event-file event-files]
           (let [events-data (read-string (slurp (str file-path "/" (.getName event-file))))]
             (doseq [event events-data]
-              (dosync (alter state update-in [:events] conj event))))))
-      (dosync (alter state assoc :events [])))))
+              (swap! events conj event))))))))
 
 (defn create-engagement!
   [state mob]
   (let [identifier (:identifier mob)
-        event (get-dialog-event state identifier)]
+        event (get-dialog-event identifier)]
     (dosync (alter state assoc
                    :engagement {:dialog (:dialog event)
                                 :dialog-index 0
