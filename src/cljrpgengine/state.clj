@@ -92,7 +92,7 @@
   [save-file]
   (log/info (str "loading save file :: " constants/save-dir save-file))
   (let [data (read-string (slurp (str constants/save-dir save-file)))
-        {:keys [scene room save-name grants money]} data]
+        {:keys [scene room save-name money]} data]
     (load-player data)
     (map/load-tilemap scene room)
     (ref
