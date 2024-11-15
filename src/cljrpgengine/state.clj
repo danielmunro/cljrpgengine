@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
+            [cljrpgengine.scene :as scene]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
@@ -15,10 +16,12 @@
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene]} @state
-        {:keys [grants items gold]} @player/player]
+  (let [{:keys [save-name]} @state
+        {:keys [grants items gold]} @player/player
+        {scene-name :name room :room} @scene/scene]
     {:save-name save-name
-     :scene scene
+     :scene scene-name
+     :room room
      :gold gold
      :grants grants
      :items items
@@ -96,6 +99,7 @@
      (merge
       initial-state
       {:scene scene
+       :room room
        :save-name save-name}))))
 
 (defn create-new-state
