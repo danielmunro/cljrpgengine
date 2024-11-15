@@ -10,7 +10,6 @@
 
 (def initial-state {:save-name nil
                     :scene :main-menu
-                    :room nil
                     :effects {}
                     :shops {}})
 
@@ -20,7 +19,6 @@
         {:keys [grants items gold]} @player/player]
     {:save-name save-name
      :scene scene
-     :room room
      :gold gold
      :grants grants
      :items items
@@ -98,7 +96,6 @@
      (merge
       initial-state
       {:scene scene
-       :room room
        :save-name save-name}))))
 
 (defn create-new-state
