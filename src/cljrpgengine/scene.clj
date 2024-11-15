@@ -7,7 +7,7 @@
                   :room nil
                   :nodes nil}))
 
-(defn load-scene
+(defn load-scene!
   [scene-name room]
   (log/info (str "loading scene file :: " constants/scenes-dir (name scene-name) "/scene.edn"))
   (let [file-path (str constants/scenes-dir (name scene-name) "/scene.edn")

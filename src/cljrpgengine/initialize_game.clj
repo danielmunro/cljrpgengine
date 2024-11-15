@@ -15,7 +15,7 @@
   [state scene room]
   (log/info (format "loading room :: %s" room))
   (if (not= scene (:scene @state))
-    (scene/load-scene scene room))
+    (scene/load-scene! scene room))
   (mob/load-room-mobs scene room)
   (event/load-room-events scene room)
   (shop/load-shops state scene room)
@@ -62,6 +62,6 @@
     (dosync (alter state merge @new-state)
             (alter state dissoc :load-game))
     (let [{:keys [scene room]} @state]
-      (scene/load-scene scene room)
+      (scene/load-scene! scene room)
       (load-room! state scene room))
     (close-ui-if-open)))

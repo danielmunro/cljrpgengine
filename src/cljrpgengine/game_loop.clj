@@ -69,7 +69,7 @@
     (ui/draw-menus))
   (effect/apply-effects state))
 
-(defn- update-animations
+(defn- update-animations!
   "Update all animations."
   [elapsed-nano]
   (swap! animation-update (fn [current] (+ current elapsed-nano)))
@@ -127,7 +127,7 @@
 (defn- update-state
   "Main loop."
   [state time-elapsed-ns]
-  (update-animations time-elapsed-ns)
+  (update-animations! time-elapsed-ns)
   (if (fight/is-active?)
     (do
       (fight/update-fight time-elapsed-ns)
