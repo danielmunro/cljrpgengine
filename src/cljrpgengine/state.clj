@@ -15,7 +15,7 @@
 
 (defn- transform-to-save
   [state]
-  (let [{:keys [save-name scene room]} @state
+  (let [{:keys [save-name scene]} @state
         {:keys [grants items gold]} @player/player]
     {:save-name save-name
      :scene scene
