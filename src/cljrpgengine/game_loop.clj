@@ -2,6 +2,7 @@
   (:require [cljrpgengine.fight :as fight]
             [cljrpgengine.input :as input]
             [cljrpgengine.log :as log]
+            [cljrpgengine.scene :as scene]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -33,8 +34,8 @@
 
 (defn- draw-map
   "Draw the map layers, mobs, and player."
-  [state]
-  (if (contains? (:nodes @state) :map)
+  []
+  (if (scene/has-node? :map)
     (let [{:keys [x y x-offset y-offset] :as leader} (player/party-leader)
           x-plus-offset (+ x x-offset)
           y-plus-offset (+ y y-offset)
@@ -61,7 +62,7 @@
   [state]
   (if @fight/encounter
     (fight/draw)
-    (draw-map state))
+    (draw-map))
   (let [{:keys [engagement]} @state]
     (if engagement
       (draw-dialog engagement))
@@ -70,14 +71,13 @@
 
 (defn- update-animations
   "Update all animations."
-  [state elapsed-nano]
+  [elapsed-nano]
   (swap! animation-update (fn [current] (+ current elapsed-nano)))
-  (let [nodes (:nodes @state)]
-    (if (contains? nodes :player)
-      (player/update-player-sprite! elapsed-nano))
-    (if (contains? nodes :mobs)
-      (mob/update-mob-sprites! elapsed-nano))
-    (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns)))))
+  (if (scene/has-node? :player)
+    (player/update-player-sprite! elapsed-nano))
+  (if (scene/has-node? :mobs)
+    (mob/update-mob-sprites! elapsed-nano))
+  (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns))))
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
@@ -127,16 +127,16 @@
 (defn- update-state
   "Main loop."
   [state time-elapsed-ns]
-  (update-animations state time-elapsed-ns)
+  (update-animations time-elapsed-ns)
   (if (fight/is-active?)
     (do
       (fight/update-fight time-elapsed-ns)
       (if (not (fight/is-active?))
         (ui/open-menu! (gains-menu/create-menu state))))
-    (let [nodes (:nodes @state)]
-      (if (contains? nodes :player)
+    (do
+      (if (scene/has-node? :player)
         (do-player-updates state time-elapsed-ns))
-      (if (contains? nodes :mobs)
+      (if (scene/has-node? :mobs)
         (do-mob-updates time-elapsed-ns))))
   state)
 

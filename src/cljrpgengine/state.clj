@@ -11,7 +11,6 @@
 (def initial-state {:save-name nil
                     :scene :main-menu
                     :room nil
-                    :nodes #{}
                     :effects {}
                     :shops {}})
 
