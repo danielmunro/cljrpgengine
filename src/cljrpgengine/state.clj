@@ -10,7 +10,6 @@
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
-                    :scene :main-menu
                     :effects {}
                     :shops {}})
 
@@ -95,12 +94,11 @@
         {:keys [scene room save-name]} data]
     (load-player data)
     (map/load-tilemap scene room)
+    (scene/load-scene! scene room)
     (ref
      (merge
       initial-state
-      {:scene scene
-       :room room
-       :save-name save-name}))))
+      {:save-name save-name}))))
 
 (defn create-new-state
   []

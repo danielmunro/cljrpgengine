@@ -11,16 +11,19 @@
             [cljrpgengine.ui :as ui]))
 
 (defn load-room!
-  [state scene room]
-  (log/info (format "loading scene room :: %s, %s" scene room))
-  (if (not= scene (:scene @state))
-    (scene/load-scene! scene room))
-  (mob/load-room-mobs scene room)
-  (event/load-room-events scene room)
-  (shop/load-shops state scene room)
-  (fight/load-encounters! scene room)
-  (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
-  (event/fire-room-loaded-event room))
+  ([state scene room]
+   (log/info (format "loading scene room :: %s, %s" scene room))
+   (if (not= scene (:scene @scene/scene))
+     (scene/load-scene! scene room))
+   (mob/load-room-mobs scene room)
+   (event/load-room-events scene room)
+   (shop/load-shops state scene room)
+   (fight/load-encounters! scene room)
+   (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
+   (event/fire-room-loaded-event room))
+  ([state]
+   (let [{scene-name :name room :room} @scene/scene]
+     (load-room! state scene-name room))))
 
 (defn- close-ui-if-open
   []
@@ -60,7 +63,5 @@
   (let [new-state (state/load-save-file file)]
     (dosync (alter state merge @new-state)
             (alter state dissoc :load-game))
-    (let [{:keys [scene room]} @state]
-      (scene/load-scene! scene room)
-      (load-room! state scene room))
+    (load-room! state)
     (close-ui-if-open)))
