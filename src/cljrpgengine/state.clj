@@ -9,8 +9,7 @@
             [clojure.java.io :as io]
             [java-time.api :as jt]))
 
-(def initial-state {:save-name nil
-                    :shops {}})
+(def initial-state {:save-name nil})
 
 (defn- transform-to-save
   [state]

@@ -81,29 +81,29 @@
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
-  [state scene room entrance]
+  [scene room entrance]
   (log/info (format "exit triggered :: scene: %s, room: %s, entrance: %s" scene room, entrance))
   (map/load-tilemap scene room)
   (let [{:keys [x y]} (map/get-entrance entrance)
         {:keys [identifier]} (player/party-leader)]
     (effect/add-fade-in)
     (swap! player/party update-in [identifier] assoc :x x :y y))
-  (initialize-game/load-room! state scene room))
+  (initialize-game/load-room! scene room))
 
 (defn- check-exits
   "Check the player's current location for an exit."
-  [state]
+  []
   (let [{:keys [x y]} (player/party-leader)]
     (if-let [exit
              (map/get-interaction-from-coords
               (fn [m] (filter #(= :exit (:type %)) (get-in m [:tilemap :warps])))
               x y)]
-      (change-map! state (:scene exit) (:room exit) (:to exit)))))
+      (change-map! (:scene exit) (:room exit) (:to exit)))))
 
 (defn- do-player-updates
   "Main loop player updates."
   [state time-elapsed-ns]
-  (check-exits state)
+  (check-exits)
   (let [{:keys [is-moving? identifier x-offset y-offset]} (player/party-leader)]
     (mob/update-move-offset! player/party identifier x-offset y-offset time-elapsed-ns)
     (if (and

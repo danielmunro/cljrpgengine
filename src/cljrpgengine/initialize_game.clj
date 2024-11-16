@@ -11,19 +11,19 @@
             [cljrpgengine.ui :as ui]))
 
 (defn load-room!
-  ([state scene room]
+  ([scene room]
    (log/info (format "loading scene room :: %s, %s" scene room))
    (if (not= scene (:scene @scene/scene))
      (scene/load-scene! scene room))
    (mob/load-room-mobs scene room)
    (event/load-room-events scene room)
-   (shop/load-shops state scene room)
+   (shop/load-shops scene room)
    (fight/load-encounters! scene room)
    (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
    (event/fire-room-loaded-event room))
-  ([state]
+  ([]
    (let [{scene-name :name room :room} @scene/scene]
-     (load-room! state scene-name room))))
+     (load-room! scene-name room))))
 
 (defn- close-ui-if-open
   []
@@ -55,7 +55,7 @@
   (player/add-item! :light-mana-potion)
   (player/add-item! :practice-sword)
   (init-map)
-  (load-room! state :tinytown :main)
+  (load-room! :tinytown :main)
   (close-ui-if-open))
 
 (defn load-save
@@ -63,5 +63,5 @@
   (let [new-state (state/load-save-file file)]
     (dosync (alter state merge @new-state)
             (alter state dissoc :load-game))
-    (load-room! state)
+    (load-room!)
     (close-ui-if-open)))

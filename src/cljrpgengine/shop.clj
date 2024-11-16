@@ -2,14 +2,15 @@
   (:require [cljrpgengine.constants :as constants]
             [clojure.java.io :as io]))
 
+(def shops (atom {}))
+
 (defn load-shops
-  [state area room]
-  (let [file-path (str constants/scenes-dir (name area) "/" (name room) "/shops")
+  [scene-name room-name]
+  (let [file-path (str constants/scenes-dir (name scene-name) "/" (name room-name) "/shops")
         dir (io/file file-path)]
     (if (.exists dir)
       (let [shop-files (.listFiles dir)]
         (dosync
-         (dorun
-          (for [shop-file shop-files]
-            (let [shop-data (read-string (slurp (str file-path "/" (.getName shop-file))))]
-              (alter state assoc-in [:shops] shop-data)))))))))
+         (doseq [shop-file shop-files]
+           (let [shop-data (read-string (slurp (str file-path "/" (.getName shop-file))))]
+             (swap! shops (constantly shop-data)))))))))

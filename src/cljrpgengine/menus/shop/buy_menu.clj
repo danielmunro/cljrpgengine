@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.player :as player]
+            [cljrpgengine.shop :as shop]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.shop.confirm-buy-menu :as confirm-buy-menu]))
@@ -15,7 +16,7 @@
           h (* y 5)
           cursor (ui/get-menu-cursor (.menu-type menu))
           item-map (item/item-quantity-map (:items @player/player))
-          items (get-in @state [:shops shop])
+          items (get @shop/shops shop)
           item-count (count items)]
       (ui/draw-window x y w h)
       (ui/draw-line
@@ -45,14 +46,14 @@
        (+ y h)
        0
        (str (ui/text-fixed-width "Gold" constants/item-name-width) (:gold @player/player)))))
-  (cursor-length [_] (count (get-in @state [:shops shop])))
+  (cursor-length [_] (count (get @shop/shops shop)))
   (menu-type [_] :buy)
   (key-pressed [menu]
     (ui/open-menu!
      (confirm-buy-menu/create-menu
       state
       shop
-      ((get-in @state [:shops shop]) (ui/get-menu-cursor (.menu-type menu)))))))
+      ((get @shop/shops shop) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
   [state shop]
