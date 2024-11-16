@@ -60,7 +60,7 @@
 
 (defn- draw
   "Redraw the screen, including backgrounds, mobs, and player."
-  [state]
+  []
   (if @fight/encounter
     (fight/draw)
     (draw-map))
@@ -147,7 +147,7 @@
     (let [current-time (System/nanoTime)
           time-diff (- current-time @last-time)]
       (window/new-graphics)
-      (draw state)
+      (draw)
       (update-state state time-diff)
       (window/draw-graphics)
       (swap! timer (fn [amount] (+ amount time-diff)))
