@@ -29,7 +29,7 @@
     (beast/load-beastiary!)
     (item/load-items!)
     (ui/open-menu! (main-menu/create-menu state))
-    (effect/add-fade-in state)
+    (effect/add-fade-in)
     state))
 
 (defn -main

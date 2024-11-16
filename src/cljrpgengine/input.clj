@@ -12,6 +12,7 @@
   (:import (java.awt.event KeyEvent)))
 
 (def keys-pressed (atom #{}))
+(def locked (atom false))
 
 (defn get-key-from-key-code
   [key-code]
@@ -87,7 +88,7 @@
 (defn key-pressed!
   [state event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
-    (if (not (:lock @state))
+    (if (not @locked)
       (cond
         (move-menu-cursor? key :up)
         (ui/move-cursor! state :up)

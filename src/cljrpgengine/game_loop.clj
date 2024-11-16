@@ -67,7 +67,7 @@
     (if engagement
       (draw-dialog engagement))
     (ui/draw-menus))
-  (effect/apply-effects state))
+  (effect/apply-effects))
 
 (defn- update-animations!
   "Update all animations."
@@ -86,7 +86,7 @@
   (map/load-tilemap scene room)
   (let [{:keys [x y]} (map/get-entrance entrance)
         {:keys [identifier]} (player/party-leader)]
-    (effect/add-fade-in state)
+    (effect/add-fade-in)
     (swap! player/party update-in [identifier] assoc :x x :y y))
   (initialize-game/load-room! state scene room))
 

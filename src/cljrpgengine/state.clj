@@ -10,7 +10,6 @@
             [java-time.api :as jt]))
 
 (def initial-state {:save-name nil
-                    :effects {}
                     :shops {}})
 
 (defn- transform-to-save
