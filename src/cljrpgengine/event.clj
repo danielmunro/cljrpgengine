@@ -127,7 +127,7 @@
   (doseq [event (get-room-loaded-events (keyword room))]
     (apply-outcomes! (:outcomes event))))
 
-(defn load-room-events
+(defn load-room-events!
   [scene room]
   (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/events")
         dir (io/file file-path)]

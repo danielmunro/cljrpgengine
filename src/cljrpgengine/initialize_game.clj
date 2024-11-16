@@ -16,7 +16,7 @@
    (if (not= scene (:scene @scene/scene))
      (scene/load-scene! scene room))
    (mob/load-room-mobs scene room)
-   (event/load-room-events scene room)
+   (event/load-room-events! scene room)
    (shop/load-shops scene room)
    (fight/load-encounters! scene room)
    (fight/set-room-encounters! (get-in @map/tilemap [:tilemap :encounters]))
