@@ -39,7 +39,7 @@
         (= (nth final-menu-items cursor) "Continue")
         (initialize-game/load-save state "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
-        (initialize-game/start state)
+        (initialize-game/start)
         (= (nth final-menu-items cursor) "Load Game")
         (ui/open-menu! (select-game/create-menu state))
         (= (nth final-menu-items cursor) "Settings")

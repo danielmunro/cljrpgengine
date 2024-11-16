@@ -9,7 +9,7 @@
 (deftest test-start-moving
   (testing "can start moving left"
     (sprite/load-sprites)
-    (test-util/create-new-state)
+    (test-util/create-new-game)
     (let [{:keys [x y identifier]} (player/party-leader)]
       (player/start-moving!
        :left
@@ -18,7 +18,7 @@
       (is (= (get-in @player/party [identifier :sprite :current-animation]) :left))))
   (testing "can reset moving"
     (sprite/load-sprites)
-    (test-util/create-new-state)
+    (test-util/create-new-game)
     (let [{:keys [x y identifier]} (player/party-leader)]
       (player/start-moving!
        :right

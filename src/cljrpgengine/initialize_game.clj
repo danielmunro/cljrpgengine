@@ -45,11 +45,10 @@
            :direction direction)))
 
 (defn start
-  [state]
+  []
   (player/create-new-player)
   (map/load-tilemap! :tinytown :main)
   (save/set-new-current-save-name)
-  (dosync (alter state dissoc :new-game))
   (player/add-item! :light-health-potion 2)
   (player/add-item! :light-mana-potion)
   (player/add-item! :practice-sword)
