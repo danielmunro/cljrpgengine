@@ -1,5 +1,6 @@
 (ns cljrpgengine.game-loop
-  (:require [cljrpgengine.fight :as fight]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.fight :as fight]
             [cljrpgengine.input :as input]
             [cljrpgengine.log :as log]
             [cljrpgengine.scene :as scene]
@@ -22,8 +23,8 @@
 
 (defn- draw-dialog
   "Draw the dialog the player is currently engaged in."
-  [engagement]
-  (let [{:keys [dialog dialog-index message-index]} engagement
+  []
+  (let [{:keys [dialog dialog-index message-index]} @event/engagement
         monolog (get dialog dialog-index)
         mob-identifier (:mob monolog)
         mob (if (= :player mob-identifier)
@@ -63,10 +64,9 @@
   (if @fight/encounter
     (fight/draw)
     (draw-map))
-  (let [{:keys [engagement]} @state]
-    (if engagement
-      (draw-dialog engagement))
-    (ui/draw-menus))
+  (if @event/engagement
+    (draw-dialog))
+  (ui/draw-menus)
   (effect/apply-effects))
 
 (defn- update-animations!

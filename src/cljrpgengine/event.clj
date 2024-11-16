@@ -7,6 +7,8 @@
 
 (def events (atom []))
 
+(def engagement (atom nil))
+
 (defn speaking-to
   [mob]
   {:type :speak-to
@@ -138,43 +140,40 @@
               (swap! events conj event))))))))
 
 (defn create-engagement!
-  [state mob]
+  [mob]
   (let [identifier (:identifier mob)
         event (get-dialog-event identifier)]
-    (dosync (alter state assoc
-                   :engagement {:dialog (:dialog event)
-                                :dialog-index 0
-                                :message-index 0
-                                :mob identifier
-                                :event event
-                                :mob-direction (get-in mob [:sprite :current-animation])}))
+    (swap! engagement (constantly {:dialog (:dialog event)
+                                   :dialog-index 0
+                                   :message-index 0
+                                   :mob identifier
+                                   :event event
+                                   :mob-direction (get-in mob [:sprite :current-animation])}))
     (swap! mob/mobs assoc-in [identifier :sprite :current-animation]
            (util/opposite-direction (:direction (player/party-leader))))))
 
 (defn engagement-done?
-  [engagement]
-  (= (count (:dialog engagement)) (:dialog-index engagement)))
+  []
+  (= (count (:dialog @engagement)) (:dialog-index @engagement)))
 
 (defn clear-engagement!
-  [state]
-  (let [{:keys [engagement]} @state
-        {:keys [mob mob-direction] {:keys [outcomes]} :event} engagement
+  []
+  (let [{:keys [mob mob-direction] {:keys [outcomes]} :event} @engagement
         current-animation-path [mob :sprite :current-animation]]
     (let [current-animation (get-in @mob/mobs current-animation-path)]
       (apply-outcomes! outcomes)
       (if (= current-animation (get-in @mob/mobs current-animation-path))
-        (swap! mob/mobs assoc-in [mob :sprite :current-animation] mob-direction))
-      (dosync (alter state dissoc :engagement)))))
+        (swap! mob/mobs assoc-in current-animation-path mob-direction))
+      (swap! engagement (constantly nil)))))
 
 (defn inc-engagement!
-  [state]
-  (dosync (alter state update-in [:engagement :message-index] inc))
-  (let [dialog-index (get-in @state [:engagement :dialog-index])]
-    (if (= (count (get-in @state [:engagement :dialog dialog-index :messages]))
-           (get-in @state [:engagement :message-index]))
+  []
+  (swap! engagement update-in [:message-index] inc)
+  (let [dialog-index (:dialog-index @engagement)]
+    (if (= (count (get-in @engagement [:dialog dialog-index :messages]))
+           (:message-index @engagement))
       (do
-        (dosync
-         (alter state assoc-in [:engagement :message-index] 0)
-         (alter state update-in [:engagement :dialog-index] inc))
-        (if (engagement-done? (:engagement @state))
-          (clear-engagement! state))))))
+        (swap! engagement assoc :message-index 0)
+        (swap! engagement update :dialog-index inc)
+        (if (engagement-done?)
+          (clear-engagement!))))))

@@ -69,16 +69,15 @@
   mob.  If the player is already engaged with a mob then proceed through the
   engagement, and clear the engagement if all steps are complete."
   [state]
-  (let [{:keys [engagement]} @state
-        {{:keys [tilewidth tileheight]} :tileset} @map/tilemap
+  (let [{{:keys [tilewidth tileheight]} :tileset} @map/tilemap
         {:keys [direction x y]} (player/party-leader)
         [inspect-x inspect-y] (player/get-inspect-coords x y direction tilewidth tileheight)]
-    (if engagement
-      (if (event/engagement-done? engagement)
-        (event/clear-engagement! state)
-        (event/inc-engagement! state))
+    (if @event/engagement
+      (if (event/engagement-done?)
+        (event/clear-engagement!)
+        (event/inc-engagement!))
       (if-let [mob (util/filter-first #(and (= (:x %) inspect-x) (= (:y %) inspect-y)) (vals @mob/mobs))]
-        (event/create-engagement! state mob)
+        (event/create-engagement! mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               #(get-in % [:tilemap :shops])
                               x
