@@ -95,9 +95,8 @@
         (swap! party assoc-in [identifier :direction] direction)))))
 
 (defn check-start-moving
-  [state last-key]
-  (let [{:keys [engagement]} @state
-        {{:keys [tilewidth tileheight]} :tileset} @map/tilemap
+  [last-key engagement]
+  (let [{{:keys [tilewidth tileheight]} :tileset} @map/tilemap
         {:keys [x y] :as leader} (party-leader)]
     (if (and (mob/is-standing-still leader)
              (nil? engagement))

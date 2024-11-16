@@ -116,7 +116,7 @@
           (do
             (ui/open-menu! (player-select-menu/create-menu state))
             (fight/start! encounter))))))
-  (player/check-start-moving state (last @input/keys-pressed)))
+  (player/check-start-moving (last @input/keys-pressed) @event/engagement))
 
 (defn- do-mob-updates
   "Main loop mob updates."
@@ -137,8 +137,7 @@
       (if (scene/has-node? :player)
         (do-player-updates state time-elapsed-ns))
       (if (scene/has-node? :mobs)
-        (do-mob-updates time-elapsed-ns))))
-  state)
+        (do-mob-updates time-elapsed-ns)))))
 
 (defn run-game!
   [state]
