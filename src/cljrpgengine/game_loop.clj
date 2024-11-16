@@ -83,7 +83,7 @@
   "Transport the player to a different map and put them at the given entrance."
   [scene room entrance]
   (log/info (format "exit triggered :: scene: %s, room: %s, entrance: %s" scene room, entrance))
-  (map/load-tilemap scene room)
+  (map/load-tilemap! scene room)
   (let [{:keys [x y]} (map/get-entrance entrance)
         {:keys [identifier]} (player/party-leader)]
     (effect/add-fade-in)

@@ -1,4 +1,4 @@
-(ns cljrpgengine.state
+(ns cljrpgengine.save
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
@@ -9,14 +9,17 @@
             [clojure.java.io :as io]
             [java-time.api :as jt]))
 
-(def initial-state {:save-name nil})
+(def current-save-name (atom nil))
+
+(defn set-new-current-save-name
+  []
+  (swap! current-save-name (constantly (random-uuid))))
 
 (defn- transform-to-save
-  [state]
-  (let [{:keys [save-name]} @state
-        {:keys [grants items gold]} @player/player
+  []
+  (let [{:keys [grants items gold]} @player/player
         {scene-name :name room :room} @scene/scene]
-    {:save-name save-name
+    {:save-name @current-save-name
      :scene scene-name
      :room room
      :gold gold
@@ -52,12 +55,13 @@
                                        :xp         xp}})) (keys @player/party)))}}))
 
 (defn save
-  [state]
-  (let [file-name (str constants/save-dir (:save-name @state) "/" (jt/local-date-time) ".txt")]
+  []
+  (let [file-name (str constants/save-dir @current-save-name "/" (jt/local-date-time) ".txt")
+        save-data (transform-to-save)]
     (log/info (format "saving progress to file :: %s" file-name))
     (io/make-parents file-name)
-    (spit file-name (transform-to-save state))
-    (spit (str constants/save-dir "last-save.txt") (transform-to-save state))))
+    (spit file-name save-data)
+    (spit (str constants/save-dir "last-save.txt") save-data)))
 
 (defn mob-from-data
   [data]
@@ -75,7 +79,7 @@
                    (:skills mob)
                    (:xp mob))}))
 
-(defn load-player
+(defn load-player!
   [data]
   (let [{{:keys [party]} :player} data]
     (swap! player/player
@@ -88,16 +92,6 @@
 (defn load-save-file
   [save-file]
   (log/info (str "loading save file :: " constants/save-dir save-file))
-  (let [data (read-string (slurp (str constants/save-dir save-file)))
-        {:keys [scene room save-name]} data]
-    (load-player data)
-    (map/load-tilemap scene room)
-    (scene/load-scene! scene room)
-    (ref
-     (merge
-      initial-state
-      {:save-name save-name}))))
-
-(defn create-new-state
-  []
-  (ref initial-state))
+  (let [data (read-string (slurp (str constants/save-dir save-file)))]
+    (swap! current-save-name (constantly (:save-name data)))
+    data))

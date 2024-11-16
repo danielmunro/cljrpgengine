@@ -174,7 +174,7 @@
              y)))))
     buf))
 
-(defn load-tilemap
+(defn load-tilemap!
   [scene-key room-key]
   (let [scene-name (name scene-key)
         room-name (name room-key)

@@ -5,7 +5,7 @@
             [cljrpgengine.menus.shop.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [cljrpgengine.state :as state]
+            [cljrpgengine.save :as state]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.party.party-menu :as party-menu]
             [cljrpgengine.util :as util])
@@ -111,7 +111,7 @@
         (= key :right)
         (swap! keys-pressed conj :right)
         (= key :s)
-        (state/save state)
+        (state/save)
         (= key :space)
         (action-engaged! state)
         (= key :m)

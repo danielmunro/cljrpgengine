@@ -4,7 +4,7 @@
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.fight :as beast]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.state :as state]
+            [cljrpgengine.save :as state]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.input :as input]
             [cljrpgengine.effect :as effect]
@@ -20,7 +20,7 @@
   []
   (ui/init!)
   (sprite/load-sprites)
-  (let [state (state/create-new-state)]
+  (let [state (ref {})]
     (window/create
      constants/screen-width
      constants/screen-height

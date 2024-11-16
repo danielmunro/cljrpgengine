@@ -7,7 +7,7 @@
             [cljrpgengine.fight :as fight]
             [cljrpgengine.scene :as scene]
             [cljrpgengine.shop :as shop]
-            [cljrpgengine.state :as state]
+            [cljrpgengine.save :as save]
             [cljrpgengine.ui :as ui]))
 
 (defn load-room!
@@ -47,10 +47,9 @@
 (defn start
   [state]
   (player/create-new-player)
-  (map/load-tilemap :tinytown :main)
-  (dosync (alter state assoc
-                 :save-name (random-uuid))
-          (alter state dissoc :new-game))
+  (map/load-tilemap! :tinytown :main)
+  (save/set-new-current-save-name)
+  (dosync (alter state dissoc :new-game))
   (player/add-item! :light-health-potion 2)
   (player/add-item! :light-mana-potion)
   (player/add-item! :practice-sword)
@@ -60,8 +59,10 @@
 
 (defn load-save
   [state file]
-  (let [new-state (state/load-save-file file)]
-    (dosync (alter state merge @new-state)
-            (alter state dissoc :load-game))
-    (load-room!)
-    (close-ui-if-open)))
+  (let [{:keys [scene room] :as data} (save/load-save-file file)]
+    (save/load-player! data)
+    (map/load-tilemap! scene room)
+    (scene/load-scene! scene room))
+  (load-room!)
+  (close-ui-if-open)
+  (dosync (alter state dissoc :load-game)))
