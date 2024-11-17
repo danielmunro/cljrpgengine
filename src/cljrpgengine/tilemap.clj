@@ -24,25 +24,37 @@
   {(tile "id") {:x @x
                 :y @y}})
 
+(defn- load-tileset-meta
+  [tileset-file]
+  (let [meta-filename (str constants/tilesets-dir (util/remove-file-extension tileset-file) "/meta.edn")
+        file (io/file meta-filename)]
+    (if (.exists file)
+      (-> meta-filename
+          (slurp)
+          (read-string))
+      {})))
+
 (defn- load-tiled-tileset
   [source]
-  (let [data (-> source
+  (let [data (-> (str constants/tilesets-dir source)
                  (slurp)
                  (json/read-str))
         tilewidth (data "tilewidth")
         tileheight (data "tileheight")
         imagewidth (data "imagewidth")
         imageheight (data "imageheight")]
-    {:name (data "name")
-     :margin (data "margin")
-     :spacing (data "spacing")
-     :tilecount (data "tilecount")
-     :image (data "image")
-     :tileheight tileheight
-     :tilewidth tilewidth
-     :imagewidth imagewidth
-     :imageheight imageheight
-     :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))}))
+    (merge
+     {:name (data "name")
+      :margin (data "margin")
+      :spacing (data "spacing")
+      :tilecount (data "tilecount")
+      :image (data "image")
+      :tileheight tileheight
+      :tilewidth tilewidth
+      :imagewidth imagewidth
+      :imageheight imageheight
+      :tiles (into {} (map #(transform-tile % tilewidth tileheight imagewidth) (data "tiles")))}
+     (load-tileset-meta source))))
 
 (defn- transform-layer
   [layer]
@@ -97,6 +109,18 @@
                  (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
         objects))
 
+(defn- transform-doors
+  [objects]
+  (mapv (fn
+          [object]
+          {:type (object "type")
+           :x (object "x")
+           :y (object "y")
+           :status (get object "status" :closed)
+           :locked (get object "locked" false)
+           :key (get object "key" nil)})
+        objects))
+
 (defn- load-tiled-tilemap
   [scene-name room-name]
   (let [data (-> (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmj")
@@ -106,12 +130,14 @@
         arrive-at (util/filter-first #(= "arrive_at" (% "name")) layers)
         warps (util/filter-first #(= "warps" (% "name")) layers)
         shops (util/filter-first #(= "shops" (% "name")) layers)
+        doors (util/filter-first #(= "doors" (% "name")) layers)
         encounters (util/filter-first #(= "encounters" (% "name")) layers)]
     {:height (data "height")
      :width (data "width")
      :tileset (get (first (data "tilesets")) "source")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps (warps "objects"))
+     :doors (transform-doors (doors "objects"))
      :arrive_at (if arrive-at
                   (transform-arrive-at (arrive-at "objects"))
                   [])
@@ -181,7 +207,7 @@
         room-name (name room-key)
         tiled-tilemap (load-tiled-tilemap scene-name room-name)
         tileset-file (.getName (io/file (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tiled-tilemap))))
-        tiled-tileset (load-tiled-tileset (str constants/tilesets-dir tileset-file))
+        tiled-tileset (load-tiled-tileset tileset-file)
         image (util/load-image (str constants/tilesets-dir (:image tiled-tileset)))
         layers (:layers tiled-tilemap)
         w (:tilewidth tiled-tileset)
@@ -194,6 +220,7 @@
     (swap! tilemap (constantly
                     {:tilemap tiled-tilemap
                      :tileset tiled-tileset
+                     :tileset-image image
                      :scene scene-key
                      :room room-key
                      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
@@ -202,10 +229,12 @@
 
 (defn draw-background
   [g offset-x offset-y]
-  (let [transform (AffineTransform.)]
+  (let [transform (AffineTransform.)
+        {:keys [background midground tileset-image]} @tilemap]
     (.translate transform offset-x offset-y)
-    (.drawImage g (:background @tilemap) transform nil)
-    (.drawImage g (:midground @tilemap) transform nil)))
+    (.drawImage g background transform nil)
+    (.drawImage g midground transform nil)
+    #_(.drawImage g (:tileset-image @tilemap))))
 
 (defn draw-foreground
   [g offset-x offset-y]
