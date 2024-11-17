@@ -11,7 +11,7 @@
   (swap! player/player update-in [:gold] (fn [amount] (- amount purchase-price)))
   (player/add-item! item quantity))
 
-(deftype ConfirmBuyMenu [state shop item]
+(deftype ConfirmBuyMenu [shop item]
   menu/Menu
   (draw [menu]
     (let [x (/ (first constants/window) 5)
@@ -35,11 +35,11 @@
         (do
           (complete-purchase! item @ui/quantity (* (:worth (get @item/items item)) @ui/quantity))
           (ui/close-menu!)
-          (ui/open-menu! (purchase-complete-menu/create-menu state shop item @ui/quantity)))
+          (ui/open-menu! (purchase-complete-menu/create-menu shop item @ui/quantity)))
         (= 2 cursor)
         (ui/close-menu!)))))
 
 (defn create-menu
-  [state shop item]
+  [shop item]
   (ui/reset-quantity! 1 (Math/floor (/ (:gold @player/player) (:worth (get @item/items item)))))
-  (ConfirmBuyMenu. state shop item))
+  (ConfirmBuyMenu. shop item))

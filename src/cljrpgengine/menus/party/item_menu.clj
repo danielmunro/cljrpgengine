@@ -6,7 +6,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
-(deftype ItemsMenu [state]
+(deftype ItemsMenu []
   menu/Menu
   (draw [menu]
     (let [y (/ (second constants/window) 10)
@@ -49,9 +49,9 @@
           item-selected (item/get-item-at-inventory-index items cursor)
           item (get @item/items item-selected)]
       (when (= :consumable (:type item))
-        (ui/open-menu! (consume-item-menu/create state item-selected))))))
+        (ui/open-menu! (consume-item-menu/create item-selected))))))
 
 (defn create-menu
-  [state]
-  (ItemsMenu. state))
+  []
+  (ItemsMenu.))
 

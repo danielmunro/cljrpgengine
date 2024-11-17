@@ -3,7 +3,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
-(deftype QuitMenu [state]
+(deftype QuitMenu []
   menu/Menu
   (draw [_]
     (let [w (/ (first constants/window) 1.5)
@@ -28,5 +28,5 @@
         (System/exit 0)))))
 
 (defn create-menu
-  [state]
-  (QuitMenu. state))
+  []
+  (QuitMenu.))

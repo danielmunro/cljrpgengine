@@ -5,7 +5,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
-(deftype GainsMenu [state]
+(deftype GainsMenu []
   menu/Menu
   (draw [_]
     (ui/draw-window
@@ -24,5 +24,5 @@
     (fight/end)))
 
 (defn create-menu
-  [state]
-  (GainsMenu. state))
+  []
+  (GainsMenu.))

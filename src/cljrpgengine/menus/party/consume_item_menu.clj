@@ -6,7 +6,7 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]))
 
-(deftype ConsumeItemMenu [state item]
+(deftype ConsumeItemMenu [item]
   menu/Menu
   (draw [menu]
     (ui/draw-window 0 0 (first constants/window) (second constants/window))
@@ -32,5 +32,5 @@
       (ui/close-menu!))))
 
 (defn create
-  [state item]
-  (ConsumeItemMenu. state item))
+  [item]
+  (ConsumeItemMenu. item))

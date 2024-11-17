@@ -30,7 +30,7 @@
             3
             3))))
 
-(deftype PlayerSelectMenu [state]
+(deftype PlayerSelectMenu []
   menu/Menu
   (draw [menu]
     (ui/draw-window
@@ -61,10 +61,8 @@
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (if (util/is-party-member-atb-full? cursor)
-        (ui/open-menu! (action-select-menu/create-menu
-                        state
-                        cursor))))))
+        (ui/open-menu! (action-select-menu/create-menu cursor))))))
 
 (defn create-menu
-  [state]
-  (PlayerSelectMenu. state))
+  []
+  (PlayerSelectMenu.))

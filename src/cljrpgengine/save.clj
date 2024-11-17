@@ -3,7 +3,6 @@
             [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.scene :as scene]
-            [cljrpgengine.tilemap :as map]
             [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
             [clojure.java.io :as io]

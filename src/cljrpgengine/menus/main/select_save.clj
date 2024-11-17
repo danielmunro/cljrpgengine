@@ -4,7 +4,7 @@
             [cljrpgengine.initialize-game :as new-game]
             [cljrpgengine.ui :as ui]))
 
-(deftype SelectSaveMenu [state save]
+(deftype SelectSaveMenu [save]
   menu/Menu
   (draw [menu]
     (let [padding-x (/ constants/screen-width 10)
@@ -23,9 +23,8 @@
   (menu-type [_] :select-save-menu)
   (key-pressed [menu]
     (new-game/load-save
-     state
      (str (:name save) "/" (nth (:saves save) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
-  [state saves]
-  (SelectSaveMenu. state saves))
+  [saves]
+  (SelectSaveMenu. saves))

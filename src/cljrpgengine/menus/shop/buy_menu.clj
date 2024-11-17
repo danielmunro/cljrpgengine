@@ -7,7 +7,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.shop.confirm-buy-menu :as confirm-buy-menu]))
 
-(deftype BuyMenu [state shop]
+(deftype BuyMenu [shop]
   menu/Menu
   (draw [menu]
     (let [x (/ constants/screen-width 8)
@@ -51,11 +51,10 @@
   (key-pressed [menu]
     (ui/open-menu!
      (confirm-buy-menu/create-menu
-      state
       shop
       ((get @shop/shops shop) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
-  [state shop]
-  (BuyMenu. state shop))
+  [shop]
+  (BuyMenu. shop))
 

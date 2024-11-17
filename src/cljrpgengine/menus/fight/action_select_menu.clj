@@ -10,7 +10,7 @@
 (def menu-x 0)
 (def menu-y (- constants/screen-height menu-height))
 
-(deftype ActionSelectMenu [state party-index]
+(deftype ActionSelectMenu [party-index]
   menu/Menu
   (draw [menu]
     (ui/draw-window
@@ -41,11 +41,11 @@
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! (target-beast-menu/create-menu state party-index))
+        (ui/open-menu! (target-beast-menu/create-menu party-index))
         (= 1 cursor)
-        (ui/open-menu! (magic-select-menu/create-menu state party-index))))))
+        (ui/open-menu! (magic-select-menu/create-menu party-index))))))
 
 (defn create-menu
-  [state party-index]
-  (ActionSelectMenu. state party-index))
+  [party-index]
+  (ActionSelectMenu. party-index))
 

@@ -17,7 +17,7 @@
                         (conj initial-menu-items "Continue")
                         initial-menu-items))
 
-(deftype MainMenu [state]
+(deftype MainMenu []
   menu/Menu
   (draw [menu]
     (let [padding-x (/ constants/screen-width 10)
@@ -37,16 +37,16 @@
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= (nth final-menu-items cursor) "Continue")
-        (initialize-game/load-save state "last-save.txt")
+        (initialize-game/load-save "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
         (initialize-game/start)
         (= (nth final-menu-items cursor) "Load Game")
-        (ui/open-menu! (select-game/create-menu state))
+        (ui/open-menu! (select-game/create-menu))
         (= (nth final-menu-items cursor) "Settings")
         (println "settings")
         (= (nth final-menu-items cursor) "Quit")
         (System/exit 0)))))
 
 (defn create-menu
-  [state]
-  (MainMenu. state))
+  []
+  (MainMenu.))

@@ -3,7 +3,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
-(deftype TargetBeastMenu [state party-index]
+(deftype TargetBeastMenu [party-index]
   menu/Menu
   (draw [menu]
     (let [cursor (ui/get-menu-cursor (.menu-type menu))
@@ -21,5 +21,5 @@
     (ui/close-menu! 2)))
 
 (defn create-menu
-  [state party-index]
-  (TargetBeastMenu. state party-index))
+  [party-index]
+  (TargetBeastMenu. party-index))

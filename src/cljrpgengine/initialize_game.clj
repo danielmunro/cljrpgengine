@@ -57,11 +57,10 @@
   (close-ui-if-open))
 
 (defn load-save
-  [state file]
+  [file]
   (let [{:keys [scene room] :as data} (save/load-save-file file)]
     (save/load-player! data)
     (map/load-tilemap! scene room)
     (scene/load-scene! scene room))
   (load-room!)
-  (close-ui-if-open)
-  (dosync (alter state dissoc :load-game)))
+  (close-ui-if-open))

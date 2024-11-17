@@ -102,7 +102,7 @@
 
 (defn- do-player-updates
   "Main loop player updates."
-  [state time-elapsed-ns]
+  [time-elapsed-ns]
   (check-exits)
   (let [{:keys [is-moving? identifier x-offset y-offset]} (player/party-leader)]
     (mob/update-move-offset! player/party identifier x-offset y-offset time-elapsed-ns)
@@ -114,7 +114,7 @@
              encounter
              (< (rand) (:encounter-rate encounter)))
           (do
-            (ui/open-menu! (player-select-menu/create-menu state))
+            (ui/open-menu! (player-select-menu/create-menu))
             (fight/start! encounter))))))
   (player/check-start-moving (last @input/keys-pressed) @event/engagement))
 
@@ -126,28 +126,28 @@
 
 (defn- update-state
   "Main loop."
-  [state time-elapsed-ns]
+  [time-elapsed-ns]
   (update-animations! time-elapsed-ns)
   (if (fight/is-active?)
     (do
       (fight/update-fight time-elapsed-ns)
       (if (not (fight/is-active?))
-        (ui/open-menu! (gains-menu/create-menu state))))
+        (ui/open-menu! (gains-menu/create-menu))))
     (do
       (if (scene/has-node? :player)
-        (do-player-updates state time-elapsed-ns))
+        (do-player-updates time-elapsed-ns))
       (if (scene/has-node? :mobs)
         (do-mob-updates time-elapsed-ns)))))
 
 (defn run-game!
-  [state]
+  []
   (while true
     (Thread/sleep @sleep-length)
     (let [current-time (System/nanoTime)
           time-diff (- current-time @last-time)]
       (window/new-graphics)
       (draw)
-      (update-state state time-diff)
+      (update-state time-diff)
       (window/draw-graphics)
       (swap! timer (fn [amount] (+ amount time-diff)))
       (swap! draws inc)

@@ -19,7 +19,7 @@
       (swap! saves (constantly save-files))))
   @saves)
 
-(deftype SelectGameMenu [state]
+(deftype SelectGameMenu []
   menu/Menu
   (draw [menu]
     (let [padding-x (/ constants/screen-width 10)
@@ -40,9 +40,8 @@
   (key-pressed [menu]
     (ui/open-menu!
      (select-save/create-menu
-      state
       (nth (get-saves) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu
-  [state]
-  (SelectGameMenu. state))
+  []
+  (SelectGameMenu.))

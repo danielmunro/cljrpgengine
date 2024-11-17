@@ -6,7 +6,7 @@
             [cljrpgengine.menus.party.item-menu :as item-menu]
             [cljrpgengine.menus.party.quit-menu :as quit-menu]))
 
-(deftype PartyMenu [state]
+(deftype PartyMenu []
   menu/Menu
   (draw [menu]
     (ui/draw-window 0 0 constants/screen-width constants/screen-height)
@@ -27,7 +27,7 @@
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! (item-menu/create-menu state))
+        (ui/open-menu! (item-menu/create-menu))
         (= 1 cursor)
         (println "equipment")
         (= 2 cursor)
@@ -37,9 +37,9 @@
         (= 4 cursor)
         (println "save")
         (= 5 cursor)
-        (ui/open-menu! (quit-menu/create-menu state))))))
+        (ui/open-menu! (quit-menu/create-menu))))))
 
 (defn create-menu
-  [state]
-  (PartyMenu. state))
+  []
+  (PartyMenu.))
 

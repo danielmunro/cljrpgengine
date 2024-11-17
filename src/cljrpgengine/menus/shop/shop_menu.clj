@@ -5,7 +5,7 @@
             [cljrpgengine.menus.shop.buy-menu :as buy-menu]
             [cljrpgengine.menus.shop.sell-menu :as sell-menu]))
 
-(deftype ShopMenu [state shop]
+(deftype ShopMenu [shop]
   menu/Menu
   (draw [menu]
     (let [x (/ (first constants/window) 8)
@@ -25,12 +25,12 @@
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 0 cursor)
-        (ui/open-menu! (buy-menu/create-menu state shop))
+        (ui/open-menu! (buy-menu/create-menu shop))
         (= 1 cursor)
-        (ui/open-menu! (sell-menu/create-menu state))
+        (ui/open-menu! (sell-menu/create-menu))
         (= 2 cursor)
         (ui/close-menu!)))))
 
 (defn create-menu
-  [state shop]
-  (ShopMenu. state shop))
+  [shop]
+  (ShopMenu. shop))

@@ -6,7 +6,7 @@
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.shop.confirm-sell-menu :as confirm-sell-menu]))
 
-(deftype SellMenu [state]
+(deftype SellMenu []
   menu/Menu
   (draw [menu]
     (let [x (/ (first constants/window) 10)
@@ -44,8 +44,8 @@
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (if-let [item (nth (keys (:items @player/player)) cursor)]
-        (ui/open-menu! (confirm-sell-menu/create-menu state item))))))
+        (ui/open-menu! (confirm-sell-menu/create-menu item))))))
 
 (defn create-menu
-  [state]
-  (SellMenu. state))
+  []
+  (SellMenu.))

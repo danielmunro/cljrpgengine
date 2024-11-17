@@ -4,7 +4,6 @@
             [cljrpgengine.sprite :as sprite]
             [cljrpgengine.fight :as beast]
             [cljrpgengine.ui :as ui]
-            [cljrpgengine.save :as state]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.input :as input]
             [cljrpgengine.effect :as effect]
@@ -15,22 +14,20 @@
 
 (def save-file (atom nil))
 
-(defn setup-state!
+(defn setup
   "Setup function for the game."
   []
   (ui/init!)
   (sprite/load-sprites)
-  (let [state (ref {})]
-    (window/create
-     constants/screen-width
-     constants/screen-height
-     #(input/key-pressed! state %)
-     #(input/key-released! state %))
-    (beast/load-beastiary!)
-    (item/load-items!)
-    (ui/open-menu! (main-menu/create-menu state))
-    (effect/add-fade-in)
-    state))
+  (window/create
+   constants/screen-width
+   constants/screen-height
+   #(input/key-pressed! %)
+   #(input/key-released! %))
+  (beast/load-beastiary!)
+  (item/load-items!)
+  (ui/open-menu! (main-menu/create-menu))
+  (effect/add-fade-in))
 
 (defn -main
   "Start the game."
@@ -43,4 +40,5 @@
         (= "-l" arg)
         (swap! log/log-level (constantly (keyword (first (next args))))))))
   (log/info "starting game...")
-  (game-loop/run-game! (setup-state!)))
+  (setup)
+  (game-loop/run-game!))

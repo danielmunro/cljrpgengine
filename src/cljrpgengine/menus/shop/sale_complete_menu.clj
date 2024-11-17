@@ -3,7 +3,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
-(deftype SaleCompleteMenu [state item quantity]
+(deftype SaleCompleteMenu [item quantity]
   menu/Menu
   (draw [_]
     (let [x (/ (first constants/window) 5)
@@ -18,5 +18,5 @@
     (ui/close-menu!)))
 
 (defn create-menu
-  [state item quantity]
-  (SaleCompleteMenu. state item quantity))
+  [item quantity]
+  (SaleCompleteMenu. item quantity))

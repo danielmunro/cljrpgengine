@@ -4,7 +4,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
-(deftype MagicSelectMenu [state player-index]
+(deftype MagicSelectMenu [player-index]
   menu/Menu
   (draw [menu]
     (ui/draw-window
@@ -19,5 +19,5 @@
   (key-pressed [_]))
 
 (defn create-menu
-  [state player-index]
-  (MagicSelectMenu. state player-index))
+  [player-index]
+  (MagicSelectMenu. player-index))

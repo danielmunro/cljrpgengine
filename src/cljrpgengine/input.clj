@@ -5,7 +5,7 @@
             [cljrpgengine.menus.shop.shop-menu :as shop-menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [cljrpgengine.save :as state]
+            [cljrpgengine.save :as save]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.menus.party.party-menu :as party-menu]
             [cljrpgengine.util :as util])
@@ -39,10 +39,9 @@
     :d))
 
 (defn key-released!
-  [state event]
+  [event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
-    (swap! keys-pressed disj key))
-  state)
+    (swap! keys-pressed disj key)))
 
 (defn- move-menu-cursor?
   [key-pressed key-check]
@@ -68,7 +67,7 @@
   open a shop dialog.  If next to a mob, a player will open a dialog with the
   mob.  If the player is already engaged with a mob then proceed through the
   engagement, and clear the engagement if all steps are complete."
-  [state]
+  []
   (let [{{:keys [tilewidth tileheight]} :tileset} @map/tilemap
         {:keys [direction x y]} (player/party-leader)
         [inspect-x inspect-y] (player/get-inspect-coords x y direction tilewidth tileheight)]
@@ -82,10 +81,10 @@
                               #(get-in % [:tilemap :shops])
                               x
                               y))]
-          (ui/open-menu! (shop-menu/create-menu state shop)))))))
+          (ui/open-menu! (shop-menu/create-menu shop)))))))
 
 (defn key-pressed!
-  [state event]
+  [event]
   (let [key (get-key-from-key-code (.getKeyCode event))]
     (if (not @locked)
       (cond
@@ -110,16 +109,15 @@
         (= key :right)
         (swap! keys-pressed conj :right)
         (= key :s)
-        (state/save)
+        (save/save)
         (= key :space)
-        (action-engaged! state)
+        (action-engaged!)
         (= key :m)
-        (ui/open-menu! (party-menu/create-menu state))
+        (ui/open-menu! (party-menu/create-menu))
         (= key :escape)
         (System/exit 0)
         (= key :d)
         (player/play-animation! :dance))
       (cond
         (= key :escape)
-        (System/exit 0))))
-  state)
+        (System/exit 0)))))
