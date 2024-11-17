@@ -50,7 +50,7 @@
                                mana (:mana beast 0)]
                            (assoc
                             beast
-                            :image (util/load-image (str "beasts/" (:image beast)))
+                            :image (util/load-image (str constants/beasts-dir (:image beast)))
                             :max-hp (:hp beast)
                             :mana mana
                             :max-mana mana))}))
@@ -77,7 +77,7 @@
                          :x (int (* (get-in mob [mob-key :x]) constants/screen-width))
                          :y (int (* (get-in mob [mob-key :y]) constants/screen-height)))))
               enc)))
-    (swap! background (fn [_] (util/load-image (str "backgrounds/" (:background map-encounter))))))
+    (swap! background (fn [_] (util/load-image (str constants/backgrounds-dir (:background map-encounter))))))
   (swap! previous-animation (fn [_] (get-in @player/party [0 :sprite :current-animation])))
   (doseq [i (keys @player/party)]
     (swap! player/party assoc-in [i :sprite :current-animation] :left)

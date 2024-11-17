@@ -35,10 +35,10 @@
   (min modifier (- max-amount amount)))
 
 (defn load-image
-  "Load an image, path is relative to 'resources/'"
+  "Load an image."
   [path]
   (try
-    (-> (str constants/resources-dir path)
+    (-> (str path)
         (File.)
         (ImageIO/read))
     (catch IIOException e

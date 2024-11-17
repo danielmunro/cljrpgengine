@@ -17,7 +17,7 @@
   (let [sprite-def (or (util/filter-first #(= (:name %) name) @sprites)
                        (throw (ex-info (format "no sprite with name %s" name) {:name name})))
         {:keys [file default-animation animations]} sprite-def]
-    (assoc sprite-def :image (util/load-image (str "sprites/" file))
+    (assoc sprite-def :image (util/load-image (str constants/sprites-dir file))
            :current-animation default-animation
            :animations (into {}
                              (map

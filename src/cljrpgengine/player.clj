@@ -25,7 +25,7 @@
              :warrior 1
              :down 0 0
              (sprite/create :edwyn)
-             "portraits/edwyn.png"
+             "edwyn.png"
              #{:bash}
              0)
             :faedrim
@@ -35,7 +35,7 @@
              :mage 1
              :down 0 0
              (sprite/create :edwyn)
-             "portraits/edwyn.png"
+             "edwyn.png"
              #{:magic-missile}
              0)
             :dudelgor
@@ -45,7 +45,7 @@
              :rogue 1
              :down 0 0
              (sprite/create :edwyn)
-             "portraits/edwyn.png"
+             "edwyn.png"
              #{:hamstring}
              0)
             :parthinir
@@ -55,7 +55,7 @@
              :cleric 1
              :down 0 0
              (sprite/create :edwyn)
-             "portraits/edwyn.png"
+             "edwyn.png"
              #{:cure-light}
              0)})))
 

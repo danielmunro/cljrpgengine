@@ -53,9 +53,15 @@
 
 (def sprites-dir (str resources-dir "sprites/"))
 
-(def tilesets-dir "tilesets/")
+(def tilesets-dir (str resources-dir "tilesets/"))
 
 (def scenes-dir (str resources-dir "scenes/"))
+
+(def beasts-dir (str resources-dir "beasts/"))
+
+(def backgrounds-dir (str resources-dir "backgrounds/"))
+
+(def portraits-dir (str resources-dir "portraits/"))
 
 (def tile-size 16)
 

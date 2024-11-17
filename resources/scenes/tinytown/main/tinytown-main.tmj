@@ -263,6 +263,39 @@
         }, 
         {
          "draworder":"topdown",
+         "id":9,
+         "name":"doors",
+         "objects":[
+                {
+                 "height":16,
+                 "id":23,
+                 "name":"",
+                 "rotation":0,
+                 "type":"gray-door",
+                 "visible":true,
+                 "width":16,
+                 "x":560,
+                 "y":304
+                }, 
+                {
+                 "height":16,
+                 "id":24,
+                 "name":"",
+                 "rotation":0,
+                 "type":"brown-door",
+                 "visible":true,
+                 "width":16,
+                 "x":192,
+                 "y":288
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":7,
          "name":"arrive_at",
          "objects":[
@@ -335,8 +368,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":9,
- "nextobjectid":23,
+ "nextlayerid":10,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.0",

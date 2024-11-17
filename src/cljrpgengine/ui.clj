@@ -17,8 +17,8 @@
 
 (defn init!
   []
-  (swap! panel (fn [_] (util/load-image "sprites/panel.png")))
-  (swap! ui-pack (fn [_] (util/load-image "sprites/ui.png")))
+  (swap! panel (fn [_] (util/load-image (str constants/sprites-dir "panel.png"))))
+  (swap! ui-pack (fn [_] (util/load-image (str constants/sprites-dir "ui.png"))))
   (swap! main-font (fn [_] (.deriveFont
                             (Font/createFont Font/TRUETYPE_FONT
                                              (File. (str "resources/" constants/font-family)))

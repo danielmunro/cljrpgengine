@@ -3,6 +3,7 @@
             [cljrpgengine.log :as log]
             [cljrpgengine.util :as util]
             [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [clojure.string :as str])
   (:import (java.awt.geom AffineTransform)
            (java.awt.image BufferedImage)))
@@ -179,7 +180,8 @@
   (let [scene-name (name scene-key)
         room-name (name room-key)
         tiled-tilemap (load-tiled-tilemap scene-name room-name)
-        tiled-tileset (load-tiled-tileset (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tiled-tilemap)))
+        tileset-file (.getName (io/file (str constants/scenes-dir scene-name "/" room-name "/" (:tileset tiled-tilemap))))
+        tiled-tileset (load-tiled-tileset (str constants/tilesets-dir tileset-file))
         image (util/load-image (str constants/tilesets-dir (:image tiled-tileset)))
         layers (:layers tiled-tilemap)
         w (:tilewidth tiled-tileset)
