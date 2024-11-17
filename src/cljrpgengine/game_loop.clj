@@ -71,12 +71,12 @@
 
 (defn- update-animations!
   "Update all animations."
-  [elapsed-nano]
-  (swap! animation-update (fn [current] (+ current elapsed-nano)))
+  [elapsed-time-ns]
+  (swap! animation-update (fn [current] (+ current elapsed-time-ns)))
   (if (scene/has-node? :player)
-    (player/update-player-sprite! elapsed-nano))
+    (player/update-player-sprite! elapsed-time-ns))
   (if (scene/has-node? :mobs)
-    (mob/update-mob-sprites! elapsed-nano))
+    (mob/update-mob-sprites! elapsed-time-ns))
   (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns))))
 
 (defn- change-map!
@@ -110,6 +110,12 @@
         (ui/open-menu! (player-select-menu/create-menu))
         (fight/start! encounter)))))
 
+(defn- landed-on-tile
+  "The player may or may not be moving but has landed squarely on one tile."
+  []
+  (check-exits)
+  (check-fight))
+
 (defn- do-player-updates
   "Main loop player updates."
   [time-elapsed-ns]
@@ -118,9 +124,7 @@
     (if (and
          is-moving?
          (not (:is-moving? (player/party-leader))))
-      (do
-        (check-exits)
-        (check-fight))))
+      (landed-on-tile)))
   (player/check-start-moving (last @input/keys-pressed) @event/engagement))
 
 (defn- do-mob-updates
@@ -130,7 +134,7 @@
   (mob/update-mobs))
 
 (defn- update-state
-  "Main loop."
+  "Main update function for everything happening in the game."
   [time-elapsed-ns]
   (update-animations! time-elapsed-ns)
   (if (fight/is-active?)
@@ -145,6 +149,8 @@
         (do-mob-updates time-elapsed-ns)))))
 
 (defn run-game!
+  "Main game loop, calls methods to draw and update the game, and paces the
+  frames per second to `constants/target-fps`."
   []
   (while true
     (Thread/sleep @sleep-length)
