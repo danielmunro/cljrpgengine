@@ -104,8 +104,8 @@
   []
   (let [encounter (fight/check-encounter-collision)]
     (if (and
-          encounter
-          (< (rand) (:encounter-rate encounter)))
+         encounter
+         (< (rand) (:encounter-rate encounter)))
       (do
         (ui/open-menu! (player-select-menu/create-menu))
         (fight/start! encounter)))))
