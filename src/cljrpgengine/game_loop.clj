@@ -150,6 +150,6 @@
     (timing/start-loop!)
     (window/new-graphics)
     (draw)
-    (update-state timing/time-difference)
+    (update-state @timing/time-difference)
     (window/draw-graphics)
     (timing/end-loop!)))

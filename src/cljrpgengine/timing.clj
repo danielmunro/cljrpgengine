@@ -15,7 +15,7 @@
 (defn start-loop!
   []
   (swap! current-time (constantly (System/nanoTime)))
-  (swap! time-difference (constantly (- current-time @last-time))))
+  (swap! time-difference (constantly (- @current-time @last-time))))
 
 (defn end-loop!
   []
@@ -28,4 +28,4 @@
         (swap! sleep-length dec))
       (swap! draws (fn [_] 0))
       (swap! timer (fn [amount] (- amount constants/nano-per-second)))))
-  (swap! last-time (fn [_] current-time)))
+  (swap! last-time (fn [_] @current-time)))

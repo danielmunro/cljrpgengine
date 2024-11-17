@@ -117,8 +117,8 @@
                (fn [frame] (sprite/get-sprite-frame (get-in @mobs [identifier :sprite]) frame)))))))
 
 (defn update-move-offset!
-  [mobs identifier x-offset y-offset elapsed-nano]
-  (let [amount (/ elapsed-nano constants/move-delay-ns)]
+  [mobs identifier x-offset y-offset time-elapsed-ns]
+  (let [amount (/ time-elapsed-ns constants/move-delay-ns)]
     (cond
       (< x-offset 0)
       (do-update-move-offset! mobs identifier :x-offset min amount)
