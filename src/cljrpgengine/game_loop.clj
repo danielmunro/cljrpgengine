@@ -13,13 +13,8 @@
             [cljrpgengine.initialize-game :as initialize-game]
             [cljrpgengine.window :as window]
             [cljrpgengine.menus.fight.player-select-menu :as player-select-menu]
-            [cljrpgengine.menus.fight.gains-menu :as gains-menu]))
-
-(def animation-update (atom 0))
-(def last-time (atom (System/nanoTime)))
-(def timer (atom 0))
-(def draws (atom 0))
-(def sleep-length (atom 12))
+            [cljrpgengine.menus.fight.gains-menu :as gains-menu]
+            [cljrpgengine.timing :as timing]))
 
 (defn- draw-dialog
   "Draw the dialog the player is currently engaged in."
@@ -72,12 +67,10 @@
 (defn- update-animations!
   "Update all animations."
   [elapsed-time-ns]
-  (swap! animation-update (fn [current] (+ current elapsed-time-ns)))
   (if (scene/has-node? :player)
     (player/update-player-sprite! elapsed-time-ns))
   (if (scene/has-node? :mobs)
-    (mob/update-mob-sprites! elapsed-time-ns))
-  (swap! animation-update (fn [amount] (- amount constants/time-per-frame-ns))))
+    (mob/update-mob-sprites! elapsed-time-ns)))
 
 (defn- change-map!
   "Transport the player to a different map and put them at the given entrance."
@@ -153,20 +146,10 @@
   frames per second to `constants/target-fps`."
   []
   (while true
-    (Thread/sleep @sleep-length)
-    (let [current-time (System/nanoTime)
-          time-diff (- current-time @last-time)]
-      (window/new-graphics)
-      (draw)
-      (update-state time-diff)
-      (window/draw-graphics)
-      (swap! timer (fn [amount] (+ amount time-diff)))
-      (swap! draws inc)
-      (if (< constants/nano-per-second @timer)
-        (do
-          (if (> @draws constants/target-fps)
-            (swap! sleep-length inc)
-            (swap! sleep-length dec))
-          (swap! draws (fn [_] 0))
-          (swap! timer (fn [amount] (- amount constants/nano-per-second)))))
-      (swap! last-time (fn [_] current-time)))))
+    (timing/sleep)
+    (timing/start-loop!)
+    (window/new-graphics)
+    (draw)
+    (update-state timing/time-difference)
+    (window/draw-graphics)
+    (timing/end-loop!)))
