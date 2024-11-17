@@ -100,22 +100,27 @@
               x y)]
       (change-map! (:scene exit) (:room exit) (:to exit)))))
 
+(defn- check-fight
+  []
+  (let [encounter (fight/check-encounter-collision)]
+    (if (and
+          encounter
+          (< (rand) (:encounter-rate encounter)))
+      (do
+        (ui/open-menu! (player-select-menu/create-menu))
+        (fight/start! encounter)))))
+
 (defn- do-player-updates
   "Main loop player updates."
   [time-elapsed-ns]
-  (check-exits)
   (let [{:keys [is-moving? identifier x-offset y-offset]} (player/party-leader)]
     (mob/update-move-offset! player/party identifier x-offset y-offset time-elapsed-ns)
     (if (and
          is-moving?
          (not (:is-moving? (player/party-leader))))
-      (let [encounter (fight/check-encounter-collision)]
-        (if (and
-             encounter
-             (< (rand) (:encounter-rate encounter)))
-          (do
-            (ui/open-menu! (player-select-menu/create-menu))
-            (fight/start! encounter))))))
+      (do
+        (check-exits)
+        (check-fight))))
   (player/check-start-moving (last @input/keys-pressed) @event/engagement))
 
 (defn- do-mob-updates
