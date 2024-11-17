@@ -18,30 +18,28 @@
           y (/ (second constants/window) 5)
           w (* x 3)
           h (* y 3)
-          cursor (ui/get-menu-cursor (.menu-type menu))
-          quantity (:quantity @state)]
+          cursor (ui/get-menu-cursor (.menu-type menu))]
       (ui/draw-window x y w h)
       (ui/draw-line x y 0 (str "Purchasing " (:name (get @item/items item))))
-      (ui/draw-line x y 1 (str "Cost " (* quantity (:worth (get @item/items item)))))
-      (ui/draw-line x y 3 (str "Quantity " quantity))
+      (ui/draw-line x y 1 (str "Cost " (* @ui/quantity (:worth (get @item/items item)))))
+      (ui/draw-line x y 3 (str "Quantity " @ui/quantity))
       (ui/draw-line x y 4 "Yes")
       (ui/draw-line x y 5 "No")
       (ui/draw-cursor x y (+ cursor 3))))
   (cursor-length [_] 3)
   (menu-type [_] :confirm-buy)
   (key-pressed [menu]
-    (let [cursor (ui/get-menu-cursor (.menu-type menu))
-          quantity (:quantity @state)]
+    (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= 1 cursor)
         (do
-          (complete-purchase! item quantity (* (:worth (get @item/items item)) quantity))
+          (complete-purchase! item @ui/quantity (* (:worth (get @item/items item)) @ui/quantity))
           (ui/close-menu!)
-          (ui/open-menu! (purchase-complete-menu/create-menu state shop item quantity)))
+          (ui/open-menu! (purchase-complete-menu/create-menu state shop item @ui/quantity)))
         (= 2 cursor)
         (ui/close-menu!)))))
 
 (defn create-menu
   [state shop item]
-  (ui/reset-quantity! state 1 (Math/floor (/ (:gold @player/player) (:worth (get @item/items item)))))
+  (ui/reset-quantity! 1 (Math/floor (/ (:gold @player/player) (:worth (get @item/items item)))))
   (ConfirmBuyMenu. state shop item))

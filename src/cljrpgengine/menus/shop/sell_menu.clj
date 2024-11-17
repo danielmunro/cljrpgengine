@@ -43,7 +43,8 @@
   (menu-type [_] :sell)
   (key-pressed [menu]
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
-      (ui/open-menu! (confirm-sell-menu/create-menu state (nth (keys (:items @player/player)) cursor))))))
+      (if-let [item (nth (keys (:items @player/player)) cursor)]
+        (ui/open-menu! (confirm-sell-menu/create-menu state item))))))
 
 (defn create-menu
   [state]

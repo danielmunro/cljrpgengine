@@ -11,6 +11,9 @@
 (def ui-pack (atom nil))
 (def main-font (atom nil))
 (def menus (atom []))
+(def quantity (atom nil))
+(def min-quantity (atom nil))
+(def max-quantity (atom nil))
 
 (defn init!
   []
@@ -200,27 +203,25 @@
   (change-cursor! inc))
 
 (defn- above-min-quantity?
-  [state]
-  (let [{:keys [quantity-min quantity]} @state]
-    (if (and quantity-min quantity)
-      (< quantity-min quantity))))
+  []
+  (if (and @min-quantity @quantity)
+    (< @min-quantity @quantity)))
 
 (defn- below-max-quantity?
-  [state]
-  (let [{:keys [quantity-max quantity]} @state]
-    (if (and quantity-max quantity)
-      (< quantity quantity-max))))
+  []
+  (if (and @max-quantity @quantity)
+    (< @quantity @max-quantity)))
 
 (defn- inc-quantity!
-  [state]
-  (dosync (alter state update :quantity inc)))
+  []
+  (swap! quantity inc))
 
 (defn- dec-quantity!
-  [state]
-  (dosync (alter state update :quantity dec)))
+  []
+  (swap! quantity dec))
 
 (defn move-cursor!
-  [state key]
+  [key]
   (cond
     (and
      (= key :up)
@@ -232,12 +233,12 @@
     (inc-cursor!)
     (and
      (= key :left)
-     (above-min-quantity? state))
-    (dec-quantity! state)
+     (above-min-quantity?))
+    (dec-quantity!)
     (and
      (= key :right)
-     (below-max-quantity? state))
-    (inc-quantity! state)))
+     (below-max-quantity?))
+    (inc-quantity!)))
 
 (defn is-menu-open?
   []
@@ -254,9 +255,10 @@
           t)))))
 
 (defn reset-quantity!
-  [state min max]
-  (dosync
-   (alter state assoc :quantity 1 :quantity-min min :quantity-max max)))
+  [min max]
+  (swap! quantity (constantly 1))
+  (swap! min-quantity (constantly min))
+  (swap! max-quantity (constantly max)))
 
 (defn scrollable-area
   [x y cursor max-lines-on-screen start-line lines]
