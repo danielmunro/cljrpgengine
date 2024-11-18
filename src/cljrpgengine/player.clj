@@ -69,6 +69,16 @@
     (swap! party assoc-in [identifier :sprite :current-animation] animation)
     (swap! party assoc-in [identifier :sprite :animations (keyword animation) :is-playing] true)))
 
+(defn check-for-door
+  [x y]
+  (let [doors (-> @map/tilemap :tilemap :doors)]
+    (doseq [i (range 0 (count doors))]
+      (let [door (get doors i)]
+        (if (and
+             (= x (:x door))
+             (= y (:y door)))
+          (swap! map/tilemap update-in [:tilemap :doors i :status] (constantly :opened)))))))
+
 (defn start-moving!
   [direction new-x new-y]
   (let [{:keys [tileset tilemap]} @map/tilemap
@@ -89,7 +99,15 @@
         new-y)))
       (do
         (play-animation! direction)
-        (swap! party update-in [identifier] assoc :direction direction :x new-x :y new-y :x-offset (- x new-x) :y-offset (- y new-y) :moved 0 :is-moving? true))
+        (swap! party update-in [identifier] assoc
+               :direction direction
+               :x new-x
+               :y new-y
+               :x-offset (- x new-x)
+               :y-offset (- y new-y)
+               :moved 0
+               :is-moving? true)
+        (check-for-door new-x new-y))
       (do
         (swap! party assoc-in [identifier :sprite :current-animation] direction)
         (swap! party assoc-in [identifier :direction] direction)))))

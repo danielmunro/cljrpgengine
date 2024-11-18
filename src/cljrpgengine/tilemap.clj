@@ -171,8 +171,8 @@
     (loop [x 0 y 0]
       (when (< y maph)
         (let [tile (dec (get-in layer [:data (-> y
-                                               (* mapw)
-                                               (+ x))]))]
+                                                 (* mapw)
+                                                 (+ x))]))]
           (if (>= tile 0)
             (let [dx1 (* x w)
                   dy1 (* y h)
@@ -230,7 +230,7 @@
                      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))}))))
 
 (defn- draw-doors
-  [g transform]
+  [g transform status]
   (let [{:keys [tileset-image tileset]} @tilemap
         {:keys [doors imagewidth]} tileset
         {:keys [width height]} (:tilemap @tilemap)
@@ -238,9 +238,11 @@
                             (* height constants/tile-size)
                             BufferedImage/TYPE_INT_ARGB)
         tmp-graphics (.getGraphics tmp)]
-    (doseq [door (-> @tilemap :tilemap :doors)]
-      (let [status (:status door)
-            tile (dec (get (get doors (:type door)) status))
+    (doseq [door (->> @tilemap
+                      :tilemap
+                      :doors
+                      (filter #(= status (:status %))))]
+      (let [tile (dec (get (get doors (:type door)) status))
             dx1 (:x door)
             dy1 (:y door)
             dx2 (+ (:x door) constants/tile-size)
@@ -266,13 +268,14 @@
     (.translate transform offset-x offset-y)
     (.drawImage g background transform nil)
     (.drawImage g midground transform nil)
-    (draw-doors g transform)))
+    (draw-doors g transform :closed)))
 
 (defn draw-foreground
   [g offset-x offset-y]
   (let [transform (AffineTransform.)]
     (.translate transform offset-x offset-y)
-    (.drawImage g (:foreground @tilemap) transform nil)))
+    (.drawImage g (:foreground @tilemap) transform nil)
+    (draw-doors g transform :opened)))
 
 (defn get-warp
   [warp-name]
