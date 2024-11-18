@@ -113,10 +113,10 @@
   [objects]
   (mapv (fn
           [object]
-          {:type (object "type")
+          {:type (keyword (object "type"))
            :x (object "x")
            :y (object "y")
-           :status (get object "status" :closed)
+           :status (keyword (get object "status" "closed"))
            :locked (get object "locked" false)
            :key (get object "key" nil)})
         objects))
@@ -168,9 +168,9 @@
         g (.createGraphics buf)]
     (loop [x 0 y 0]
       (when (< y maph)
-        (let [tile (- (get-in layer [:data (-> y
+        (let [tile (dec (get-in layer [:data (-> y
                                                (* mapw)
-                                               (+ x))]) 1)]
+                                               (+ x))]))]
           (if (>= tile 0)
             (let [dx1 (* x w)
                   dy1 (* y h)
@@ -223,6 +223,8 @@
                      :tileset-image image
                      :scene scene-key
                      :room room-key
+                     :width mapw
+                     :height maph
                      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
                      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
                      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))}))))
