@@ -1,5 +1,6 @@
 (ns cljrpgengine.input
-  (:require [cljrpgengine.event :as event]
+  (:require [cljrpgengine.chest :as chest]
+            [cljrpgengine.event :as event]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menus.shop.shop-menu :as shop-menu]
@@ -62,6 +63,17 @@
    (= key :space)
    (ui/is-menu-open?)))
 
+(defn open-chest!
+  "A chest was found at the player's inspect coordinates.  Make sure it hasn't
+  been opened yet, open it and get the contents."
+  [chest]
+  (when (not (contains? @map/opened-chests (chest/chest-key chest)))
+    (if-let [gold (:gold chest)]
+      (swap! player/player update-in [:gold] (fn [g] (+ g gold))))
+    (if-let [item (:item chest)]
+      (player/add-item! (keyword item) (get chest :quantity 1)))
+    (swap! map/opened-chests (fn [opened] (conj opened (chest/chest-key chest))))))
+
 (defn action-engaged!
   "Player is attempting to engage with something.  If on a shop, the game will
   open a shop dialog.  If next to a mob, a player will open a dialog with the
@@ -79,9 +91,12 @@
         (event/create-engagement! mob)
         (if-let [shop (:name (map/get-interaction-from-coords
                               #(get-in % [:tilemap :shops])
-                              x
-                              y))]
-          (ui/open-menu! (shop-menu/create-menu shop)))))))
+                              x y))]
+          (ui/open-menu! (shop-menu/create-menu shop))
+          (if-let [chest (map/get-interaction-from-coords
+                          #(get-in % [:tilemap :chests])
+                          inspect-x inspect-y)]
+            (open-chest! chest)))))))
 
 (defn key-pressed!
   [event]

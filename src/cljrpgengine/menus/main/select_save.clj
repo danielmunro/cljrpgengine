@@ -22,7 +22,7 @@
     (count (:saves save)))
   (menu-type [_] :select-save-menu)
   (key-pressed [menu]
-    (new-game/load-save
+    (new-game/load-save!
      (str (:name save) "/" (nth (:saves save) (ui/get-menu-cursor (.menu-type menu)))))))
 
 (defn create-menu

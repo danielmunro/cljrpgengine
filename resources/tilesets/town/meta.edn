@@ -2,5 +2,5 @@
                       :opened 75}
          :gray-door  {:closed 90
                       :opened 79}}
- :chests {:default {:closed 136
-                    :opened 137}}}
+ :chests {:default {:closed 137
+                    :opened 138}}}

@@ -37,7 +37,7 @@
     (let [cursor (ui/get-menu-cursor (.menu-type menu))]
       (cond
         (= (nth final-menu-items cursor) "Continue")
-        (initialize-game/load-save "last-save.txt")
+        (initialize-game/load-save! "last-save.txt")
         (= (nth final-menu-items cursor) "New Game")
         (initialize-game/start)
         (= (nth final-menu-items cursor) "Load Game")

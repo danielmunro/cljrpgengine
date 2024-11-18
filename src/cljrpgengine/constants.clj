@@ -37,8 +37,6 @@
 
 (def portrait-size [40 40])
 
-(def time-per-frame-ns 200000000)
-
 (def nano-per-second 1000000000)
 
 (def animation-delay-ns 1000000)

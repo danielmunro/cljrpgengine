@@ -1,6 +1,7 @@
 (ns cljrpgengine.initialize-game
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.log :as log]
+            [cljrpgengine.tilemap :as tilemap]
             [cljrpgengine.tilemap :as map]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -56,11 +57,12 @@
   (load-room! :tinytown :main)
   (close-ui-if-open))
 
-(defn load-save
+(defn load-save!
   [file]
-  (let [{:keys [scene room] :as data} (save/load-save-file file)]
+  (let [{:keys [scene room opened-chests] :as data} (save/load-save-file file)]
     (save/load-player! data)
     (map/load-tilemap! scene room)
-    (scene/load-scene! scene room))
+    (scene/load-scene! scene room)
+    (swap! tilemap/opened-chests (constantly opened-chests)))
   (load-room!)
   (close-ui-if-open))

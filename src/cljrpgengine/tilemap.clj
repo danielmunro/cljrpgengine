@@ -1,5 +1,6 @@
 (ns cljrpgengine.tilemap
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.chest :as chest]
             [cljrpgengine.log :as log]
             [cljrpgengine.util :as util]
             [clojure.data.json :as json]
@@ -12,6 +13,7 @@
 (def x (atom 0))
 (def y (atom 0))
 (def tilemap (atom nil))
+(def opened-chests (atom #{}))
 
 (defn- transform-tile
   [tile tw th iw]
@@ -121,6 +123,19 @@
            :key (get object "key" nil)})
         objects))
 
+(defn- transform-chests
+  [objects]
+  (mapv (fn
+          [object]
+          (merge
+           {:id (object "id")
+            :x (object "x")
+            :y (object "y")
+            :width (object "width")
+            :height (object "height")}
+           (into {} (map (fn [p] {(keyword (p "name")) (p "value")}) (object "properties")))))
+        objects))
+
 (defn- load-tiled-tilemap
   [scene-name room-name]
   (let [data (-> (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmj")
@@ -131,7 +146,8 @@
         warps (util/filter-first #(= "warps" (% "name")) layers)
         shops (util/filter-first #(= "shops" (% "name")) layers)
         doors (util/filter-first #(= "doors" (% "name")) layers)
-        encounters (util/filter-first #(= "encounters" (% "name")) layers)]
+        encounters (util/filter-first #(= "encounters" (% "name")) layers)
+        chests (util/filter-first #(= "chests" (% "name")) layers)]
     {:height (data "height")
      :width (data "width")
      :tileset (get (first (data "tilesets")) "source")
@@ -148,7 +164,10 @@
               [])
      :encounters (if encounters
                    (transform-encounters (encounters "objects"))
-                   [])}))
+                   [])
+     :chests (if chests
+               (transform-chests (chests "objects"))
+               [])}))
 
 (defn is-blocking?
   [tile-map tile-set x y]
@@ -235,6 +254,30 @@
                      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
                      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))}))))
 
+(defn- draw-chests
+  [g transform]
+  (let [{:keys [tileset-image tileset]} @tilemap
+        {:keys [chests]} tileset
+        {:keys [width height]} (:tilemap @tilemap)
+        tmp (BufferedImage. (* width constants/tile-size)
+                            (* height constants/tile-size)
+                            BufferedImage/TYPE_INT_ARGB)
+        tmp-graphics (.getGraphics tmp)]
+    (doseq [chest (->> @tilemap
+                       :tilemap
+                       :chests)]
+      (let [status (if (contains? @opened-chests (chest/chest-key chest)) :opened :closed)
+            tile (dec (-> chests :default status))
+            dx1 (:x chest)
+            dy1 (:y chest)
+            dx2 (+ (:x chest) constants/tile-size)
+            dy2 (+ (:y chest) constants/tile-size)
+            {:keys [x y]} (get-tile-coords tile)
+            sx2 (+ x constants/tile-size)
+            sy2 (+ y constants/tile-size)]
+        (.drawImage tmp-graphics tileset-image dx1 dy1 dx2 dy2 x y sx2 sy2 nil)))
+    (.drawImage g tmp transform nil)))
+
 (defn- draw-doors
   [g transform status]
   (let [{:keys [tileset-image tileset]} @tilemap
@@ -266,7 +309,8 @@
     (.translate transform offset-x offset-y)
     (.drawImage g background transform nil)
     (.drawImage g midground transform nil)
-    (draw-doors g transform :closed)))
+    (draw-doors g transform :closed)
+    (draw-chests g transform)))
 
 (defn draw-foreground
   [g offset-x offset-y]

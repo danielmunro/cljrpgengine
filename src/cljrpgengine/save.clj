@@ -5,6 +5,7 @@
             [cljrpgengine.scene :as scene]
             [cljrpgengine.player :as player]
             [cljrpgengine.sprite :as sprite]
+            [cljrpgengine.tilemap :as tilemap]
             [clojure.java.io :as io]
             [java-time.api :as jt]))
 
@@ -24,6 +25,7 @@
      :gold gold
      :grants grants
      :items items
+     :opened-chests @tilemap/opened-chests
      :player {:party (into {} (map
                                (fn [k]
                                  (let [{:keys [name
