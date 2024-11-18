@@ -137,7 +137,9 @@
      :tileset (get (first (data "tilesets")) "source")
      :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
      :warps (transform-warps (warps "objects"))
-     :doors (transform-doors (doors "objects"))
+     :doors (if doors
+              (transform-doors (doors "objects"))
+              [])
      :arrive_at (if arrive-at
                   (transform-arrive-at (arrive-at "objects"))
                   [])
@@ -223,8 +225,6 @@
                      :tileset-image image
                      :scene scene-key
                      :room room-key
-                     :width mapw
-                     :height maph
                      :background (draw-layer (:background layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
                      :midground (draw-layer (:midground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))
                      :foreground (draw-layer (:foreground layers) image w h mapw maph iw (partial is-blocking? tiled-tilemap tiled-tileset))}))))
@@ -232,11 +232,36 @@
 (defn draw-background
   [g offset-x offset-y]
   (let [transform (AffineTransform.)
-        {:keys [background midground tileset-image]} @tilemap]
+        {:keys [background midground tileset-image tileset]} @tilemap
+        {:keys [doors imagewidth]} tileset
+        {:keys [width height]} (:tilemap @tilemap)]
     (.translate transform offset-x offset-y)
     (.drawImage g background transform nil)
     (.drawImage g midground transform nil)
-    #_(.drawImage g (:tileset-image @tilemap))))
+    (doseq [door (-> @tilemap :tilemap :doors)]
+      (let [tmp (BufferedImage. (* width constants/tile-size)
+                                (* height constants/tile-size)
+                                BufferedImage/TYPE_INT_ARGB)
+            tmp-graphics (.getGraphics tmp)
+            status (:status door)
+            tile (dec (get (get doors (:type door)) status))
+            dx1 (:x door)
+            dy1 (:y door)
+            dx2 (+ (:x door) constants/tile-size)
+            dy2 (+ (:y door) constants/tile-size)
+            sx1 (-> tile
+                    (* constants/tile-size)
+                    (mod imagewidth))
+            sy1 (-> tile
+                    (* constants/tile-size)
+                    (/ imagewidth)
+                    (Math/floor)
+                    (int)
+                    (* constants/tile-size))
+            sx2 (+ sx1 constants/tile-size)
+            sy2 (+ sy1 constants/tile-size)]
+        (.drawImage tmp-graphics tileset-image dx1 dy1 dx2 dy2 sx1 sy1 sx2 sy2 nil)
+        (.drawImage g tmp transform nil)))))
 
 (defn draw-foreground
   [g offset-x offset-y]
