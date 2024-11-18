@@ -1,0 +1,6 @@
+{:doors {:brown-door {:closed 86
+                      :opened 75}
+         :gray-door  {:closed 90
+                      :opened 79}}
+ :chests {:default {:closed 136
+                    :opened 137}}}

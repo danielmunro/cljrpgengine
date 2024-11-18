@@ -58,3 +58,7 @@
       (if (< xp-minus-level 0)
         (- xp-for-level remaining-xp)
         (recur (inc i) xp-minus-level)))))
+
+(defn remove-file-extension
+  [filename]
+  (.replaceFirst filename "[.][^.]+$" ""))
