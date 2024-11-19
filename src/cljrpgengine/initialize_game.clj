@@ -47,7 +47,8 @@
 (defn- set-player-to-map-start
   []
   (let [{:keys [x y direction]} (map/get-warp "start")
-        {:keys [identifier]} (player/party-leader)]
+        {:keys [identifier]} (player/party-leader)
+        direction-key (keyword direction)]
     (swap! player/party
            update-in
            [identifier]
@@ -56,7 +57,11 @@
            :y y
            :x-offset 0
            :y-offset 0
-           :direction direction)))
+           :direction direction-key)
+    (swap! player/party
+           assoc-in
+           [identifier :sprite :current-animation]
+           direction-key)))
 
 (defn start
   []

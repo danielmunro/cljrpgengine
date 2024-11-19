@@ -215,4 +215,4 @@
                                direction
                                (first coords)
                                (second coords)
-                               (sprite/create sprite)))))))))
+                               (assoc (sprite/create sprite) :current-animation (keyword direction))))))))))
