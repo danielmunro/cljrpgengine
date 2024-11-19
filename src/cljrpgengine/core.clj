@@ -9,8 +9,7 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window]
-            [cljrpgengine.log :as log])
-  (:gen-class))
+            [cljrpgengine.log :as log]))
 
 (def save-file (atom nil))
 
