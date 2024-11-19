@@ -5,10 +5,20 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.5.0"]
-                 [clojure.java-time "1.4.2"]]
+                 [clojure.java-time "1.4.2"]
+                 [com.badlogicgames.gdx/gdx "1.9.3"]
+                 [com.badlogicgames.gdx/gdx-backend-lwjgl "1.9.3"]
+                 [com.badlogicgames.gdx/gdx-box2d "1.9.3"]
+                 [com.badlogicgames.gdx/gdx-box2d-platform "1.9.3"
+                  :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-bullet "1.9.3"]
+                 [com.badlogicgames.gdx/gdx-bullet-platform "1.9.3"
+                  :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-platform "1.9.3"
+                  :classifier "natives-desktop"]]
   :main cljrpgengine.core
   :target-path "target/%s"
   :plugins [[lein-pprint "1.3.2"]
             [dev.weavejester/lein-cljfmt "0.12.0"]
             [lein-cloverage "1.2.2"]]
-  :profiles {:uberjar {:aot :all}})
+  :aot :all)

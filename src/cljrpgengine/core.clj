@@ -9,11 +9,14 @@
             [cljrpgengine.effect :as effect]
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window]
-            [cljrpgengine.log :as log]))
+            [cljrpgengine.log :as log])
+  (:import [com.badlogic.gdx.backends.lwjgl LwjglApplication]
+           [org.lwjgl.input Keyboard])
+  (:gen-class))
 
-(def save-file (atom nil))
+#_(def save-file (atom nil))
 
-(defn setup
+#_(defn setup
   "Setup function for the game."
   []
   (ui/init!)
@@ -28,7 +31,7 @@
   (ui/open-menu! (main-menu/create-menu))
   (effect/add-fade-in))
 
-(defn -main
+#_(defn -main
   "Start the game."
   [& args]
   (if (seq args)
@@ -41,3 +44,9 @@
   (log/info "starting game...")
   (setup)
   (game-loop/run-game!))
+
+(defn -main
+  "Start the game."
+  [& args]
+  (LwjglApplication. (cljrpgengine.game.Game.) "demo" 800 600)
+  (Keyboard/enableRepeatEvents true))
