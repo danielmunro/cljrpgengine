@@ -138,36 +138,40 @@
 
 (defn- load-tiled-tilemap
   [scene-name room-name]
-  (let [data (-> (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmj")
-                 (slurp)
-                 (json/read-str))
-        layers (data "layers")
-        arrive-at (util/filter-first #(= "arrive_at" (% "name")) layers)
-        warps (util/filter-first #(= "warps" (% "name")) layers)
-        shops (util/filter-first #(= "shops" (% "name")) layers)
-        doors (util/filter-first #(= "doors" (% "name")) layers)
-        encounters (util/filter-first #(= "encounters" (% "name")) layers)
-        chests (util/filter-first #(= "chests" (% "name")) layers)]
-    {:height (data "height")
-     :width (data "width")
-     :tileset (get (first (data "tilesets")) "source")
-     :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
-     :warps (transform-warps (warps "objects"))
-     :doors (if doors
-              (transform-doors (doors "objects"))
-              [])
-     :arrive_at (if arrive-at
-                  (transform-arrive-at (arrive-at "objects"))
+  (let [file-path (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmj")]
+    (if (.exists (io/file file-path))
+      (let [data (-> file-path
+                     (slurp)
+                     (json/read-str))
+            layers (data "layers")
+            arrive-at (util/filter-first #(= "arrive_at" (% "name")) layers)
+            warps (util/filter-first #(= "warps" (% "name")) layers)
+            shops (util/filter-first #(= "shops" (% "name")) layers)
+            doors (util/filter-first #(= "doors" (% "name")) layers)
+            encounters (util/filter-first #(= "encounters" (% "name")) layers)
+            chests (util/filter-first #(= "chests" (% "name")) layers)]
+        {:height (data "height")
+         :width (data "width")
+         :tileset (get (first (data "tilesets")) "source")
+         :layers (into {} (map #(transform-layer %) (filter #(= "tilelayer" (% "type")) (data "layers"))))
+         :warps (transform-warps (warps "objects"))
+         :doors (if doors
+                  (transform-doors (doors "objects"))
                   [])
-     :shops (if shops
-              (transform-shops (shops "objects"))
-              [])
-     :encounters (if encounters
-                   (transform-encounters (encounters "objects"))
-                   [])
-     :chests (if chests
-               (transform-chests (chests "objects"))
-               [])}))
+         :arrive_at (if arrive-at
+                      (transform-arrive-at (arrive-at "objects"))
+                      [])
+         :shops (if shops
+                  (transform-shops (shops "objects"))
+                  [])
+         :encounters (if encounters
+                       (transform-encounters (encounters "objects"))
+                       [])
+         :chests (if chests
+                   (transform-chests (chests "objects"))
+                   [])})
+      (throw (ex-info "tilemap file not found" {:scene scene-name
+                                                :room room-name})))))
 
 (defn is-blocking?
   [tile-map tile-set x y]

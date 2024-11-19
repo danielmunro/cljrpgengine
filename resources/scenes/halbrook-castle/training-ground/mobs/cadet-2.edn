@@ -1,0 +1,5 @@
+{:identifier :cadet-2
+ :name "Cadet"
+ :direction :right
+ :coords [128 196]
+ :sprite :cyrus}
