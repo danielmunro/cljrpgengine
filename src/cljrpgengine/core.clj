@@ -10,7 +10,7 @@
             [cljrpgengine.game-loop :as game-loop]
             [cljrpgengine.window :as window]
             [cljrpgengine.log :as log])
-  (:import [com.badlogic.gdx.backends.lwjgl LwjglApplication]
+  (:import [com.badlogic.gdx.backends.lwjgl LwjglApplication LwjglApplicationConfiguration]
            [org.lwjgl.input Keyboard])
   (:gen-class))
 
@@ -49,9 +49,18 @@
   (setup)
   (game-loop/run-game!))
 
+(defn- get-configuration
+  []
+  (let [config (LwjglApplicationConfiguration.)]
+    (set! (. config -title) "demo")
+    (set! (. config -width) 800)
+    (set! (. config -height) 600)
+    config))
+
 (defn -main
   "Start the game."
   [& args]
   (parse-args args)
-  (LwjglApplication. (cljrpgengine.game.Game.) "demo" 800 600)
+  (setup)
+  (LwjglApplication. (cljrpgengine.game.Game.) (get-configuration))
   (Keyboard/enableRepeatEvents true))
