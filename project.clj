@@ -6,15 +6,15 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.5.0"]
                  [clojure.java-time "1.4.2"]
-                 [com.badlogicgames.gdx/gdx "1.9.3"]
-                 [com.badlogicgames.gdx/gdx-backend-lwjgl "1.9.3"]
-                 [com.badlogicgames.gdx/gdx-box2d "1.9.3"]
-                 [com.badlogicgames.gdx/gdx-box2d-platform "1.9.3"
+                 [com.badlogicgames.gdx/gdx "1.13.0"]
+                 [com.badlogicgames.gdx/gdx-backend-lwjgl "1.13.0"]
+                 [com.badlogicgames.gdx/gdx-box2d "1.13.0"]
+                 [com.badlogicgames.gdx/gdx-box2d-platform "1.13.0"
                   :classifier "natives-desktop"]
-                 [com.badlogicgames.gdx/gdx-bullet "1.9.3"]
-                 [com.badlogicgames.gdx/gdx-bullet-platform "1.9.3"
+                 [com.badlogicgames.gdx/gdx-bullet "1.13.0"]
+                 [com.badlogicgames.gdx/gdx-bullet-platform "1.13.0"
                   :classifier "natives-desktop"]
-                 [com.badlogicgames.gdx/gdx-platform "1.9.3"
+                 [com.badlogicgames.gdx/gdx-platform "1.13.0"
                   :classifier "natives-desktop"]]
   :main cljrpgengine.core
   :target-path "target/%s"
