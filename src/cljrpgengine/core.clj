@@ -14,14 +14,14 @@
            [org.lwjgl.input Keyboard])
   (:gen-class))
 
-#_(def save-file (atom nil))
+(def save-file (atom nil))
 
-#_(defn setup
+(defn setup
   "Setup function for the game."
   []
   (ui/init!)
   (sprite/load-sprites)
-  (window/create
+  #_(window/create
    constants/screen-width
    constants/screen-height
    #(input/key-pressed! %)
@@ -31,16 +31,20 @@
   (ui/open-menu! (main-menu/create-menu))
   (effect/add-fade-in))
 
-#_(defn -main
-  "Start the game."
-  [& args]
+(defn- parse-args
+  [args]
   (if (seq args)
     (doseq [arg args]
       (cond
         (= "-s" arg)
         (swap! save-file (constantly (first (next args))))
         (= "-l" arg)
-        (swap! log/log-level (constantly (keyword (first (next args))))))))
+        (swap! log/log-level (constantly (keyword (first (next args)))))))))
+
+#_(defn -main
+  "Start the game."
+  [& args]
+  (parse-args args)
   (log/info "starting game...")
   (setup)
   (game-loop/run-game!))
@@ -48,5 +52,6 @@
 (defn -main
   "Start the game."
   [& args]
+  (parse-args args)
   (LwjglApplication. (cljrpgengine.game.Game.) "demo" 800 600)
   (Keyboard/enableRepeatEvents true))
