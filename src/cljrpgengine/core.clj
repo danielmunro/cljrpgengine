@@ -53,8 +53,8 @@
   []
   (let [config (LwjglApplicationConfiguration.)]
     (set! (. config -title) "demo")
-    (set! (. config -width) 800)
-    (set! (. config -height) 600)
+    (set! (. config -width) constants/screen-width)
+    (set! (. config -height) constants/screen-height)
     config))
 
 (defn -main
