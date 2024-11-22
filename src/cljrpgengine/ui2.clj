@@ -1,8 +1,19 @@
 (ns cljrpgengine.ui2
-  (:require [cljrpgengine.deps :as deps])
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.deps :as deps])
   (:import (com.badlogic.gdx.graphics Color Pixmap Pixmap$Format Texture)
-           (com.badlogic.gdx.graphics.glutils ShapeRenderer$ShapeType)
-           (com.badlogic.gdx.scenes.scene2d Actor)))
+           (com.badlogic.gdx.scenes.scene2d Actor)
+           (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
+
+(defn create-label
+  ([text x y]
+  (let [style (Label$LabelStyle. @deps/font Color/WHITE)
+        label (doto (Label. ^CharSequence text style))]
+    (doto label
+      (.setX x)
+      (.setY y))))
+   ([text]
+    (create-label text 0 0)))
 
 (defn- create-texture
   [width height color]
