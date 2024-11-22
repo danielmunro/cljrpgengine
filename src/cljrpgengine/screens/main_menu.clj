@@ -6,7 +6,6 @@
   (:import (com.badlogic.gdx Gdx Screen)
            [com.badlogic.gdx.graphics Color]
            (com.badlogic.gdx.scenes.scene2d Group Stage)
-           (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)
            (com.badlogic.gdx.utils ScreenUtils)))
 
 (defn screen
@@ -21,16 +20,15 @@
         (reset! stage (Stage.))
         (let [group (Group.)
               window (ui2/create-window 0 0 constants/screen-width constants/screen-height)
-              label (ui2/create-label "Chronicles of Telam")]
+              label-title (ui2/create-label "Chronicles of Telam")]
+
+          (doto label-title
+            (.setFontScale 2.0)
+            (.setX (- (/ constants/screen-width 2) (.getWidth label-title)))
+            (.setY (* constants/screen-height 2/3)))
 
           (.addActor group window)
-
-          (doto label
-            (.setFontScale 2.0)
-            (.setX (- (/ constants/screen-width 2) (.getWidth label)))
-            (.setY (* constants/screen-height 2/3)))
-          (.addActor group label)
-
+          (.addActor group label-title)
           (.addActor @stage group)))
 
       (render [delta]
@@ -45,8 +43,7 @@
       (dispose []
         (dispose))
 
-      (hide []
-        #_(.setInputProcessor Gdx/input nil))
+      (hide [])
 
       (pause [])
 

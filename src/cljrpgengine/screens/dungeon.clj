@@ -1,10 +1,8 @@
 (ns cljrpgengine.screens.dungeon
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps])
+  (:require [cljrpgengine.deps :as deps])
   (:import (com.badlogic.gdx Screen)
-           (com.badlogic.gdx.graphics Color)
+           (com.badlogic.gdx.graphics Color )
            (com.badlogic.gdx.scenes.scene2d Stage)
-           (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)
            (com.badlogic.gdx.utils ScreenUtils)))
 
 (defn screen
