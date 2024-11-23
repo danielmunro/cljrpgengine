@@ -25,8 +25,8 @@
                                       ^Array (sprite-array txr [[1 0] [1 1] [1 0] [1 2]]))
                     :right (Animation. (float constants/walk-speed)
                                 ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
-        x (atom 0)
-        y (atom 0)
+        x (atom 27)
+        y (atom 16)
         move (atom {:up false
                     :down false
                     :left false
@@ -55,12 +55,14 @@
              (act [delta]
                (cond
                  (:up @move)
-                 (modify-location y - delta)
+                 (modify-location y + (* 2 delta))
                  (:down @move)
-                 (modify-location y + delta)
+                 (modify-location y - (* 2 delta))
                  (:left @move)
-                 (modify-location x - delta)
+                 (modify-location x - (* 2 delta))
                  (:right @move)
-                 (modify-location x + delta))))
+                 (modify-location x + (* 2 delta)))))
      :do-move! do-move!
-     :stop-move! stop-move!}))
+     :stop-move! stop-move!
+     :x x
+     :y y}))

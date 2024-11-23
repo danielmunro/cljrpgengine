@@ -53,12 +53,12 @@
                      (/ constants/screen-height constants/tile-size))
         (.setView renderer @deps/camera))
       (render [delta]
-        (println x y)
         (.set (. @deps/camera position)
-              (float x)
-              (float y)
+              @x
+              @y
               0)
         (.update @deps/camera)
+        (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
         (.begin @deps/batch)
         (.renderTileLayer renderer (.get (.getLayers tiledmap) "background"))
@@ -74,8 +74,5 @@
         (dispose))
       (hide [])
       (pause [])
-      (resize [w h]
-        (set! (. @deps/camera -viewportWidth) (float 100))
-        (set! (. @deps/camera -viewportHeight) (* (float 100) (/ h w)))
-        (.update @deps/camera))
+      (resize [_ _])
       (resume []))))

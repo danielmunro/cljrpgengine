@@ -21,4 +21,4 @@
   :plugins [[lein-pprint "1.3.2"]
             [dev.weavejester/lein-cljfmt "0.12.0"]
             [lein-cloverage "1.2.2"]]
-  :aot :all)
+  :aot [cljrpgengine.game])

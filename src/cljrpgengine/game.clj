@@ -13,13 +13,7 @@
 (defn -create [^Game this]
   (swap! deps/batch (constantly (SpriteBatch.)))
   (swap! deps/font (constantly (BitmapFont.)))
-  (let [camera (OrthographicCamera. constants/screen-width constants/screen-height)]
-    (.set (. camera position)
-          (float (/ (. camera viewportWidth) 2))
-          (float (/ (. camera viewportHeight) 2))
-          0)
-    (.update camera)
-    (swap! deps/camera (constantly camera)))
+  (swap! deps/camera (constantly (OrthographicCamera. constants/screen-width constants/screen-height)))
   (.setScreen this (main-menu/screen this)))
 
 (defn -dispose [^Game _]

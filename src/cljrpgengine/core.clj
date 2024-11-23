@@ -1,14 +1,5 @@
 (ns cljrpgengine.core
-  (:require [cljrpgengine.item :as item]
-            [cljrpgengine.menus.main.main-menu :as main-menu]
-            [cljrpgengine.sprite :as sprite]
-            [cljrpgengine.fight :as beast]
-            [cljrpgengine.ui :as ui]
-            [cljrpgengine.constants :as constants]
-            [cljrpgengine.input :as input]
-            [cljrpgengine.effect :as effect]
-            [cljrpgengine.game-loop :as game-loop]
-            [cljrpgengine.window :as window]
+  (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.log :as log])
   (:import [com.badlogic.gdx.backends.lwjgl LwjglApplication LwjglApplicationConfiguration]
            [org.lwjgl.input Keyboard])
