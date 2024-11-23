@@ -53,10 +53,7 @@
                      (/ constants/screen-height constants/tile-size))
         (.setView renderer @deps/camera))
       (render [delta]
-        (.set (. @deps/camera position)
-              @x
-              @y
-              0)
+        (.set (. @deps/camera position) @x @y 0)
         (.update @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
