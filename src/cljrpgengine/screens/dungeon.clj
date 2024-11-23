@@ -1,23 +1,25 @@
 (ns cljrpgengine.screens.dungeon
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
-            [cljrpgengine.mob :as mob])
+            [cljrpgengine.mob :as mob]
+            [cljrpgengine.tilemap :as tilemap])
   (:import (com.badlogic.gdx Gdx Input$Keys InputAdapter Screen)
            (com.badlogic.gdx.graphics Color)
-           (com.badlogic.gdx.maps.tiled TmxMapLoader)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
            (com.badlogic.gdx.scenes.scene2d Stage)
-           (com.badlogic.gdx.utils Array ScreenUtils)))
+           (com.badlogic.gdx.utils ScreenUtils)))
 
 (defn screen
-  [_]
+  [_ scene room]
   (let [stage (atom nil)
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
         {:keys [actor do-move! stop-move! x y]} (mob/create-mob "edwyn.png")
-        tiledmap (.load (TmxMapLoader.) "resources/scenes/tinytown/main/tinytown-main.tmx")
-        renderer (OrthogonalTiledMapRenderer. tiledmap (float 1/16) @deps/batch)]
+        {:keys [tiled]} (tilemap/load-tilemap scene room)
+        renderer (OrthogonalTiledMapRenderer. tiled (float 1/16) @deps/batch)
+        try-move (fn [direction]
+                   (do-move! direction))]
     (proxy [Screen] []
       (show []
         (reset! stage (Stage.))
@@ -28,13 +30,13 @@
             (keyDown [key]
               (cond
                 (= key Input$Keys/LEFT)
-                (do-move! :left)
+                (try-move :left)
                 (= key Input$Keys/RIGHT)
-                (do-move! :right)
+                (try-move :right)
                 (= key Input$Keys/UP)
-                (do-move! :up)
+                (try-move :up)
                 (= key Input$Keys/DOWN)
-                (do-move! :down)
+                (try-move :down)
                 :else false))
             (keyUp [key]
               (cond
@@ -58,14 +60,14 @@
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
         (.begin @deps/batch)
-        (.renderTileLayer renderer (.get (.getLayers tiledmap) "background"))
-        (.renderTileLayer renderer (.get (.getLayers tiledmap) "midground"))
+        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_BACKGROUND))
+        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_MIDGROUND))
         (.end @deps/batch)
         (doto @stage
           (.act delta)
           (.draw))
         (.begin @deps/batch)
-        (.renderTileLayer renderer (.get (.getLayers tiledmap) "foreground"))
+        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_FOREGROUND))
         (.end @deps/batch))
       (dispose []
         (dispose))

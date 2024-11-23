@@ -38,7 +38,7 @@
           (.act delta)
           (.draw))
         (if (.isTouched Gdx/input)
-          (.setScreen game (dungeon/screen game))))
+          (.setScreen game (dungeon/screen game :tinytown :main))))
 
       (dispose []
         (dispose))
