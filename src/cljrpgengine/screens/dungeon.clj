@@ -15,21 +15,20 @@
   (let [stage (atom nil)
         dispose (fn []
                   (.dispose @deps/batch)
-                  (.dispose @deps/font))
-        mob (mob/create-mob "edwyn.png")
-        state-time (atom (float 0))]
+                  (.dispose @deps/font))]
     (proxy [Screen] []
       (show []
-        #_(reset! stage (Stage.)))
+        (reset! stage (Stage.))
+        (.addActor @stage (mob/create-mob "edwyn.png")))
       (render [delta]
         (ScreenUtils/clear Color/BLACK)
         (.apply deps/viewport)
-        (swap! state-time (fn [t] (+ t delta)))
-        (let [frame (.getKeyFrame (-> mob :animations :down) @state-time true)]
+        (swap! deps/state-time (fn [t] (+ t delta)))
+        #_(let [frame (.getKeyFrame (-> mob :animations :down) @state-time true)]
           (.begin @deps/batch)
           (.draw @deps/batch frame (float (- (/ constants/screen-width 2) 8)) (float (- (/ constants/screen-height 2) 12)))
           (.end @deps/batch))
-        #_(doto @stage
+        (doto @stage
           (.act delta)
           (.draw)))
       (dispose []

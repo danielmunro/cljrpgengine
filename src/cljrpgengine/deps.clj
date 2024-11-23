@@ -4,3 +4,4 @@
 (def viewport (FitViewport. 8 5))
 (def batch (atom nil))
 (def font (atom nil))
+(def state-time (atom 0))
