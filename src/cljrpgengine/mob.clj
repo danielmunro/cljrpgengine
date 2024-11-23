@@ -1,12 +1,10 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps]
-            [cljrpgengine.util :as util]
-            [clojure.java.io :as io])
+            [cljrpgengine.util :as util])
   (:import (com.badlogic.gdx.files FileHandle)
            (com.badlogic.gdx.graphics Texture)
-           (com.badlogic.gdx.graphics.g2d Animation Animation$PlayMode TextureRegion)
-           (com.badlogic.gdx.scenes.scene2d Actor EventListener InputListener)
+           (com.badlogic.gdx.graphics.g2d Animation TextureRegion)
+           (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
 
 (defn sprite-array
@@ -15,7 +13,7 @@
 
 (defn create-mob
   [sprite-file-name]
-  (let [tx (Texture. (FileHandle. (io/file (str constants/sprites-dir sprite-file-name))))
+  (let [tx (Texture. (FileHandle. (str constants/sprites-dir sprite-file-name)))
         txr (TextureRegion/split tx
                                  constants/mob-width
                                  constants/mob-height)
