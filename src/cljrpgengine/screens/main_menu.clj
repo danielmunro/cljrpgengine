@@ -33,7 +33,7 @@
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)
-        (.apply deps/viewport)
+        (.update @deps/camera)
         (doto @stage
           (.act delta)
           (.draw))
@@ -48,6 +48,8 @@
       (pause [])
 
       (resize [w h]
-        (.update deps/viewport w h true))
+        (set! (. @deps/camera -viewportWidth) (float 100))
+        (set! (. @deps/camera -viewportHeight) (* (float 100) (/ h w)))
+        (.update @deps/camera))
 
       (resume []))))

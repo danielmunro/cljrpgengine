@@ -1,10 +1,13 @@
 (ns cljrpgengine.screens.dungeon
-  (:require [cljrpgengine.deps :as deps]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.deps :as deps]
             [cljrpgengine.mob :as mob])
   (:import (com.badlogic.gdx Gdx Input$Keys InputAdapter Screen)
            (com.badlogic.gdx.graphics Color)
+           (com.badlogic.gdx.maps.tiled TmxMapLoader)
+           (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
            (com.badlogic.gdx.scenes.scene2d Stage)
-           (com.badlogic.gdx.utils ScreenUtils)))
+           (com.badlogic.gdx.utils Array ScreenUtils)))
 
 (defn screen
   [_]
@@ -12,7 +15,9 @@
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
-        {:keys [actor do-move! stop-move!]} (mob/create-mob "edwyn.png")]
+        {:keys [actor do-move! stop-move! x y]} (mob/create-mob "edwyn.png")
+        tiledmap (.load (TmxMapLoader.) "resources/scenes/tinytown/main/tinytown-main.tmx")
+        renderer (OrthogonalTiledMapRenderer. tiledmap (float 1/16) @deps/batch)]
     (proxy [Screen] []
       (show []
         (reset! stage (Stage.))
@@ -41,18 +46,36 @@
                 (stop-move! :up)
                 (= key Input$Keys/DOWN)
                 (stop-move! :down)
-                :else false)))))
+                :else false))))
+        (.setToOrtho @deps/camera
+                     false
+                     (/ constants/screen-width constants/tile-size)
+                     (/ constants/screen-height constants/tile-size))
+        (.setView renderer @deps/camera))
       (render [delta]
+        (println x y)
+        (.set (. @deps/camera position)
+              (float x)
+              (float y)
+              0)
+        (.update @deps/camera)
         (ScreenUtils/clear Color/BLACK)
-        (.apply deps/viewport)
-        (swap! deps/state-time (fn [t] (+ t delta)))
+        (.begin @deps/batch)
+        (.renderTileLayer renderer (.get (.getLayers tiledmap) "background"))
+        (.renderTileLayer renderer (.get (.getLayers tiledmap) "midground"))
+        (.end @deps/batch)
         (doto @stage
           (.act delta)
-          (.draw)))
+          (.draw))
+        (.begin @deps/batch)
+        (.renderTileLayer renderer (.get (.getLayers tiledmap) "foreground"))
+        (.end @deps/batch))
       (dispose []
         (dispose))
       (hide [])
       (pause [])
       (resize [w h]
-        (.update deps/viewport w h true))
+        (set! (. @deps/camera -viewportWidth) (float 100))
+        (set! (. @deps/camera -viewportHeight) (* (float 100) (/ h w)))
+        (.update @deps/camera))
       (resume []))))
