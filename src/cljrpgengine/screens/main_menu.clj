@@ -1,7 +1,7 @@
 (ns cljrpgengine.screens.main-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
-            [cljrpgengine.ui2 :as ui2]
+            [cljrpgengine.ui :as ui]
             [cljrpgengine.screens.dungeon :as dungeon])
   (:import (com.badlogic.gdx Gdx Screen)
            [com.badlogic.gdx.graphics Color]
@@ -19,8 +19,8 @@
       (show []
         (reset! stage (Stage.))
         (let [group (Group.)
-              window (ui2/create-window 0 0 constants/screen-width constants/screen-height)
-              label-title (ui2/create-label "Chronicles of Telam")]
+              window (ui/create-window 0 0 constants/screen-width constants/screen-height)
+              label-title (ui/create-label "Chronicles of Telam")]
 
           (doto label-title
             (.setFontScale 2.0)

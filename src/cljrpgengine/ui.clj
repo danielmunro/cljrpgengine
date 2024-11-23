@@ -1,6 +1,5 @@
-(ns cljrpgengine.ui2
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps])
+(ns cljrpgengine.ui
+  (:require [cljrpgengine.deps :as deps])
   (:import (com.badlogic.gdx.graphics Color Pixmap Pixmap$Format Texture)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
