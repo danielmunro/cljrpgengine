@@ -19,26 +19,37 @@
         txr (TextureRegion/split tx
                                  constants/mob-width
                                  constants/mob-height)
-        down (Animation. constants/walk-speed
-                         (sprite-array txr [[0 0] [0 1] [0 0] [0 2]])
-                         Animation$PlayMode/LOOP)
+        animations {:down (Animation. (float constants/walk-speed)
+                                      ^Array (sprite-array txr [[0 0] [0 1] [0 0] [0 2]]))
+                    :up (Animation. (float constants/walk-speed)
+                                    ^Array (sprite-array txr [[3 0] [3 1] [3 0] [3 2]]))
+                    :left (Animation. (float constants/walk-speed)
+                                      ^Array (sprite-array txr [[1 0] [1 1] [1 0] [1 2]]))
+                    :right (Animation. (float constants/walk-speed)
+                                ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
         x (atom 0)
         y (atom 0)
         move (atom {:up false
                     :down false
                     :left false
                     :right false})
+        direction (atom :down)
         do-move! (fn [to]
                    (if (get @move to)
                      (swap! move (fn [m] (assoc m (util/opposite-direction to) false))))
                    (swap! move (fn [m] (assoc m to true)))
+                   (swap! direction (constantly to))
                    true)
         stop-move! (fn [to]
                      (swap! move (fn [m] (assoc m to false)))
-                     true)]
+                     true)
+        state-time (atom 0)
+        modify-location (fn [coord change delta]
+                          (swap! coord (fn [i] (change i (* 5 delta))))
+                          (swap! state-time (fn [t] (+ t delta))))]
     {:actor (proxy [Actor] []
              (draw [batch _]
-               (let [frame (.getKeyFrame down @deps/state-time true)]
+               (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
                  (.draw batch
                         frame
                         (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
@@ -46,13 +57,12 @@
              (act [delta]
                (cond
                  (:up @move)
-                 (swap! y (fn [i] (- i (* 5 delta))))
+                 (modify-location y - delta)
                  (:down @move)
-                 (swap! y (fn [i] (+ i (* 5 delta))))
+                 (modify-location y + delta)
                  (:left @move)
-                 (swap! x (fn [i] (- i (* 5 delta))))
+                 (modify-location x - delta)
                  (:right @move)
-                 (swap! x (fn [i] (+ i (* 5 delta)))))
-               (println @x @y)))
+                 (modify-location x + delta))))
      :do-move! do-move!
      :stop-move! stop-move!}))

@@ -24,7 +24,7 @@
 (def mob-width 16)
 (def mob-height 24)
 
-(def walk-speed 0.1)
+(def walk-speed (float 0.1))
 
 (def colors {:window        Color/BLUE
              :font-default  Color/WHITE
