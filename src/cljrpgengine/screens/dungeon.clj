@@ -1,17 +1,13 @@
 (ns cljrpgengine.screens.dungeon
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps]
-            [cljrpgengine.mob :as mob]
-            [clojure.java.io :as io])
+  (:require [cljrpgengine.deps :as deps]
+            [cljrpgengine.mob :as mob])
   (:import (com.badlogic.gdx Screen)
-           (com.badlogic.gdx.files FileHandle)
-           (com.badlogic.gdx.graphics Color Texture)
-           (com.badlogic.gdx.graphics.g2d Animation Animation$PlayMode TextureRegion)
+           (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.scenes.scene2d Stage)
-           (com.badlogic.gdx.utils Array ScreenUtils)))
+           (com.badlogic.gdx.utils ScreenUtils)))
 
 (defn screen
-  [game]
+  [_]
   (let [stage (atom nil)
         dispose (fn []
                   (.dispose @deps/batch)
@@ -24,10 +20,6 @@
         (ScreenUtils/clear Color/BLACK)
         (.apply deps/viewport)
         (swap! deps/state-time (fn [t] (+ t delta)))
-        #_(let [frame (.getKeyFrame (-> mob :animations :down) @state-time true)]
-          (.begin @deps/batch)
-          (.draw @deps/batch frame (float (- (/ constants/screen-width 2) 8)) (float (- (/ constants/screen-height 2) 12)))
-          (.end @deps/batch))
         (doto @stage
           (.act delta)
           (.draw)))
