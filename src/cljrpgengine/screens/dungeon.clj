@@ -1,6 +1,7 @@
 (ns cljrpgengine.screens.dungeon
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
+            [cljrpgengine.mob :as mob]
             [clojure.java.io :as io])
   (:import (com.badlogic.gdx Screen)
            (com.badlogic.gdx.files FileHandle)
@@ -15,13 +16,7 @@
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
-        tx (Texture. (FileHandle. (io/file "resources/sprites/edwyn.png")))
-        txr (TextureRegion/split tx 16 24)
-        walk-frames (object-array [(-> txr (get 0) (get 0))
-                                   (-> txr (get 0) (get 1))
-                                   (-> txr (get 0) (get 0))
-                                   (-> txr (get 0) (get 2))])
-        down (Animation. 0.1 (Array/with walk-frames) Animation$PlayMode/LOOP)
+        mob (mob/create-mob "edwyn.png")
         state-time (atom (float 0))]
     (proxy [Screen] []
       (show []
@@ -30,7 +25,7 @@
         (ScreenUtils/clear Color/BLACK)
         (.apply deps/viewport)
         (swap! state-time (fn [t] (+ t delta)))
-        (let [frame (.getKeyFrame down @state-time true)]
+        (let [frame (.getKeyFrame (-> mob :animations :down) @state-time true)]
           (.begin @deps/batch)
           (.draw @deps/batch frame (float (- (/ constants/screen-width 2) 8)) (float (- (/ constants/screen-height 2) 12)))
           (.end @deps/batch))

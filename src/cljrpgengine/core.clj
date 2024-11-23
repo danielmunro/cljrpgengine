@@ -16,7 +16,7 @@
 
 (def save-file (atom nil))
 
-(defn setup
+#_(defn setup
   "Setup function for the game."
   []
   (ui/init!)
@@ -61,6 +61,6 @@
   "Start the game."
   [& args]
   (parse-args args)
-  (setup)
+  ;(setup)
   (LwjglApplication. (cljrpgengine.game.Game.) (get-configuration))
   (Keyboard/enableRepeatEvents true))

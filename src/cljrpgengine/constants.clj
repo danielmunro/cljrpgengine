@@ -21,7 +21,10 @@
 
 (def draw-blocking false)
 
-(def character-dimensions [16 24])
+(def mob-width 16)
+(def mob-height 24)
+
+(def walk-speed 0.1)
 
 (def colors {:window        Color/BLUE
              :font-default  Color/WHITE
