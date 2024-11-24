@@ -6,6 +6,7 @@
   (:import (com.badlogic.gdx Gdx Input$Keys InputAdapter Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
+           (com.badlogic.gdx.math Rectangle)
            (com.badlogic.gdx.scenes.scene2d Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
@@ -16,10 +17,8 @@
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
         {:keys [actor do-move! stop-move! x y]} (mob/create-mob "edwyn.png")
-        {:keys [tiled]} (tilemap/load-tilemap scene room)
-        renderer (OrthogonalTiledMapRenderer. tiled (float 1/16) @deps/batch)
-        try-move (fn [direction]
-                   (do-move! direction))]
+        tiled (tilemap/load-tilemap scene room)
+        renderer (OrthogonalTiledMapRenderer. tiled (float 1/16) @deps/batch)]
     (proxy [Screen] []
       (show []
         (reset! stage (Stage.))
@@ -30,13 +29,13 @@
             (keyDown [key]
               (cond
                 (= key Input$Keys/LEFT)
-                (try-move :left)
+                (do-move! :left)
                 (= key Input$Keys/RIGHT)
-                (try-move :right)
+                (do-move! :right)
                 (= key Input$Keys/UP)
-                (try-move :up)
+                (do-move! :up)
                 (= key Input$Keys/DOWN)
-                (try-move :down)
+                (do-move! :down)
                 :else false))
             (keyUp [key]
               (cond
@@ -55,7 +54,7 @@
                      (/ constants/screen-height constants/tile-size))
         (.setView renderer @deps/camera))
       (render [delta]
-        (.set (. @deps/camera position) @x @y 0)
+        (.set (. @deps/camera position) (+ @x (/ constants/mob-width 32)) (+ @y (/ constants/mob-height 32)) 0)
         (.update @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)

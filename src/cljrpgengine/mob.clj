@@ -42,8 +42,9 @@
                      (swap! move (fn [m] (assoc m to false)))
                      true)
         state-time (atom 0)
-        modify-location (fn [coord change delta]
-                          (swap! coord (fn [i] (change i (* 5 delta))))
+        modify-location (fn [to-x to-y delta]
+                          (swap! x (constantly to-x))
+                          (swap! y (constantly to-y))
                           (swap! state-time (fn [t] (+ t delta))))]
     {:actor (proxy [Actor] []
              (draw [batch _]
@@ -55,13 +56,13 @@
              (act [delta]
                (cond
                  (:up @move)
-                 (modify-location y + (* 2 delta))
+                 (modify-location @x (+ @y (* 10 delta)) delta)
                  (:down @move)
-                 (modify-location y - (* 2 delta))
+                 (modify-location @x (- @y (* 10 delta)) delta)
                  (:left @move)
-                 (modify-location x - (* 2 delta))
+                 (modify-location (- @x (* 10 delta)) @y delta)
                  (:right @move)
-                 (modify-location x + (* 2 delta)))))
+                 (modify-location (+ @x (* 10 delta)) @y delta))))
      :do-move! do-move!
      :stop-move! stop-move!
      :x x
