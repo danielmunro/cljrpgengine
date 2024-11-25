@@ -1,6 +1,5 @@
 (ns cljrpgengine.game
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps]
+  (:require [cljrpgengine.deps :as deps]
             [cljrpgengine.screens.main-menu :as main-menu])
   (:import [com.badlogic.gdx Game]
            (com.badlogic.gdx.graphics OrthographicCamera)
@@ -13,7 +12,7 @@
 (defn -create [^Game this]
   (swap! deps/batch (constantly (SpriteBatch.)))
   (swap! deps/font (constantly (BitmapFont.)))
-  (swap! deps/camera (constantly (OrthographicCamera. constants/screen-width constants/screen-height)))
+  (swap! deps/camera (constantly (OrthographicCamera.)))
   (.setScreen this (main-menu/screen this)))
 
 (defn -dispose [^Game _]
