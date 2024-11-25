@@ -29,37 +29,14 @@
         x (atom 27)
         y (atom 16)
         keys-down (atom (oset/ordered-set))
-        ;move (atom {:up false
-        ;            :down false
-        ;            :left false
-        ;            :right false})
-        ;is-moving? (fn []
-        ;             (or (:up @move)
-        ;                 (:down @move)
-        ;                 (:left @move)
-        ;                 (:right @move)))
         direction (atom :down)
-        ;do-move! (fn [to]
-        ;           (if-not (is-moving?)
-        ;             (swap! direction (constantly to)))
-        ;           (if (get @move to)
-        ;             (swap! move (fn [m] (assoc m (util/opposite-direction to) false))))
-        ;           (swap! move (fn [m] (assoc m to true)))
-        ;           true)
         key-down! (fn [key]
                     (swap! keys-down conj key)
                     true)
         key-up! (fn [key]
                   (swap! keys-down disj key)
                   true)
-        ;stop-move! (fn [to]
-        ;             (swap! move (fn [m] (assoc m to false)))
-        ;             true)
         state-time (atom 0)
-        ;modify-location (fn [to-x to-y delta]
-        ;                  (swap! x (constantly to-x))
-        ;                  (swap! y (constantly to-y))
-        ;                  (swap! state-time (fn [t] (+ t delta))))
         move (fn [direction delta]
                (cond
                  (= :up direction)
