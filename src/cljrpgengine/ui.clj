@@ -6,13 +6,13 @@
 
 (defn create-label
   ([text x y]
-  (let [style (Label$LabelStyle. @deps/font Color/WHITE)
-        label (doto (Label. ^CharSequence text style))]
-    (doto label
-      (.setX x)
-      (.setY y))))
-   ([text]
-    (create-label text 0 0)))
+   (let [style (Label$LabelStyle. @deps/font Color/WHITE)
+         label (doto (Label. ^CharSequence text style))]
+     (doto label
+       (.setX x)
+       (.setY y))))
+  ([text]
+   (create-label text 0 0)))
 
 (defn- create-texture
   [width height color]
@@ -31,7 +31,7 @@
         fy (float y)
         fw (float width)
         fh (float height)]
-   (proxy [Actor] []
-     (draw [batch alpha]
-       (.setColor batch (.r color) (.g color) (.b color) (* (.a color) alpha))
-       (.draw batch tex fx fy fw fh)))))
+    (proxy [Actor] []
+      (draw [batch alpha]
+        (.setColor batch (.r color) (.g color) (.b color) (* (.a color) alpha))
+        (.draw batch tex fx fy fw fh)))))

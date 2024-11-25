@@ -23,30 +23,30 @@
         (reset! stage (Stage.))
         (.addActor @stage actor)
         (.setInputProcessor
-          Gdx/input
-          (proxy [InputAdapter] []
-            (keyDown [key]
-              (cond
-                (= key Input$Keys/LEFT)
-                (key-down! :left)
-                (= key Input$Keys/RIGHT)
-                (key-down! :right)
-                (= key Input$Keys/UP)
-                (key-down! :up)
-                (= key Input$Keys/DOWN)
-                (key-down! :down)
-                :else false))
-            (keyUp [key]
-              (cond
-                (= key Input$Keys/LEFT)
-                (key-up! :left)
-                (= key Input$Keys/RIGHT)
-                (key-up! :right)
-                (= key Input$Keys/UP)
-                (key-up! :up)
-                (= key Input$Keys/DOWN)
-                (key-up! :down)
-                :else false))))
+         Gdx/input
+         (proxy [InputAdapter] []
+           (keyDown [key]
+             (cond
+               (= key Input$Keys/LEFT)
+               (key-down! :left)
+               (= key Input$Keys/RIGHT)
+               (key-down! :right)
+               (= key Input$Keys/UP)
+               (key-down! :up)
+               (= key Input$Keys/DOWN)
+               (key-down! :down)
+               :else false))
+           (keyUp [key]
+             (cond
+               (= key Input$Keys/LEFT)
+               (key-up! :left)
+               (= key Input$Keys/RIGHT)
+               (key-up! :right)
+               (= key Input$Keys/UP)
+               (key-up! :up)
+               (= key Input$Keys/DOWN)
+               (key-up! :down)
+               :else false))))
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)

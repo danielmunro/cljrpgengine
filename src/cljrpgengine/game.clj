@@ -6,8 +6,8 @@
            (com.badlogic.gdx.graphics.g2d BitmapFont SpriteBatch)))
 
 (gen-class
-  :name "cljrpgengine.game.Game"
-  :extends com.badlogic.gdx.Game)
+ :name "cljrpgengine.game.Game"
+ :extends com.badlogic.gdx.Game)
 
 (defn -create [^Game this]
   (swap! deps/batch (constantly (SpriteBatch.)))
