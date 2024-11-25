@@ -50,11 +50,11 @@
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)
-                     (/ constants/screen-height constants/tile-size))
-        (.setView renderer @deps/camera))
+                     (/ constants/screen-height constants/tile-size)))
       (render [delta]
         (.set (. @deps/camera position) (+ @x (/ constants/mob-width 32)) (+ @y (/ constants/mob-height 32)) 0)
         (.update @deps/camera)
+        (.setView renderer @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
         (.begin @deps/batch)
