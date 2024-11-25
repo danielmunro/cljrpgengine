@@ -1,5 +1,6 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.tilemap :as tilemap]
             [cljrpgengine.util :as util]
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.files FileHandle)
@@ -28,6 +29,41 @@
                                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
         x (atom 27)
         y (atom 16)
+        is-blocked? (fn [direction to-x to-y]
+                      (println "curr:" @x @y)
+                      (println "next:" to-x to-y)
+                      (let [rx (Math/round ^float to-x)
+                            ry (Math/round ^float to-y)
+                            cells (atom [])
+                            blocked? (atom false)]
+                        (when (= :up direction)
+                          (swap! cells conj [(Math/floor to-x) (inc (Math/floor to-y))])
+                          (if (< rx to-x)
+                            (swap! cells conj [(inc (Math/floor to-x)) (inc (Math/floor to-y))])
+                            (swap! cells conj [(dec (Math/floor to-x)) (inc (Math/floor to-y))])))
+                        (when (= :down direction)
+                          (swap! cells conj [(Math/floor to-x) (dec (Math/ceil to-y))])
+                          (if (< rx to-x)
+                            (swap! cells conj [(inc (Math/floor to-x)) (dec (Math/ceil to-y))])
+                            (swap! cells conj [(dec (Math/floor to-x)) (dec (Math/ceil to-y))])))
+                        (when (= :left direction)
+                          (swap! cells conj [(dec (Math/ceil to-x)) (Math/floor to-y)])
+                          (if (< ry to-y)
+                            (swap! cells conj [(dec (Math/ceil to-x)) (inc (Math/floor to-y))])
+                            (swap! cells conj [(dec (Math/ceil to-x)) (dec (Math/floor to-y))])))
+                        (when (= :right direction)
+                          (swap! cells conj [(inc (Math/floor to-x)) (Math/floor to-y)])
+                          (if (< ry to-y)
+                            (swap! cells conj [(inc (Math/floor to-x)) (inc (Math/floor to-y))])
+                            (swap! cells conj [(inc (Math/floor to-x)) (dec (Math/floor to-y))])))
+                        (doseq [cell-coords @cells]
+                          (let [layer (tilemap/get-layer @tilemap/tilemap "midground")
+                                cell (.getCell layer (first cell-coords) (second cell-coords))]
+                            (if cell
+                              (let [objects (-> cell (.getTile) (.getObjects))]
+                                (if (= 1 (.getCount objects))
+                                  (swap! blocked? (constantly true)))))))
+                        @blocked?))
         keys-down (atom (oset/ordered-set))
         direction (atom :down)
         key-down! (fn [key]
@@ -40,13 +76,17 @@
         move (fn [direction amount]
                (cond
                  (= :up direction)
-                 (swap! y (fn [current] (+ current amount)))
+                 (if-not (is-blocked? :up @x (+ @y amount))
+                   (swap! y (fn [current] (+ current amount))))
                  (= :down direction)
-                 (swap! y (fn [current] (- current amount)))
+                 (if-not (is-blocked? :down @x (- @y amount))
+                   (swap! y (fn [current] (- current amount))))
                  (= :left direction)
-                 (swap! x (fn [current] (- current amount)))
+                 (if-not (is-blocked? :left (- @x amount) @y)
+                   (swap! x (fn [current] (- current amount))))
                  (= :right direction)
-                 (swap! x (fn [current] (+ current amount)))))]
+                 (if-not (is-blocked? :right (+ @x amount) @y)
+                   (swap! x (fn [current] (+ current amount))))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
