@@ -37,16 +37,16 @@
                   (swap! keys-down disj key)
                   true)
         state-time (atom 0)
-        move (fn [direction delta]
+        move (fn [direction amount]
                (cond
                  (= :up direction)
-                 (swap! y (fn [current] (+ current (* 10 delta))))
+                 (swap! y (fn [current] (+ current amount)))
                  (= :down direction)
-                 (swap! y (fn [current] (- current (* 10 delta))))
+                 (swap! y (fn [current] (- current amount)))
                  (= :left direction)
-                 (swap! x (fn [current] (- current (* 10 delta))))
+                 (swap! x (fn [current] (- current amount)))
                  (= :right direction)
-                 (swap! x (fn [current] (+ current (* 10 delta))))))]
+                 (swap! x (fn [current] (+ current amount)))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -58,11 +58,11 @@
                 (let [d1 (first @keys-down)
                       d2 (last @keys-down)]
                   (when d1
-                    (move d1 delta)
+                    (move d1 (* 10 delta))
                     (swap! direction (constantly d1))
                     (swap! state-time (fn [t] (+ t delta))))
                   (if d2
-                    (move d2 delta)))))
+                    (move d2 (* 10 delta))))))
      :key-down! key-down!
      :key-up! key-up!
      :x x
