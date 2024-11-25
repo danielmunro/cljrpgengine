@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.5.0"]
                  [clojure.java-time "1.4.2"]
+                 [org.flatland/ordered "1.15.12"]
                  [com.badlogicgames.gdx/gdx "1.13.0"]
                  [com.badlogicgames.gdx/gdx-backend-lwjgl "1.13.0"]
                  [com.badlogicgames.gdx/gdx-box2d "1.13.0"]

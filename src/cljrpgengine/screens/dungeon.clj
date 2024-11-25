@@ -15,7 +15,7 @@
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
-        {:keys [actor do-move! stop-move! x y]} (mob/create-mob "edwyn.png")
+        {:keys [actor key-down! key-up! x y]} (mob/create-mob "edwyn.png")
         tiled (tilemap/load-tilemap scene room)
         renderer (OrthogonalTiledMapRenderer. tiled (float 1/16) @deps/batch)]
     (proxy [Screen] []
@@ -28,24 +28,24 @@
             (keyDown [key]
               (cond
                 (= key Input$Keys/LEFT)
-                (do-move! :left)
+                (key-down! :left)
                 (= key Input$Keys/RIGHT)
-                (do-move! :right)
+                (key-down! :right)
                 (= key Input$Keys/UP)
-                (do-move! :up)
+                (key-down! :up)
                 (= key Input$Keys/DOWN)
-                (do-move! :down)
+                (key-down! :down)
                 :else false))
             (keyUp [key]
               (cond
                 (= key Input$Keys/LEFT)
-                (stop-move! :left)
+                (key-up! :left)
                 (= key Input$Keys/RIGHT)
-                (stop-move! :right)
+                (key-up! :right)
                 (= key Input$Keys/UP)
-                (stop-move! :up)
+                (key-up! :up)
                 (= key Input$Keys/DOWN)
-                (stop-move! :down)
+                (key-up! :down)
                 :else false))))
         (.setToOrtho @deps/camera
                      false

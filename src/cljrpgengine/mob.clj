@@ -1,6 +1,7 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.util :as util])
+            [cljrpgengine.util :as util]
+            [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.files FileHandle)
            (com.badlogic.gdx.graphics Texture)
            (com.badlogic.gdx.graphics.g2d Animation TextureRegion)
@@ -27,25 +28,49 @@
                                 ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
         x (atom 27)
         y (atom 16)
-        move (atom {:up false
-                    :down false
-                    :left false
-                    :right false})
+        keys-down (atom (oset/ordered-set))
+        ;move (atom {:up false
+        ;            :down false
+        ;            :left false
+        ;            :right false})
+        ;is-moving? (fn []
+        ;             (or (:up @move)
+        ;                 (:down @move)
+        ;                 (:left @move)
+        ;                 (:right @move)))
         direction (atom :down)
-        do-move! (fn [to]
-                   (if (get @move to)
-                     (swap! move (fn [m] (assoc m (util/opposite-direction to) false))))
-                   (swap! move (fn [m] (assoc m to true)))
-                   (swap! direction (constantly to))
-                   true)
-        stop-move! (fn [to]
-                     (swap! move (fn [m] (assoc m to false)))
-                     true)
+        ;do-move! (fn [to]
+        ;           (if-not (is-moving?)
+        ;             (swap! direction (constantly to)))
+        ;           (if (get @move to)
+        ;             (swap! move (fn [m] (assoc m (util/opposite-direction to) false))))
+        ;           (swap! move (fn [m] (assoc m to true)))
+        ;           true)
+        key-down! (fn [key]
+                   (swap! keys-down conj key)
+                    true)
+        key-up! (fn [key]
+                  (swap! keys-down disj key)
+                  true)
+        ;stop-move! (fn [to]
+        ;             (swap! move (fn [m] (assoc m to false)))
+        ;             true)
         state-time (atom 0)
-        modify-location (fn [to-x to-y delta]
-                          (swap! x (constantly to-x))
-                          (swap! y (constantly to-y))
-                          (swap! state-time (fn [t] (+ t delta))))]
+        ;modify-location (fn [to-x to-y delta]
+        ;                  (swap! x (constantly to-x))
+        ;                  (swap! y (constantly to-y))
+        ;                  (swap! state-time (fn [t] (+ t delta))))
+        move (fn [direction delta]
+               (cond
+                 (= :up direction)
+                 (swap! y (fn [current] (+ current (* 10 delta))))
+                 (= :down direction)
+                 (swap! y (fn [current] (- current (* 10 delta))))
+                 (= :left direction)
+                 (swap! x (fn [current] (- current (* 10 delta))))
+                 (= :right direction)
+                 (swap! x (fn [current] (+ current (* 10 delta))))))
+        ]
     {:actor (proxy [Actor] []
              (draw [batch _]
                (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -54,16 +79,15 @@
                         (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
                         (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
              (act [delta]
-               (cond
-                 (:up @move)
-                 (modify-location @x (+ @y (* 10 delta)) delta)
-                 (:down @move)
-                 (modify-location @x (- @y (* 10 delta)) delta)
-                 (:left @move)
-                 (modify-location (- @x (* 10 delta)) @y delta)
-                 (:right @move)
-                 (modify-location (+ @x (* 10 delta)) @y delta))))
-     :do-move! do-move!
-     :stop-move! stop-move!
+               (let [d1 (first @keys-down)
+                     d2 (last @keys-down)]
+                 (when d1
+                   (move d1 delta)
+                   (swap! direction (constantly d1))
+                   (swap! state-time (fn [t] (+ t delta))))
+                 (if d2
+                   (move d2 delta)))))
+     :key-down! key-down!
+     :key-up! key-up!
      :x x
      :y y}))
