@@ -30,8 +30,6 @@
         x (atom 27)
         y (atom 16)
         is-blocked? (fn [direction to-x to-y]
-                      (println "curr:" @x @y)
-                      (println "next:" to-x to-y)
                       (let [rx (Math/round ^float to-x)
                             ry (Math/round ^float to-y)
                             cells (atom [])
@@ -76,17 +74,22 @@
         move (fn [direction amount]
                (cond
                  (= :up direction)
-                 (if-not (is-blocked? :up @x (+ @y amount))
+                 (if (is-blocked? :up @x (+ @y amount))
+                   (swap! y (fn [current] (+ current (- (Math/ceil ^float @y) @y))))
                    (swap! y (fn [current] (+ current amount))))
                  (= :down direction)
-                 (if-not (is-blocked? :down @x (- @y amount))
+                 (if (is-blocked? :down @x (- @y amount))
+                   (swap! y (fn [current] (- current (- @y (Math/floor ^float @y)))))
                    (swap! y (fn [current] (- current amount))))
                  (= :left direction)
-                 (if-not (is-blocked? :left (- @x amount) @y)
+                 (if (is-blocked? :left (- @x amount) @y)
+                   (swap! x (fn [current] (- current (- @x (Math/floor ^float @x)))))
                    (swap! x (fn [current] (- current amount))))
                  (= :right direction)
-                 (if-not (is-blocked? :right (+ @x amount) @y)
-                   (swap! x (fn [current] (+ current amount))))))]
+                 (if (is-blocked? :right (+ @x amount) @y)
+                   (swap! x (fn [current] (+ current (- (Math/ceil ^float @x) @x))))
+                   (swap! x (fn [current] (+ current amount)))))
+               (println "x, y" @x @y))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
