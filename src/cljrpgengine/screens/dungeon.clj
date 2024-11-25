@@ -6,7 +6,6 @@
   (:import (com.badlogic.gdx Gdx Input$Keys InputAdapter Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
-           (com.badlogic.gdx.math Rectangle)
            (com.badlogic.gdx.scenes.scene2d Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
