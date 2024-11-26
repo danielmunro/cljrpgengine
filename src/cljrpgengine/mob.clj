@@ -35,9 +35,7 @@
         x (atom 27)
         y (atom 16)
         is-blocked? (fn [direction to-x to-y]
-                      (let [rx (Math/round ^float to-x)
-                            ry (Math/round ^float to-y)
-                            fx (Math/floor ^float to-x)
+                      (let [fx (Math/floor ^float to-x)
                             fy (Math/floor ^float to-y)
                             cx (Math/ceil ^float to-x)
                             cy (Math/ceil ^float to-y)
