@@ -1,12 +1,10 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps]
             [cljrpgengine.tilemap :as tilemap]
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.files FileHandle)
-           (com.badlogic.gdx.graphics Color Texture)
+           (com.badlogic.gdx.graphics Texture)
            (com.badlogic.gdx.graphics.g2d Animation TextureRegion)
-           (com.badlogic.gdx.graphics.glutils ShapeRenderer$ShapeType)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
 
