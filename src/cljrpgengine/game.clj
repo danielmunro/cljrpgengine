@@ -3,7 +3,8 @@
             [cljrpgengine.screens.main-menu :as main-menu])
   (:import [com.badlogic.gdx Game]
            (com.badlogic.gdx.graphics OrthographicCamera)
-           (com.badlogic.gdx.graphics.g2d BitmapFont SpriteBatch)))
+           (com.badlogic.gdx.graphics.g2d BitmapFont SpriteBatch)
+           (com.badlogic.gdx.graphics.glutils ShapeRenderer)))
 
 (gen-class
  :name "cljrpgengine.game.Game"
@@ -13,6 +14,7 @@
   (swap! deps/batch (constantly (SpriteBatch.)))
   (swap! deps/font (constantly (BitmapFont.)))
   (swap! deps/camera (constantly (OrthographicCamera.)))
+  (swap! deps/shape (constantly (ShapeRenderer.)))
   (.setScreen this (main-menu/screen this)))
 
 (defn -dispose [^Game _]

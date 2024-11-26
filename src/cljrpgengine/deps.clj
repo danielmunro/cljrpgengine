@@ -3,3 +3,4 @@
 (def batch (atom nil))
 (def font (atom nil))
 (def camera (atom nil))
+(def shape (atom nil))

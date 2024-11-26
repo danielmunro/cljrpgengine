@@ -1,11 +1,12 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.deps :as deps]
             [cljrpgengine.tilemap :as tilemap]
-            [cljrpgengine.util :as util]
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.files FileHandle)
-           (com.badlogic.gdx.graphics Texture)
+           (com.badlogic.gdx.graphics Color Texture)
            (com.badlogic.gdx.graphics.g2d Animation TextureRegion)
+           (com.badlogic.gdx.graphics.glutils ShapeRenderer$ShapeType)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
 
@@ -13,19 +14,23 @@
   [txr coll]
   (Array/with (object-array (map #(-> txr (get (first %)) (get (second %))) coll))))
 
+(defn walk-speed
+  [delta]
+  (* 5 delta))
+
 (defn create-mob
   [sprite-file-name]
   (let [tx (Texture. (FileHandle. (str constants/sprites-dir sprite-file-name)))
         txr (TextureRegion/split tx
                                  constants/mob-width
                                  constants/mob-height)
-        animations {:down (Animation. (float constants/walk-speed)
+        animations {:down (Animation. (float constants/walk-animation-speed)
                                       ^Array (sprite-array txr [[0 0] [0 1] [0 0] [0 2]]))
-                    :up (Animation. (float constants/walk-speed)
-                                    ^Array (sprite-array txr [[3 0] [3 1] [3 0] [3 2]]))
-                    :left (Animation. (float constants/walk-speed)
+                    :up   (Animation. (float constants/walk-animation-speed)
+                                      ^Array (sprite-array txr [[3 0] [3 1] [3 0] [3 2]]))
+                    :left (Animation. (float constants/walk-animation-speed)
                                       ^Array (sprite-array txr [[1 0] [1 1] [1 0] [1 2]]))
-                    :right (Animation. (float constants/walk-speed)
+                    :right (Animation. (float constants/walk-animation-speed)
                                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
         x (atom 27)
         y (atom 16)
@@ -38,55 +43,34 @@
                             cy (Math/ceil ^float to-y)
                             blocked? (atom false)
                             cells (atom [])]
-                        (println "x" rx to-x)
-                        (println "y" ry to-y)
-                        (when (= :left direction)
-                          (cond
-                            (= (float ry) to-y)
-                            (swap! cells conj [(dec cx) ry])
-                            (< to-y ry)
-                            (do (swap! cells conj [(dec cx) ry])
-                                (swap! cells conj [(dec cx) (inc fy)]))
-                            (< ry to-y)
-                            (do (swap! cells conj [(dec cx) ry])
-                                (swap! cells conj [(dec cx) (dec fy)]))))
-                        (when (= :right direction)
-                          (cond
-                            (= (float ry) to-y)
-                            (swap! cells conj [(inc fx) ry])
-                            (< to-y ry)
-                            (do (swap! cells conj [(inc fx) ry])
-                                (swap! cells conj [(inc fx) (inc fy)]))
-                            (< ry to-y)
-                            (do (swap! cells conj [(inc fx) ry])
-                                (swap! cells conj [(inc fx) (dec fy)]))))
                         (when (= :up direction)
-                          (cond
-                            (= (float rx) to-x)
-                            (swap! cells conj [rx (inc fy)])
-                            (< to-x rx)
-                            (do (swap! cells conj [fx (inc fy)])
-                                (swap! cells conj [(inc fx) (inc fy)]))
-                            (< rx to-x)
-                            (do (swap! cells conj [fx (inc fy)])
-                                (swap! cells conj [(dec fx) (inc fy)]))))
+                          (swap! cells conj [fx (inc fy)])
+                          (swap! cells conj [cx (inc fy)]))
                         (when (= :down direction)
-                          (cond
-                            (= (float rx) to-x)
-                            (swap! cells conj [rx (dec cy)])
-                            (< to-x rx)
-                            (do (swap! cells conj [fx (dec cy)])
-                                (swap! cells conj [(inc fx) (dec cy)]))
-                            (< rx to-x)
-                            (do (swap! cells conj [fx (dec cy)])
-                                (swap! cells conj [(dec fx) (dec cy)]))))
+                          (swap! cells conj [fx (dec cy)])
+                          (swap! cells conj [cx (dec cy)]))
+                        (when (= :left direction)
+                          (swap! cells conj [(dec cx) fy])
+                          (swap! cells conj [(dec cx) cy]))
+                        (when (= :right direction)
+                          (swap! cells conj [(inc fx) fy])
+                          (swap! cells conj [(inc fx) cy]))
+                        (println @cells)
                         (doseq [cell-coords @cells]
                           (let [layer (tilemap/get-layer @tilemap/tilemap "midground")
                                 cell (.getCell layer (first cell-coords) (second cell-coords))]
                             (if cell
                               (let [objects (-> cell (.getTile) (.getObjects))]
+                                (.begin @deps/shape ShapeRenderer$ShapeType/Filled)
+                                (.setColor @deps/shape Color/BLUE)
+                                (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
+                                (.end @deps/shape)
                                 (if (= 1 (.getCount objects))
-                                  (swap! blocked? (constantly true)))))))
+                                  (swap! blocked? (constantly true)))))
+                            (do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
+                                (.setColor @deps/shape Color/BLUE)
+                                (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
+                                (.end @deps/shape))))
                         @blocked?))
         keys-down (atom (oset/ordered-set))
         direction (atom :down)
@@ -114,8 +98,7 @@
                  (= :right direction)
                  (if (is-blocked? :right (+ @x amount) @y)
                    (swap! x (fn [current] (+ current (- (Math/ceil ^float @x) @x))))
-                   (swap! x (fn [current] (+ current amount)))))
-               (println "x, y" @x @y))]
+                   (swap! x (fn [current] (+ current amount))))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -127,11 +110,11 @@
                 (let [d1 (first @keys-down)
                       d2 (last @keys-down)]
                   (when d1
-                    (move d1 (* 10 delta))
+                    (move d1 (walk-speed delta))
                     (swap! direction (constantly d1))
                     (swap! state-time (fn [t] (+ t delta))))
                   (if d2
-                    (move d2 (* 10 delta))))))
+                    (move d2 (walk-speed delta))))))
      :key-down! key-down!
      :key-up! key-up!
      :x x

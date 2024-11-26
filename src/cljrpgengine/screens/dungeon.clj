@@ -56,6 +56,7 @@
         (.update @deps/camera)
         (.setView renderer @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
+        (.setProjectionMatrix @deps/shape (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
         (.begin @deps/batch)
         (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_BACKGROUND))
