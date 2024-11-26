@@ -59,14 +59,14 @@
         (.setProjectionMatrix @deps/shape (.-combined @deps/camera))
         (ScreenUtils/clear Color/BLACK)
         (.begin @deps/batch)
-        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_BACKGROUND))
-        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_MIDGROUND))
+        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_BACKGROUND))
+        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_MIDGROUND))
         (.end @deps/batch)
         (doto @stage
           (.act delta)
           (.draw))
         (.begin @deps/batch)
-        (.renderTileLayer renderer (tilemap/get-layer tiled tilemap/LAYER_FOREGROUND))
+        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
         (.end @deps/batch))
       (dispose []
         (dispose))

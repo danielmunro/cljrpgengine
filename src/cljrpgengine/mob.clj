@@ -39,7 +39,6 @@
                             fy (Math/floor ^float to-y)
                             cx (Math/ceil ^float to-x)
                             cy (Math/ceil ^float to-y)
-                            blocked? (atom false)
                             cells (atom [])]
                         (when (= :up direction)
                           (swap! cells conj [fx (inc fy)])
@@ -53,22 +52,7 @@
                         (when (= :right direction)
                           (swap! cells conj [(inc fx) fy])
                           (swap! cells conj [(inc fx) cy]))
-                        (doseq [cell-coords @cells]
-                          (let [layer (tilemap/get-layer @tilemap/tilemap "midground")
-                                cell (.getCell layer (first cell-coords) (second cell-coords))]
-                            (if cell
-                              (let [objects (-> cell (.getTile) (.getObjects))]
-                                (.begin @deps/shape ShapeRenderer$ShapeType/Filled)
-                                (.setColor @deps/shape Color/BLUE)
-                                (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-                                (.end @deps/shape)
-                                (if (= 1 (.getCount objects))
-                                  (swap! blocked? (constantly true)))))
-                            (do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
-                                (.setColor @deps/shape Color/BLUE)
-                                (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-                                (.end @deps/shape))))
-                        @blocked?))
+                        (tilemap/is-blocking? @cells)))
         keys-down (atom (oset/ordered-set))
         direction (atom :down)
         key-down! (fn [key]
