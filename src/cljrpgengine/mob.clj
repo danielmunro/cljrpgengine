@@ -53,7 +53,6 @@
                         (when (= :right direction)
                           (swap! cells conj [(inc fx) fy])
                           (swap! cells conj [(inc fx) cy]))
-                        (println @cells)
                         (doseq [cell-coords @cells]
                           (let [layer (tilemap/get-layer @tilemap/tilemap "midground")
                                 cell (.getCell layer (first cell-coords) (second cell-coords))]
