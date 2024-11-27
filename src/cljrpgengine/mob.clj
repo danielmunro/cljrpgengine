@@ -44,21 +44,29 @@
         move (fn [direction amount]
                (cond
                  (= :up direction)
-                 (if (tilemap/is-blocked? :up @x (+ @y amount))
-                   (swap! y (fn [current] (+ current (- (Math/ceil ^float @y) @y))))
-                   (swap! y (fn [current] (+ current amount))))
+                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :up
+                                                                  {:x @x :y @y}
+                                                                  {:x @x :y (+ @y amount)})]
+                   (swap! x (constantly to-x))
+                   (swap! y (constantly to-y)))
                  (= :down direction)
-                 (if (tilemap/is-blocked? :down @x (- @y amount))
-                   (swap! y (fn [current] (- current (- @y (Math/floor ^float @y)))))
-                   (swap! y (fn [current] (- current amount))))
+                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :down
+                                                                  {:x @x :y @y}
+                                                                  {:x @x :y (- @y amount)})]
+                   (swap! x (constantly to-x))
+                   (swap! y (constantly to-y)))
                  (= :left direction)
-                 (if (tilemap/is-blocked? :left (- @x amount) @y)
-                   (swap! x (fn [current] (- current (- @x (Math/floor ^float @x)))))
-                   (swap! x (fn [current] (- current amount))))
+                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :left
+                                                                  {:x @x :y @y}
+                                                                  {:x (- @x amount) :y @y})]
+                   (swap! x (constantly to-x))
+                   (swap! y (constantly to-y)))
                  (= :right direction)
-                 (if (tilemap/is-blocked? :right (+ @x amount) @y)
-                   (swap! x (fn [current] (+ current (- (Math/ceil ^float @x) @x))))
-                   (swap! x (fn [current] (+ current amount))))))]
+                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :right
+                                                                  {:x @x :y @y}
+                                                                  {:x (+ @x amount) :y @y})]
+                   (swap! x (constantly to-x))
+                   (swap! y (constantly to-y)))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]

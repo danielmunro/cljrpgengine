@@ -29,36 +29,49 @@
       (let [cell (.getCell layer (first cell-coords) (second cell-coords))]
         (if cell
           (let [objects (-> cell (.getTile) (.getObjects))]
-            (.begin @deps/shape ShapeRenderer$ShapeType/Filled)
-            (.setColor @deps/shape Color/BLUE)
-            (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-            (.end @deps/shape)
+            #_(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
+            #_(.setColor @deps/shape Color/BLUE)
+            #_(.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
+            #_(.end @deps/shape)
             (if (= 1 (.getCount objects))
               (swap! blocked? (constantly true)))))
-        (do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
-            (.setColor @deps/shape Color/BLUE)
-            (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-            (.end @deps/shape))))
+        #_(do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
+              (.setColor @deps/shape Color/BLUE)
+              (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
+              (.end @deps/shape))))
     @blocked?))
 
-(defn is-blocked?
-  [direction to-x to-y]
-  (let [fx (Math/floor ^float to-x)
+(defn get-next-coords
+  [direction start destination]
+  (let [{to-x :x to-y :y} destination
+        {from-x :x from-y :y} start
+        fx (Math/floor ^float to-x)
         fy (Math/floor ^float to-y)
         cx (Math/ceil ^float to-x)
         cy (Math/ceil ^float to-y)
-        cells (atom [])]
+        cells (atom [])
+        blocked-move (atom nil)]
     (when (= :up direction)
       (swap! cells conj [fx (inc fy)])
-      (swap! cells conj [cx (inc fy)]))
+      (swap! cells conj [cx (inc fy)])
+      (swap! blocked-move (constantly {:x from-x
+                                       :y (+ from-y (- (Math/ceil ^float from-y) from-y))})))
     (when (= :down direction)
       (swap! cells conj [fx (dec cy)])
-      (swap! cells conj [cx (dec cy)]))
+      (swap! cells conj [cx (dec cy)])
+      (swap! blocked-move (constantly {:x from-x
+                                       :y (- from-y (- from-y (Math/floor ^float from-y)))})))
     (when (= :left direction)
       (swap! cells conj [(dec cx) fy])
-      (swap! cells conj [(dec cx) cy]))
+      (swap! cells conj [(dec cx) cy])
+      (swap! blocked-move (constantly {:x (- from-x (- from-x (Math/floor ^float from-x)))
+                                       :y from-y})))
     (when (= :right direction)
       (swap! cells conj [(inc fx) fy])
-      (swap! cells conj [(inc fx) cy]))
-    (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) @cells)
-        (is-layer-blocking? (get-layer LAYER_MIDGROUND) @cells))))
+      (swap! cells conj [(inc fx) cy])
+      (swap! blocked-move (constantly {:x (+ from-x (- (Math/ceil ^float from-x) from-x))
+                                       :y from-y})))
+    (if (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) @cells)
+            (is-layer-blocking? (get-layer LAYER_MIDGROUND) @cells))
+      @blocked-move
+      destination)))
