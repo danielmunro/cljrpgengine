@@ -41,7 +41,24 @@
             (.end @deps/shape))))
     @blocked?))
 
-(defn is-blocking?
-  [cell-coords]
-  (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) cell-coords)
-      (is-layer-blocking? (get-layer LAYER_MIDGROUND) cell-coords)))
+(defn is-blocked?
+  [direction to-x to-y]
+  (let [fx (Math/floor ^float to-x)
+        fy (Math/floor ^float to-y)
+        cx (Math/ceil ^float to-x)
+        cy (Math/ceil ^float to-y)
+        cells (atom [])]
+    (when (= :up direction)
+      (swap! cells conj [fx (inc fy)])
+      (swap! cells conj [cx (inc fy)]))
+    (when (= :down direction)
+      (swap! cells conj [fx (dec cy)])
+      (swap! cells conj [cx (dec cy)]))
+    (when (= :left direction)
+      (swap! cells conj [(dec cx) fy])
+      (swap! cells conj [(dec cx) cy]))
+    (when (= :right direction)
+      (swap! cells conj [(inc fx) fy])
+      (swap! cells conj [(inc fx) cy]))
+    (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) cells)
+        (is-layer-blocking? (get-layer LAYER_MIDGROUND) cells))))

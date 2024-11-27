@@ -32,25 +32,6 @@
                                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
         x (atom 27)
         y (atom 16)
-        is-blocked? (fn [direction to-x to-y]
-                      (let [fx (Math/floor ^float to-x)
-                            fy (Math/floor ^float to-y)
-                            cx (Math/ceil ^float to-x)
-                            cy (Math/ceil ^float to-y)
-                            cells (atom [])]
-                        (when (= :up direction)
-                          (swap! cells conj [fx (inc fy)])
-                          (swap! cells conj [cx (inc fy)]))
-                        (when (= :down direction)
-                          (swap! cells conj [fx (dec cy)])
-                          (swap! cells conj [cx (dec cy)]))
-                        (when (= :left direction)
-                          (swap! cells conj [(dec cx) fy])
-                          (swap! cells conj [(dec cx) cy]))
-                        (when (= :right direction)
-                          (swap! cells conj [(inc fx) fy])
-                          (swap! cells conj [(inc fx) cy]))
-                        (tilemap/is-blocking? @cells)))
         keys-down (atom (oset/ordered-set))
         direction (atom :down)
         key-down! (fn [key]
@@ -63,19 +44,19 @@
         move (fn [direction amount]
                (cond
                  (= :up direction)
-                 (if (is-blocked? :up @x (+ @y amount))
+                 (if (tilemap/is-blocked? :up @x (+ @y amount))
                    (swap! y (fn [current] (+ current (- (Math/ceil ^float @y) @y))))
                    (swap! y (fn [current] (+ current amount))))
                  (= :down direction)
-                 (if (is-blocked? :down @x (- @y amount))
+                 (if (tilemap/is-blocked? :down @x (- @y amount))
                    (swap! y (fn [current] (- current (- @y (Math/floor ^float @y)))))
                    (swap! y (fn [current] (- current amount))))
                  (= :left direction)
-                 (if (is-blocked? :left (- @x amount) @y)
+                 (if (tilemap/is-blocked? :left (- @x amount) @y)
                    (swap! x (fn [current] (- current (- @x (Math/floor ^float @x)))))
                    (swap! x (fn [current] (- current amount))))
                  (= :right direction)
-                 (if (is-blocked? :right (+ @x amount) @y)
+                 (if (tilemap/is-blocked? :right (+ @x amount) @y)
                    (swap! x (fn [current] (+ current (- (Math/ceil ^float @x) @x))))
                    (swap! x (fn [current] (+ current amount))))))]
     {:actor (proxy [Actor] []
