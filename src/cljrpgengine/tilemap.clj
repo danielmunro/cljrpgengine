@@ -50,27 +50,23 @@
         cx (Math/ceil ^float to-x)
         cy (Math/ceil ^float to-y)
         cells (atom [])
-        blocked-move (atom nil)]
+        blocked-move (atom start)]
     (when (= :up direction)
       (swap! cells conj [fx (inc fy)])
       (swap! cells conj [cx (inc fy)])
-      (swap! blocked-move (constantly {:x from-x
-                                       :y (+ from-y (- (Math/ceil ^float from-y) from-y))})))
+      (swap! blocked-move assoc :y (+ from-y (- (Math/ceil ^float from-y) from-y))))
     (when (= :down direction)
       (swap! cells conj [fx (dec cy)])
       (swap! cells conj [cx (dec cy)])
-      (swap! blocked-move (constantly {:x from-x
-                                       :y (- from-y (- from-y (Math/floor ^float from-y)))})))
+      (swap! blocked-move assoc :y (- from-y (- from-y (Math/floor ^float from-y)))))
     (when (= :left direction)
       (swap! cells conj [(dec cx) fy])
       (swap! cells conj [(dec cx) cy])
-      (swap! blocked-move (constantly {:x (- from-x (- from-x (Math/floor ^float from-x)))
-                                       :y from-y})))
+      (swap! blocked-move assoc :x (- from-x (- from-x (Math/floor ^float from-x)))))
     (when (= :right direction)
       (swap! cells conj [(inc fx) fy])
       (swap! cells conj [(inc fx) cy])
-      (swap! blocked-move (constantly {:x (+ from-x (- (Math/ceil ^float from-x) from-x))
-                                       :y from-y})))
+      (swap! blocked-move assoc :x (+ from-x (- (Math/ceil ^float from-x) from-x))))
     (if (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) @cells)
             (is-layer-blocking? (get-layer LAYER_MIDGROUND) @cells))
       @blocked-move
