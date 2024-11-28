@@ -8,7 +8,7 @@
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
 
-(def MOVE_AMOUNT 1/10)
+(def MOVE_AMOUNT 1/7)
 
 (defn sprite-array
   [txr coll]
