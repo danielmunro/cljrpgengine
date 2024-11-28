@@ -35,6 +35,9 @@
                (key-down! :up)
                (= key Input$Keys/DOWN)
                (key-down! :down)
+               (= key Input$Keys/C)
+               (do (println @x @y)
+                   false)
                :else false))
            (keyUp [key]
              (cond

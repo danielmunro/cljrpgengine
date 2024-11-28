@@ -8,13 +8,11 @@
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
 
+(def MOVE_AMOUNT 1/10)
+
 (defn sprite-array
   [txr coll]
   (Array/with (object-array (map #(-> txr (get (first %)) (get (second %))) coll))))
-
-(defn walk-speed
-  [delta]
-  (* 5 delta))
 
 (defn create-mob
   [sprite-file-name]
@@ -41,32 +39,20 @@
                   (swap! keys-down disj key)
                   true)
         state-time (atom 0)
-        move (fn [direction amount]
+        move (fn [direction]
                (cond
                  (= :up direction)
-                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :up
-                                                                  {:x @x :y @y}
-                                                                  {:x @x :y (+ @y amount)})]
-                   (swap! x (constantly to-x))
-                   (swap! y (constantly to-y)))
+                 (when-not (tilemap/is-blocked? :up @x (+ @y MOVE_AMOUNT))
+                   (swap! y #(+ % MOVE_AMOUNT)))
                  (= :down direction)
-                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :down
-                                                                  {:x @x :y @y}
-                                                                  {:x @x :y (- @y amount)})]
-                   (swap! x (constantly to-x))
-                   (swap! y (constantly to-y)))
+                 (when-not (tilemap/is-blocked? :down @x (- @y MOVE_AMOUNT))
+                   (swap! y #(- % MOVE_AMOUNT)))
                  (= :left direction)
-                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :left
-                                                                  {:x @x :y @y}
-                                                                  {:x (- @x amount) :y @y})]
-                   (swap! x (constantly to-x))
-                   (swap! y (constantly to-y)))
+                 (when-not (tilemap/is-blocked? :left (- @x MOVE_AMOUNT) @y)
+                   (swap! x #(- % MOVE_AMOUNT)))
                  (= :right direction)
-                 (let [{to-x :x to-y :y} (tilemap/get-next-coords :right
-                                                                  {:x @x :y @y}
-                                                                  {:x (+ @x amount) :y @y})]
-                   (swap! x (constantly to-x))
-                   (swap! y (constantly to-y)))))]
+                 (when-not (tilemap/is-blocked? :right (+ @x MOVE_AMOUNT) @y)
+                   (swap! x #(+ % MOVE_AMOUNT)))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -78,11 +64,11 @@
                 (let [d1 (first @keys-down)
                       d2 (last @keys-down)]
                   (when d1
-                    (move d1 (walk-speed delta))
+                    (move d1)
                     (swap! direction (constantly d1))
                     (swap! state-time (fn [t] (+ t delta))))
                   (if d2
-                    (move d2 (walk-speed delta))))))
+                    (move d2)))))
      :key-down! key-down!
      :key-up! key-up!
      :x x

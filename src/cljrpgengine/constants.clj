@@ -1,5 +1,4 @@
-(ns cljrpgengine.constants
-  (:import (java.awt Color)))
+(ns cljrpgengine.constants)
 
 (def screen-width 640)
 (def screen-height 400)
