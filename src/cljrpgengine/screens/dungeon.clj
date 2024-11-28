@@ -17,7 +17,7 @@
                   (.dispose @deps/font))
         {:keys [actor key-down! key-up! x y]} (mob/create-mob "edwyn.png")
         tiled (tilemap/load-tilemap scene room)
-        renderer (OrthogonalTiledMapRenderer. tiled (float 1/16) @deps/batch)]
+        renderer (OrthogonalTiledMapRenderer. tiled (float (/ 1 constants/tile-size)) @deps/batch)]
     (proxy [Screen] []
       (show []
         (reset! stage (Stage.))
@@ -55,7 +55,11 @@
                      (/ constants/screen-width constants/tile-size)
                      (/ constants/screen-height constants/tile-size)))
       (render [delta]
-        (.set (. @deps/camera position) (+ @x (/ constants/mob-width 32)) (+ @y (/ constants/mob-height 32)) 0)
+        (let [t (* constants/tile-size 2)]
+          (.set (. @deps/camera position)
+                (+ @x (/ constants/mob-width t))
+                (+ @y (/ constants/mob-height t))
+                0))
         (.update @deps/camera)
         (.setView renderer @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
