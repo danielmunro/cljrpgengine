@@ -60,6 +60,5 @@
     (when (= :right direction)
       (swap! cells conj [cx fy])
       (swap! cells conj [cx cy]))
-    (println @cells)
     (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) @cells)
         (is-layer-blocking? (get-layer LAYER_MIDGROUND) @cells))))

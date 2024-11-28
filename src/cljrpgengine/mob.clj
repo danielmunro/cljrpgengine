@@ -39,20 +39,25 @@
                   (swap! keys-down disj key)
                   true)
         state-time (atom 0)
-        move (fn [direction]
+        add-time-delta (fn [delta] (swap! state-time (fn [t] (+ t delta))))
+        move (fn [direction delta]
                (cond
                  (= :up direction)
                  (when-not (tilemap/is-blocked? :up @x (+ @y MOVE_AMOUNT))
-                   (swap! y #(+ % MOVE_AMOUNT)))
+                   (swap! y #(+ % MOVE_AMOUNT))
+                   (add-time-delta delta))
                  (= :down direction)
                  (when-not (tilemap/is-blocked? :down @x (- @y MOVE_AMOUNT))
-                   (swap! y #(- % MOVE_AMOUNT)))
+                   (swap! y #(- % MOVE_AMOUNT))
+                   (add-time-delta delta))
                  (= :left direction)
                  (when-not (tilemap/is-blocked? :left (- @x MOVE_AMOUNT) @y)
-                   (swap! x #(- % MOVE_AMOUNT)))
+                   (swap! x #(- % MOVE_AMOUNT))
+                   (add-time-delta delta))
                  (= :right direction)
                  (when-not (tilemap/is-blocked? :right (+ @x MOVE_AMOUNT) @y)
-                   (swap! x #(+ % MOVE_AMOUNT)))))]
+                   (swap! x #(+ % MOVE_AMOUNT))
+                   (add-time-delta delta))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -61,14 +66,14 @@
                          (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
                          (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
               (act [delta]
-                (let [d1 (first @keys-down)
-                      d2 (last @keys-down)]
-                  (when d1
-                    (move d1)
-                    (swap! direction (constantly d1))
-                    (swap! state-time (fn [t] (+ t delta))))
-                  (if d2
-                    (move d2)))))
+                (if (or (not= (float @x) (Math/ceil @x))
+                        (not= (float @y) (Math/ceil @y)))
+                  (move @direction delta)
+                  (if-let [d1 (first @keys-down)]
+                    (do
+                      (move d1 delta)
+                      (swap! direction (constantly d1)))
+                    (swap! state-time (constantly 0))))))
      :key-down! key-down!
      :key-up! key-up!
      :x x
