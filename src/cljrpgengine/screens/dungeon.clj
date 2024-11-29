@@ -1,9 +1,10 @@
 (ns cljrpgengine.screens.dungeon
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
+            [cljrpgengine.input-adapter :as input-adapter]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.tilemap :as tilemap])
-  (:import (com.badlogic.gdx Gdx Input$Keys InputAdapter Screen)
+  (:import (com.badlogic.gdx Gdx Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
            (com.badlogic.gdx.scenes.scene2d Stage)
@@ -53,6 +54,13 @@
       (swap! moving (constantly true))
       (add-time-delta! delta))))
 
+(def keys-typed (atom #{}))
+
+(defn key-typed!
+  [key]
+  (swap! keys-typed conj key)
+  false)
+
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
@@ -78,10 +86,19 @@
                                 (when @moving
                                   (swap! moving (constantly false))
                                   (swap! state-time (constantly 0))))))
+        evaluate-movement! (fn [delta]
+                             (if (on-tile @x @y)
+                               (evaluate-on-tile! delta)
+                               (move! x y @direction add-time-delta! delta)))
+        evaluate-key-pressed! (fn []
+                                (when-let [key (first @keys-typed)]
+                                  (case key
+                                    :c
+                                    (println @x @y))
+                                  (swap! keys-typed disj key)))
         evaluate! (fn [delta]
-                    (if (on-tile @x @y)
-                      (evaluate-on-tile! delta)
-                      (move! x y @direction add-time-delta! delta)))
+                    (evaluate-movement! delta)
+                    (evaluate-key-pressed!))
         dispose (fn []
                   (.dispose @stage)
                   (.dispose renderer))]
@@ -94,32 +111,7 @@
         (.addActor @stage actor)
         (.setInputProcessor
          Gdx/input
-         (proxy [InputAdapter] []
-           (keyDown [key]
-             (cond
-               (= key Input$Keys/LEFT)
-               (key-down! :left)
-               (= key Input$Keys/RIGHT)
-               (key-down! :right)
-               (= key Input$Keys/UP)
-               (key-down! :up)
-               (= key Input$Keys/DOWN)
-               (key-down! :down)
-               (= key Input$Keys/C)
-               (do (println @x @y)
-                   false)
-               :else false))
-           (keyUp [key]
-             (cond
-               (= key Input$Keys/LEFT)
-               (key-up! :left)
-               (= key Input$Keys/RIGHT)
-               (key-up! :right)
-               (= key Input$Keys/UP)
-               (key-up! :up)
-               (= key Input$Keys/DOWN)
-               (key-up! :down)
-               :else false))))
+         (input-adapter/create-input-adapter key-down! key-up! key-typed!))
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)
