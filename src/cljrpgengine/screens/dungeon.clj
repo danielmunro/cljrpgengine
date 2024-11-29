@@ -84,10 +84,7 @@
                       (move! x y @direction add-time-delta! delta)))
         dispose (fn []
                   (.dispose @stage)
-                  (.dispose @deps/batch)
-                  (.dispose @deps/font)
-                  (.dispose renderer)
-                  (.dispose @tilemap/tilemap))]
+                  (.dispose renderer))]
     (proxy [Screen] []
       (show []
         (swap! x (constantly (int (:x entrance))))
@@ -151,7 +148,8 @@
         (evaluate! delta))
       (dispose []
         (dispose))
-      (hide [])
+      (hide []
+        (dispose))
       (pause [])
       (resize [_ _])
       (resume []))))
