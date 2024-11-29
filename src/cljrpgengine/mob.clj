@@ -51,4 +51,5 @@
      :y y
      :direction direction
      :keys-down keys-down
-     :add-time-delta! add-time-delta!}))
+     :add-time-delta! add-time-delta!
+     :state-time state-time}))

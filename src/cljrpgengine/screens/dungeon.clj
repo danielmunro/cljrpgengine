@@ -27,33 +27,45 @@
 
 (defn- move!
   [x y direction add-time-delta! delta]
-  (cond
-    (= :up direction)
+  (case direction
+    :up
     (when (or (not (on-tile @x @y))
               (not (tilemap/is-blocked? [@x (inc @y)])))
       (swap! y #(+ % MOVE_AMOUNT))
+      (swap! moving (constantly true))
       (add-time-delta! delta))
-    (= :down direction)
+    :down
     (when (or (not (on-tile @x @y))
               (not (tilemap/is-blocked? [@x (dec @y)])))
       (swap! y #(- % MOVE_AMOUNT))
+      (swap! moving (constantly true))
       (add-time-delta! delta))
-    (= :left direction)
+    :left
     (when (or (not (on-tile @x @y))
               (not (tilemap/is-blocked? [(dec @x) @y])))
       (swap! x #(- % MOVE_AMOUNT))
+      (swap! moving (constantly true))
       (add-time-delta! delta))
-    (= :right direction)
+    :right
     (when (or (not (on-tile @x @y))
               (not (tilemap/is-blocked? [(inc @x) @y])))
       (swap! x #(+ % MOVE_AMOUNT))
+      (swap! moving (constantly true))
       (add-time-delta! delta))))
 
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (atom nil)
-        {:keys [actor key-down! key-up! x y direction keys-down add-time-delta!]} (mob/create-mob "edwyn.png")
+        {:keys [actor
+                key-down!
+                key-up!
+                x
+                y
+                direction
+                keys-down
+                add-time-delta!
+                state-time]} (mob/create-mob "edwyn.png")
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         entrance (tilemap/get-entrance entrance-name)
         evaluate-on-tile! (fn [delta]
@@ -62,10 +74,10 @@
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
                                   (move! x y key add-time-delta! delta)
-                                  (swap! moving (constantly true))
                                   (swap! direction (constantly key)))
-                                (if @moving
-                                  (swap! moving (constantly false))))))
+                                (when @moving
+                                  (swap! moving (constantly false))
+                                  (swap! state-time (constantly 0))))))
         evaluate! (fn [delta]
                     (if (on-tile @x @y)
                       (evaluate-on-tile! delta)
