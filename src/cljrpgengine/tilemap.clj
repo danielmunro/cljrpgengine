@@ -25,37 +25,23 @@
                            (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmx"))))))
 
 (defn- is-layer-blocking?
-  [layer cells]
+  [layer coordinates]
   (let [blocked? (atom false)]
-    (doseq [cell-coords cells]
-      (if-let [cell (.getCell layer (first cell-coords) (second cell-coords))]
-        (let [objects (-> cell (.getTile) (.getObjects))]
-            ;(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
-            ;(.setColor @deps/shape Color/BLUE)
-            ;(.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-            ;(.end @deps/shape)
-          (if (= 1 (.getCount objects))
-            (swap! blocked? (constantly true))))
-        #_(do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
-              (.setColor @deps/shape Color/BLUE)
-              (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
-              (.end @deps/shape))))
+    (if-let [cell (.getCell layer (first coordinates) (second coordinates))]
+      (let [objects (-> cell (.getTile) (.getObjects))]
+        ;(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
+        ;(.setColor @deps/shape Color/BLUE)
+        ;(.rect @deps/shape (first coordinates) (second coordinates) 1 1)
+        ;(.end @deps/shape)
+        (if (= 1 (.getCount objects))
+          (swap! blocked? (constantly true))))
+      #_(do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
+            (.setColor @deps/shape Color/BLUE)
+            (.rect @deps/shape (first coordinates) (second coordinates) 1 1)
+            (.end @deps/shape)))
     @blocked?))
 
 (defn is-blocked?
-  [direction to-x to-y]
-  (let [fx (Math/floor ^float to-x)
-        fy (Math/floor ^float to-y)
-        cx (Math/ceil ^float to-x)
-        cy (Math/ceil ^float to-y)
-        cells (atom [])]
-    (when (= :up direction)
-      (swap! cells conj [to-x cy]))
-    (when (= :down direction)
-      (swap! cells conj [to-x fy]))
-    (when (= :left direction)
-      (swap! cells conj [fx to-y]))
-    (when (= :right direction)
-      (swap! cells conj [cx to-y]))
-    (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) @cells)
-        (is-layer-blocking? (get-layer LAYER_MIDGROUND) @cells))))
+  [coordinates]
+  (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) coordinates)
+      (is-layer-blocking? (get-layer LAYER_MIDGROUND) coordinates)))

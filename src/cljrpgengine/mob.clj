@@ -40,22 +40,29 @@
                   true)
         state-time (atom 0)
         add-time-delta (fn [delta] (swap! state-time (fn [t] (+ t delta))))
+        on-tile (fn []
+                  (and (= (float @x) (Math/ceil @x))
+                       (= (float @y) (Math/ceil @y))))
         move (fn [direction delta]
                (cond
                  (= :up direction)
-                 (when-not (tilemap/is-blocked? :up @x (+ @y MOVE_AMOUNT))
+                 (when (or (not (on-tile))
+                           (not (tilemap/is-blocked? [@x (inc @y)])))
                    (swap! y #(+ % MOVE_AMOUNT))
                    (add-time-delta delta))
                  (= :down direction)
-                 (when-not (tilemap/is-blocked? :down @x (- @y MOVE_AMOUNT))
+                 (when (or (not (on-tile))
+                           (not (tilemap/is-blocked? [@x (dec @y)])))
                    (swap! y #(- % MOVE_AMOUNT))
                    (add-time-delta delta))
                  (= :left direction)
-                 (when-not (tilemap/is-blocked? :left (- @x MOVE_AMOUNT) @y)
+                 (when (or (not (on-tile))
+                           (not (tilemap/is-blocked? [(dec @x) @y])))
                    (swap! x #(- % MOVE_AMOUNT))
                    (add-time-delta delta))
                  (= :right direction)
-                 (when-not (tilemap/is-blocked? :right (+ @x MOVE_AMOUNT) @y)
+                 (when (or (not (on-tile))
+                           (not (tilemap/is-blocked? [(inc @x) @y])))
                    (swap! x #(+ % MOVE_AMOUNT))
                    (add-time-delta delta))))]
     {:actor (proxy [Actor] []
@@ -66,14 +73,13 @@
                          (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
                          (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
               (act [delta]
-                (if (or (not= (float @x) (Math/ceil @x))
-                        (not= (float @y) (Math/ceil @y)))
-                  (move @direction delta)
+                (if (on-tile)
                   (if-let [d1 (first @keys-down)]
                     (do
                       (move d1 delta)
                       (swap! direction (constantly d1)))
-                    (swap! state-time (constantly 0))))))
+                    (swap! state-time (constantly 0)))
+                  (move @direction delta))))
      :key-down! key-down!
      :key-up! key-up!
      :x x
