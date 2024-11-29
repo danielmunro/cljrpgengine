@@ -11,13 +11,13 @@
 
 (defn screen
   [_ scene room]
+  (tilemap/load-tilemap scene room)
   (let [stage (atom nil)
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
         {:keys [actor key-down! key-up! x y]} (mob/create-mob "edwyn.png")
-        tiled (tilemap/load-tilemap scene room)
-        renderer (OrthogonalTiledMapRenderer. tiled (float (/ 1 constants/tile-size)) @deps/batch)]
+        renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)]
     (proxy [Screen] []
       (show []
         (reset! stage (Stage.))

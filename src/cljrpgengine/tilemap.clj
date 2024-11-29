@@ -10,6 +10,7 @@
 (def LAYER_FOREGROUND "foreground")
 
 (def tilemap (atom nil))
+(def blocking-layer (atom []))
 
 (defn get-layer
   [layer]
@@ -19,8 +20,9 @@
   [scene room]
   (let [scene-name (name scene)
         room-name (name room)]
-    (swap! tilemap (constantly (.load (TmxMapLoader.)
-                                      (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmx"))))))
+    (swap! tilemap (constantly
+                    (.load (TmxMapLoader.)
+                           (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmx"))))))
 
 (defn- is-layer-blocking?
   [layer cells]
