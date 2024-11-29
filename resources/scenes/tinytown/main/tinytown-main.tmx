@@ -106,10 +106,18 @@
    </properties>
   </object>
   <object id="12" name="from_building3" type="entrance" x="320" y="224" width="16" height="16"/>
-  <object id="13" name="from-shop" type="entrance" x="192" y="304" width="16" height="16"/>
-  <object id="14" name="from-house1" type="entrance" x="560" y="320" width="16" height="16"/>
+  <object id="13" name="from-shop" type="entrance" x="192" y="304" width="16" height="16">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="14" name="from-house1" type="entrance" x="560" y="320" width="16" height="16">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
  </objectgroup>
- <objectgroup id="9" name="doors">
+ <objectgroup id="9" name="doors" visible="0">
   <object id="23" type="gray-door" x="560" y="304" width="16" height="16"/>
   <object id="24" type="brown-door" x="192" y="288" width="16" height="16"/>
  </objectgroup>

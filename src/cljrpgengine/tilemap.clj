@@ -50,28 +50,28 @@
 (defn get-entrance
   [entrance-name]
   (let [objects (.getObjects (get-layer LAYER_WARPS))
-         entrance (first (filter (fn [o]
-                                   (let [p (.getProperties o)]
-                                     (and (= "entrance" (.get p "type"))
-                                          (= (name entrance-name) (.getName o)))))
-                                 objects))]
+        entrance (first (filter (fn [o]
+                                  (let [p (.getProperties o)]
+                                    (and (= "entrance" (.get p "type"))
+                                         (= (name entrance-name) (.getName o)))))
+                                objects))]
     (if-let [p (.getProperties entrance)]
-       {:x (/ (.get p "x") constants/tile-size)
-        :y (/ (.get p "y") constants/tile-size)
-        :direction (keyword (.get p "direction"))})))
+      {:x (/ (.get p "x") constants/tile-size)
+       :y (/ (.get p "y") constants/tile-size)
+       :direction (keyword (.get p "direction"))})))
 
 (defn get-exit
-  [coordinates]
+  [x y]
   (let [objects (.getObjects (get-layer LAYER_WARPS))
-        player (Rectangle. (* (first coordinates) constants/tile-size)
-                           (* (second coordinates) constants/tile-size)
+        player (Rectangle. (* x constants/tile-size)
+                           (* y constants/tile-size)
                            constants/tile-size
                            constants/tile-size)]
     (if-let [entrance (first
-                        (filter
-                          #(and (= "exit" (.get (.getProperties %) "type"))
-                                (Intersector/overlaps player (.getRectangle %)))
-                          objects))]
+                       (filter
+                        #(and (= "exit" (.get (.getProperties %) "type"))
+                              (Intersector/overlaps player (.getRectangle %)))
+                        objects))]
       {:scene (keyword (.get (.getProperties entrance) "scene"))
        :room (keyword (.get (.getProperties entrance) "room"))
        :to (keyword (.get (.getProperties entrance) "to"))})))

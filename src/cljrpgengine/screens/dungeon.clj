@@ -9,16 +9,65 @@
            (com.badlogic.gdx.scenes.scene2d Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
+(def MOVE_AMOUNT 1/7)
+
+(def moving (atom false))
+
+(defn on-tile
+  [x y]
+  (and (= (float x) (Math/ceil x))
+       (= (float y) (Math/ceil y))))
+
+(defn move!
+  [x y direction add-time-delta! delta]
+  (cond
+    (= :up direction)
+    (when (or (not (on-tile @x @y))
+              (not (tilemap/is-blocked? [@x (inc @y)])))
+      (swap! y #(+ % MOVE_AMOUNT))
+      (add-time-delta! delta))
+    (= :down direction)
+    (when (or (not (on-tile @x @y))
+              (not (tilemap/is-blocked? [@x (dec @y)])))
+      (swap! y #(- % MOVE_AMOUNT))
+      (add-time-delta! delta))
+    (= :left direction)
+    (when (or (not (on-tile @x @y))
+              (not (tilemap/is-blocked? [(dec @x) @y])))
+      (swap! x #(- % MOVE_AMOUNT))
+      (add-time-delta! delta))
+    (= :right direction)
+    (when (or (not (on-tile @x @y))
+              (not (tilemap/is-blocked? [(inc @x) @y])))
+      (swap! x #(+ % MOVE_AMOUNT))
+      (add-time-delta! delta))))
+
 (defn screen
-  [_ scene room entrance-name]
+  [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (atom nil)
-        dispose (fn []
-                  (.dispose @deps/batch)
-                  (.dispose @deps/font))
-        {:keys [actor key-down! key-up! x y direction]} (mob/create-mob "edwyn.png")
+        {:keys [actor key-down! key-up! x y direction keys-down add-time-delta!]} (mob/create-mob "edwyn.png")
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
-        entrance (tilemap/get-entrance entrance-name)]
+        entrance (tilemap/get-entrance entrance-name)
+        check-input! (fn [delta] ;todo separate evaluation and input checking
+                       (if (on-tile @x @y)
+                         (do
+                           (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
+                             (.setScreen game (screen game scene room to)))
+                           (if-let [d1 (first @keys-down)]
+                             (do
+                               (move! x y d1 add-time-delta! delta)
+                               (swap! moving (constantly true))
+                               (swap! direction (constantly d1)))
+                             (if @moving
+                               (swap! moving (constantly false)))))
+                         (move! x y @direction add-time-delta! delta)))
+        dispose (fn []
+                  (.dispose @stage)
+                  (.dispose @deps/batch)
+                  (.dispose @deps/font)
+                  (.dispose renderer)
+                  (.dispose @tilemap/tilemap))]
     (proxy [Screen] []
       (show []
         (swap! x (constantly (int (:x entrance))))
@@ -78,7 +127,8 @@
           (.draw))
         (.begin @deps/batch)
         (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-        (.end @deps/batch))
+        (.end @deps/batch)
+        (check-input! delta))
       (dispose []
         (dispose))
       (hide [])

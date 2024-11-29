@@ -1,14 +1,11 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.tilemap :as tilemap]
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.files FileHandle)
            (com.badlogic.gdx.graphics Texture)
            (com.badlogic.gdx.graphics.g2d Animation TextureRegion)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.utils Array)))
-
-(def MOVE_AMOUNT 1/7)
 
 (defn sprite-array
   [txr coll]
@@ -39,33 +36,7 @@
                   (swap! keys-down disj key)
                   true)
         state-time (atom 0)
-        add-time-delta (fn [delta] (swap! state-time (fn [t] (+ t delta))))
-        moving (atom false)
-        on-tile (fn []
-                  (and (= (float @x) (Math/ceil @x))
-                       (= (float @y) (Math/ceil @y))))
-        move (fn [direction delta]
-               (cond
-                 (= :up direction)
-                 (when (or (not (on-tile))
-                           (not (tilemap/is-blocked? [@x (inc @y)])))
-                   (swap! y #(+ % MOVE_AMOUNT))
-                   (add-time-delta delta))
-                 (= :down direction)
-                 (when (or (not (on-tile))
-                           (not (tilemap/is-blocked? [@x (dec @y)])))
-                   (swap! y #(- % MOVE_AMOUNT))
-                   (add-time-delta delta))
-                 (= :left direction)
-                 (when (or (not (on-tile))
-                           (not (tilemap/is-blocked? [(dec @x) @y])))
-                   (swap! x #(- % MOVE_AMOUNT))
-                   (add-time-delta delta))
-                 (= :right direction)
-                 (when (or (not (on-tile))
-                           (not (tilemap/is-blocked? [(inc @x) @y])))
-                   (swap! x #(+ % MOVE_AMOUNT))
-                   (add-time-delta delta))))]
+        add-time-delta! (fn [delta] (swap! state-time (fn [t] (+ t delta))))]
     {:actor (proxy [Actor] []
               (draw [batch _]
                 (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
@@ -73,21 +44,11 @@
                          frame
                          (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
                          (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
-              (act [delta]
-                (if (on-tile)
-                  (if-let [d1 (first @keys-down)]
-                    (do
-                      (move d1 delta)
-                      (swap! moving (constantly true))
-                      (swap! direction (constantly d1)))
-                    (if @moving
-                      (do (swap! moving (constantly false))
-                          (println "stop moving" @x @y)
-                          (if-let [warp (tilemap/get-exit [@x @y])]
-                            (println "warp found")))))
-                  (move @direction delta))))
+              (act [delta]))
      :key-down! key-down!
      :key-up! key-up!
      :x x
      :y y
-     :direction direction}))
+     :direction direction
+     :keys-down keys-down
+     :add-time-delta! add-time-delta!}))
