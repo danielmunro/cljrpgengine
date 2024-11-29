@@ -13,12 +13,19 @@
 
 (def moving (atom false))
 
-(defn on-tile
+(defn- is-direction?
+  [key]
+  (or (= :up key)
+      (= :down key)
+      (= :left key)
+      (= :right key)))
+
+(defn- on-tile
   [x y]
   (and (= (float x) (Math/ceil x))
        (= (float y) (Math/ceil y))))
 
-(defn move!
+(defn- move!
   [x y direction add-time-delta! delta]
   (cond
     (= :up direction)
@@ -49,19 +56,20 @@
         {:keys [actor key-down! key-up! x y direction keys-down add-time-delta!]} (mob/create-mob "edwyn.png")
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         entrance (tilemap/get-entrance entrance-name)
-        check-input! (fn [delta] ;todo separate evaluation and input checking
-                       (if (on-tile @x @y)
-                         (do
-                           (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
-                             (.setScreen game (screen game scene room to)))
-                           (if-let [d1 (first @keys-down)]
-                             (do
-                               (move! x y d1 add-time-delta! delta)
-                               (swap! moving (constantly true))
-                               (swap! direction (constantly d1)))
-                             (if @moving
-                               (swap! moving (constantly false)))))
-                         (move! x y @direction add-time-delta! delta)))
+        evaluate-on-tile! (fn [delta]
+                            (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
+                              (.setScreen game (screen game scene room to))
+                              (if-let [key (first @keys-down)]
+                                (when (is-direction? key)
+                                  (move! x y key add-time-delta! delta)
+                                  (swap! moving (constantly true))
+                                  (swap! direction (constantly key)))
+                                (if @moving
+                                  (swap! moving (constantly false))))))
+        evaluate! (fn [delta]
+                    (if (on-tile @x @y)
+                      (evaluate-on-tile! delta)
+                      (move! x y @direction add-time-delta! delta)))
         dispose (fn []
                   (.dispose @stage)
                   (.dispose @deps/batch)
@@ -128,7 +136,7 @@
         (.begin @deps/batch)
         (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
         (.end @deps/batch)
-        (check-input! delta))
+        (evaluate! delta))
       (dispose []
         (dispose))
       (hide [])
