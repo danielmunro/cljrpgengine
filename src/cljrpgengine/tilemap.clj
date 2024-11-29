@@ -28,15 +28,14 @@
   [layer cells]
   (let [blocked? (atom false)]
     (doseq [cell-coords cells]
-      (let [cell (.getCell layer (first cell-coords) (second cell-coords))]
-        (if cell
-          (let [objects (-> cell (.getTile) (.getObjects))]
+      (if-let [cell (.getCell layer (first cell-coords) (second cell-coords))]
+        (let [objects (-> cell (.getTile) (.getObjects))]
             ;(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
             ;(.setColor @deps/shape Color/BLUE)
             ;(.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
             ;(.end @deps/shape)
-            (if (= 1 (.getCount objects))
-              (swap! blocked? (constantly true)))))
+          (if (= 1 (.getCount objects))
+            (swap! blocked? (constantly true))))
         #_(do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
               (.setColor @deps/shape Color/BLUE)
               (.rect @deps/shape (first cell-coords) (second cell-coords) 1 1)
