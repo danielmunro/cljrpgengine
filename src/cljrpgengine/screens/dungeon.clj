@@ -10,16 +10,20 @@
            (com.badlogic.gdx.utils ScreenUtils)))
 
 (defn screen
-  [_ scene room]
+  [_ scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (atom nil)
         dispose (fn []
                   (.dispose @deps/batch)
                   (.dispose @deps/font))
-        {:keys [actor key-down! key-up! x y]} (mob/create-mob "edwyn.png")
-        renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)]
+        {:keys [actor key-down! key-up! x y direction]} (mob/create-mob "edwyn.png")
+        renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
+        entrance (tilemap/get-entrance entrance-name)]
     (proxy [Screen] []
       (show []
+        (swap! x (constantly (int (:x entrance))))
+        (swap! y (constantly (int (:y entrance))))
+        (swap! direction (constantly (:direction entrance)))
         (reset! stage (Stage.))
         (.addActor @stage actor)
         (.setInputProcessor

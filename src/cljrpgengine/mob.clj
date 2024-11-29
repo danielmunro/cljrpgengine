@@ -28,8 +28,8 @@
                                       ^Array (sprite-array txr [[1 0] [1 1] [1 0] [1 2]]))
                     :right (Animation. (float constants/walk-animation-speed)
                                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}
-        x (atom 27)
-        y (atom 16)
+        x (atom 0)
+        y (atom 0)
         keys-down (atom (oset/ordered-set))
         direction (atom :down)
         key-down! (fn [key]
@@ -40,6 +40,7 @@
                   true)
         state-time (atom 0)
         add-time-delta (fn [delta] (swap! state-time (fn [t] (+ t delta))))
+        moving (atom false)
         on-tile (fn []
                   (and (= (float @x) (Math/ceil @x))
                        (= (float @y) (Math/ceil @y))))
@@ -77,10 +78,16 @@
                   (if-let [d1 (first @keys-down)]
                     (do
                       (move d1 delta)
+                      (swap! moving (constantly true))
                       (swap! direction (constantly d1)))
-                    (swap! state-time (constantly 0)))
+                    (if @moving
+                      (do (swap! moving (constantly false))
+                          (println "stop moving" @x @y)
+                          (if-let [warp (tilemap/get-exit [@x @y])]
+                            (println "warp found")))))
                   (move @direction delta))))
      :key-down! key-down!
      :key-up! key-up!
      :x x
-     :y y}))
+     :y y
+     :direction direction}))
