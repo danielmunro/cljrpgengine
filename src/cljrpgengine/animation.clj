@@ -24,7 +24,7 @@
      :right (Animation. (float constants/walk-animation-speed)
                         ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}))
 
-(defn create-from-name
+(defn create-from-type
   [name]
   (case name
     :edwyn (create-animation "edwyn.png")))

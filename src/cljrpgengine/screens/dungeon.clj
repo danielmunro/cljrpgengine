@@ -73,7 +73,7 @@
                 direction
                 keys-down
                 add-time-delta!
-                state-time]} (mob/create-mob "edwyn.png")
+                state-time]} (mob/create-mob :edwyn)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         entrance (tilemap/get-entrance entrance-name)
         evaluate-on-tile! (fn [delta]

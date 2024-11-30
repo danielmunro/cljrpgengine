@@ -5,8 +5,8 @@
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
 (defn create-mob
-  [sprite-file-name]
-  (let [animations (animation/create-from-name :edwyn)
+  [mob-type]
+  (let [animations (animation/create-from-type mob-type)
         x (atom 0)
         y (atom 0)
         keys-down (atom (oset/ordered-set))
