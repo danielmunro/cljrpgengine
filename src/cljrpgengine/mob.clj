@@ -5,12 +5,12 @@
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
 (defn create-mob
-  [mob-type]
+  [identifier name starting-direction x y mob-type]
   (let [animations (animation/create-from-type mob-type)
-        x (atom 0)
-        y (atom 0)
+        x (atom x)
+        y (atom y)
         keys-down (atom (oset/ordered-set))
-        direction (atom :down)
+        direction (atom starting-direction)
         key-down! (fn [key]
                     (swap! keys-down conj key)
                     true)
@@ -27,6 +27,8 @@
                          (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
                          (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
               (act [delta]))
+     :identifier identifier
+     :name name
      :key-down! key-down!
      :key-up! key-up!
      :x x

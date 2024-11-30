@@ -2,4 +2,4 @@
  :name "Agnos"
  :direction :down
  :coords [240 288]
- :sprite :cyrus}
+ :animation :cyrus}

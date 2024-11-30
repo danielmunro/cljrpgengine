@@ -3,7 +3,8 @@
             [cljrpgengine.deps :as deps]
             [cljrpgengine.input-adapter :as input-adapter]
             [cljrpgengine.mob :as mob]
-            [cljrpgengine.tilemap :as tilemap])
+            [cljrpgengine.tilemap :as tilemap]
+            [clojure.java.io :as io])
   (:import (com.badlogic.gdx Gdx Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
@@ -56,15 +57,37 @@
 
 (def keys-typed (atom #{}))
 
-(defn key-typed!
+(defn- key-typed!
   [key]
   (swap! keys-typed conj key)
   false)
+
+(def mobs (atom nil))
+
+(defn- load-mobs!
+  [scene room]
+  (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/mobs")
+        dir (io/file file-path)]
+    (swap! mobs (constantly nil))
+    (if (.exists dir)
+      (let [mob-files (.listFiles dir)]
+        (doseq [mob-file mob-files]
+          (let [{:keys [identifier name direction coords animation]}
+                (read-string (slurp (str file-path "/" (.getName mob-file))))]
+            (swap! mobs assoc
+                   identifier (mob/create-mob
+                                identifier
+                                name
+                                direction
+                                (first coords)
+                                (second coords)
+                                animation))))))))
 
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (atom nil)
+        entrance (tilemap/get-entrance entrance-name)
         {:keys [actor
                 key-down!
                 key-up!
@@ -73,9 +96,14 @@
                 direction
                 keys-down
                 add-time-delta!
-                state-time]} (mob/create-mob :edwyn)
+                state-time]} (mob/create-mob
+                                       :edwyn
+                                       "Edwyn"
+                                       (:direction entrance)
+                                       (int (:x entrance))
+                                       (int (:y entrance))
+                                       :edwyn)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
-        entrance (tilemap/get-entrance entrance-name)
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
                               (.setScreen game (screen game scene room to))
@@ -104,11 +132,11 @@
                   (.dispose renderer))]
     (proxy [Screen] []
       (show []
-        (swap! x (constantly (int (:x entrance))))
-        (swap! y (constantly (int (:y entrance))))
-        (swap! direction (constantly (:direction entrance)))
         (reset! stage (Stage.))
-        (.addActor @stage actor)
+        (load-mobs! scene room)
+        (doseq [mob (vals @mobs)]
+          (.addActor @stage (:actor mob)))
+        ;(.addActor @stage actor)
         (.setInputProcessor
          Gdx/input
          (input-adapter/create-input-adapter key-down! key-up! key-typed!))
