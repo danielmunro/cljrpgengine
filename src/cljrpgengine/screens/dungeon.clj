@@ -8,6 +8,7 @@
   (:import (com.badlogic.gdx Gdx Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
+           (com.badlogic.gdx.math Rectangle)
            (com.badlogic.gdx.scenes.scene2d Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
@@ -26,34 +27,6 @@
   [x y]
   (and (= (float x) (Math/ceil x))
        (= (float y) (Math/ceil y))))
-
-(defn- move!
-  [x y direction add-time-delta! delta]
-  (case direction
-    :up
-    (when (or (not (on-tile @x @y))
-              (not (tilemap/is-blocked? [@x (inc @y)])))
-      (swap! y #(+ % MOVE_AMOUNT))
-      (swap! moving (constantly true))
-      (add-time-delta! delta))
-    :down
-    (when (or (not (on-tile @x @y))
-              (not (tilemap/is-blocked? [@x (dec @y)])))
-      (swap! y #(- % MOVE_AMOUNT))
-      (swap! moving (constantly true))
-      (add-time-delta! delta))
-    :left
-    (when (or (not (on-tile @x @y))
-              (not (tilemap/is-blocked? [(dec @x) @y])))
-      (swap! x #(- % MOVE_AMOUNT))
-      (swap! moving (constantly true))
-      (add-time-delta! delta))
-    :right
-    (when (or (not (on-tile @x @y))
-              (not (tilemap/is-blocked? [(inc @x) @y])))
-      (swap! x #(+ % MOVE_AMOUNT))
-      (swap! moving (constantly true))
-      (add-time-delta! delta))))
 
 (def keys-typed (atom #{}))
 
@@ -80,13 +53,14 @@
                                (/ (first coords) constants/tile-size)
                                (- (dec (.get (.getProperties @tilemap/tilemap) "height")) (/ (second coords) constants/tile-size))
                                animation))))))
-    mobs))
+    @mobs))
 
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
         entrance (tilemap/get-entrance entrance-name)
+        mobs (load-mobs scene room)
         {:keys [actor
                 key-down!
                 key-up!
@@ -103,6 +77,47 @@
                               (int (:y entrance))
                               :edwyn)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
+        is-mob-blocking? (fn [x y]
+                           (let [rectangle (Rectangle. x y 1 1)]
+                             (some true? (map (fn [mob]
+                                                (let [act (:actor mob)]
+                                                  (.overlaps rectangle (Rectangle. (.getX act)
+                                                                                   (.getY act)
+                                                                                   1
+                                                                                   1))))
+                                              (vals mobs)))))
+        move! (fn [x y direction add-time-delta! delta]
+                (case direction
+                  :up
+                  (when (or (not (on-tile @x @y))
+                            (and (not (tilemap/is-blocked? @x (inc @y)))
+                                 (not (is-mob-blocking? @x (inc @y)))))
+                    (swap! y #(+ % MOVE_AMOUNT))
+                    (swap! moving (constantly true))
+                    (add-time-delta! delta)
+                    #_(.setZIndex actor @y))
+                  :down
+                  (when (or (not (on-tile @x @y))
+                            (and (not (tilemap/is-blocked? @x (dec @y)))
+                                 (not (is-mob-blocking? @x (dec @y)))))
+                    (swap! y #(- % MOVE_AMOUNT))
+                    (swap! moving (constantly true))
+                    (add-time-delta! delta)
+                    #_(.setZIndex actor @y))
+                  :left
+                  (when (or (not (on-tile @x @y))
+                            (and (not (tilemap/is-blocked? (dec @x) @y))
+                                 (not (is-mob-blocking? (dec @x) @y))))
+                    (swap! x #(- % MOVE_AMOUNT))
+                    (swap! moving (constantly true))
+                    (add-time-delta! delta))
+                  :right
+                  (when (or (not (on-tile @x @y))
+                            (and (not (tilemap/is-blocked? (inc @x) @y))
+                                 (not (is-mob-blocking? (inc @x) @y))))
+                    (swap! x #(+ % MOVE_AMOUNT))
+                    (swap! moving (constantly true))
+                    (add-time-delta! delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
                               (.setScreen game (screen game scene room to))
@@ -151,11 +166,10 @@
                  (.draw))
                (.begin @deps/batch)
                (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-               (.end @deps/batch))
-        mobs (load-mobs scene room)]
+               (.end @deps/batch))]
     (proxy [Screen] []
       (show []
-        (doseq [mob (vals @mobs)]
+        (doseq [mob (vals mobs)]
           (.addActor stage (:actor mob)))
         (.addActor stage actor)
         (.setInputProcessor

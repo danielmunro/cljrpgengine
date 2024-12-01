@@ -32,13 +32,13 @@
                                (float @x)
                                (float @y)
                                (float 1)
-                               (float 1.5)
-                               ;(float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
-                               ;(float (- (/ constants/screen-height 2) (/ constants/mob-height 2)))
-                               )))
+                               (float 1.5))))
                     (act [delta]))
               (.setX @x)
-              (.setY @y))
+              (.setY @y)
+              (.setWidth constants/mob-width)
+              (.setHeight constants/mob-height)
+              #_(.setZIndex (- 100 @y)))
      :identifier identifier
      :name name
      :key-down! key-down!

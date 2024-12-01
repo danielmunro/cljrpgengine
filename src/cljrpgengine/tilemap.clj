@@ -26,9 +26,9 @@
                            (str constants/scenes-dir scene-name "/" room-name "/" scene-name "-" room-name ".tmx"))))))
 
 (defn- is-layer-blocking?
-  [layer coordinates]
+  [layer x y]
   (let [blocked? (atom false)]
-    (if-let [cell (.getCell layer (first coordinates) (second coordinates))]
+    (if-let [cell (.getCell layer x y)]
       (let [objects (-> cell (.getTile) (.getObjects))]
         ;(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
         ;(.setColor @deps/shape Color/BLUE)
@@ -43,9 +43,9 @@
     @blocked?))
 
 (defn is-blocked?
-  [coordinates]
-  (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) coordinates)
-      (is-layer-blocking? (get-layer LAYER_MIDGROUND) coordinates)))
+  [x y]
+  (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) x y)
+      (is-layer-blocking? (get-layer LAYER_MIDGROUND) x y)))
 
 (defn get-entrance
   [entrance-name]
