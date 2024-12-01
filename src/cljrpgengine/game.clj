@@ -1,10 +1,12 @@
 (ns cljrpgengine.game
-  (:require [cljrpgengine.deps :as deps]
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.deps :as deps]
             [cljrpgengine.screens.main-menu :as main-menu])
   (:import [com.badlogic.gdx Game]
            (com.badlogic.gdx.graphics OrthographicCamera)
            (com.badlogic.gdx.graphics.g2d BitmapFont SpriteBatch)
-           (com.badlogic.gdx.graphics.glutils ShapeRenderer)))
+           (com.badlogic.gdx.graphics.glutils ShapeRenderer)
+           (com.badlogic.gdx.utils.viewport FitViewport)))
 
 (gen-class
  :name "cljrpgengine.game.Game"
@@ -14,6 +16,9 @@
   (swap! deps/batch (constantly (SpriteBatch.)))
   (swap! deps/font (constantly (BitmapFont.)))
   (swap! deps/camera (constantly (OrthographicCamera.)))
+  (swap! deps/viewport (constantly (FitViewport. (/ constants/screen-width constants/tile-size)
+                                                 (/ constants/screen-height constants/tile-size)
+                                                 @deps/camera)))
   (swap! deps/shape (constantly (ShapeRenderer.)))
   (.setScreen this (main-menu/screen this)))
 

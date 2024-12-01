@@ -19,14 +19,26 @@
                   true)
         state-time (atom 0)
         add-time-delta! (fn [delta] (swap! state-time (fn [t] (+ t delta))))]
-    {:actor (proxy [Actor] []
-              (draw [batch _]
-                (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
-                  (.draw batch
-                         frame
-                         (float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
-                         (float (- (/ constants/screen-height 2) (/ constants/mob-height 2))))))
-              (act [delta]))
+    {:actor (doto (proxy [Actor] []
+                    (draw [batch _]
+                      ;(println (proxy-super getX) (proxy-super getY))
+                      (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
+                        (.draw batch
+                               frame
+                               ;(proxy-super getX)
+                               ;(proxy-super getY)
+                               ;(float 1)
+                               ;(float 1.5)
+                               (float @x)
+                               (float @y)
+                               (float 1)
+                               (float 1.5)
+                               ;(float (- (/ constants/screen-width 2) (/ constants/mob-width 2)))
+                               ;(float (- (/ constants/screen-height 2) (/ constants/mob-height 2)))
+                               )))
+                    (act [delta]))
+              (.setX @x)
+              (.setY @y))
      :identifier identifier
      :name name
      :key-down! key-down!

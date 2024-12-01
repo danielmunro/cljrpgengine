@@ -76,12 +76,12 @@
                 (read-string (slurp (str file-path "/" (.getName mob-file))))]
             (swap! mobs assoc
                    identifier (mob/create-mob
-                                identifier
-                                name
-                                direction
-                                (first coords)
-                                (second coords)
-                                animation))))))))
+                               identifier
+                               name
+                               direction
+                               (/ (first coords) constants/tile-size)
+                               (- (dec (.get (.getProperties @tilemap/tilemap) "height")) (/ (second coords) constants/tile-size))
+                               animation))))))))
 
 (defn screen
   [game scene room entrance-name]
@@ -97,12 +97,12 @@
                 keys-down
                 add-time-delta!
                 state-time]} (mob/create-mob
-                                       :edwyn
-                                       "Edwyn"
-                                       (:direction entrance)
-                                       (int (:x entrance))
-                                       (int (:y entrance))
-                                       :edwyn)
+                              :edwyn
+                              "Edwyn"
+                              (:direction entrance)
+                              (int (:x entrance))
+                              (int (:y entrance))
+                              :edwyn)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
@@ -132,11 +132,11 @@
                   (.dispose renderer))]
     (proxy [Screen] []
       (show []
-        (reset! stage (Stage.))
+        (reset! stage (Stage. @deps/viewport @deps/batch))
         (load-mobs! scene room)
         (doseq [mob (vals @mobs)]
           (.addActor @stage (:actor mob)))
-        ;(.addActor @stage actor)
+        (.addActor @stage actor)
         (.setInputProcessor
          Gdx/input
          (input-adapter/create-input-adapter key-down! key-up! key-typed!))
@@ -150,11 +150,14 @@
                 (+ @x (/ constants/mob-width t))
                 (+ @y (/ constants/mob-height t))
                 0))
+        (.apply @deps/viewport)
         (.update @deps/camera)
         (.setView renderer @deps/camera)
         (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
         (.setProjectionMatrix @deps/shape (.-combined @deps/camera))
+
         (ScreenUtils/clear Color/BLACK)
+
         (.begin @deps/batch)
         (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_BACKGROUND))
         (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_MIDGROUND))
@@ -165,6 +168,7 @@
         (.begin @deps/batch)
         (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
         (.end @deps/batch)
+
         (evaluate! delta))
       (dispose []
         (dispose))
