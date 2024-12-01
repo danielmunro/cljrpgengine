@@ -38,7 +38,7 @@
               (.setY @y)
               (.setWidth constants/mob-width)
               (.setHeight constants/mob-height)
-              #_(.setZIndex (- 100 @y)))
+              (.setName name))
      :identifier identifier
      :name name
      :key-down! key-down!

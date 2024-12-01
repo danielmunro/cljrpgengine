@@ -9,7 +9,7 @@
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
            (com.badlogic.gdx.math Rectangle)
-           (com.badlogic.gdx.scenes.scene2d Stage)
+           (com.badlogic.gdx.scenes.scene2d Group Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
 (def MOVE_AMOUNT 1/7)
@@ -59,6 +59,7 @@
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
+        mob-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
         mobs (load-mobs scene room)
         {:keys [actor
@@ -93,22 +94,23 @@
                             (and (not (tilemap/is-blocked? @x (inc @y)))
                                  (not (is-mob-blocking? @x (inc @y)))))
                     (swap! y #(+ % MOVE_AMOUNT))
+                    (.setY actor @y)
                     (swap! moving (constantly true))
-                    (add-time-delta! delta)
-                    #_(.setZIndex actor @y))
+                    (add-time-delta! delta))
                   :down
                   (when (or (not (on-tile @x @y))
                             (and (not (tilemap/is-blocked? @x (dec @y)))
                                  (not (is-mob-blocking? @x (dec @y)))))
                     (swap! y #(- % MOVE_AMOUNT))
+                    (.setY actor @y)
                     (swap! moving (constantly true))
-                    (add-time-delta! delta)
-                    #_(.setZIndex actor @y))
+                    (add-time-delta! delta))
                   :left
                   (when (or (not (on-tile @x @y))
                             (and (not (tilemap/is-blocked? (dec @x) @y))
                                  (not (is-mob-blocking? (dec @x) @y))))
                     (swap! x #(- % MOVE_AMOUNT))
+                    (.setX actor @x)
                     (swap! moving (constantly true))
                     (add-time-delta! delta))
                   :right
@@ -116,6 +118,7 @@
                             (and (not (tilemap/is-blocked? (inc @x) @y))
                                  (not (is-mob-blocking? (inc @x) @y))))
                     (swap! x #(+ % MOVE_AMOUNT))
+                    (.setX actor @x)
                     (swap! moving (constantly true))
                     (add-time-delta! delta))))
         evaluate-on-tile! (fn [delta]
@@ -166,12 +169,25 @@
                  (.draw))
                (.begin @deps/batch)
                (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-               (.end @deps/batch))]
+               (.end @deps/batch))
+        sort-actors (fn []
+                      (let [sorted (sort (fn [a b]
+                                           (cond
+                                             (= (.getY a) (.getY b))
+                                             0
+                                             (> (.getY a) (.getY b))
+                                             -1
+                                             :else
+                                             1))
+                                         (.getChildren mob-group))]
+                        (doseq [i (range 0 (.count sorted))]
+                          (.setZIndex (nth sorted i) i))))]
     (proxy [Screen] []
       (show []
         (doseq [mob (vals mobs)]
-          (.addActor stage (:actor mob)))
-        (.addActor stage actor)
+          (.addActor mob-group (:actor mob)))
+        (.addActor mob-group actor)
+        (.addActor stage mob-group)
         (.setInputProcessor
          Gdx/input
          (input-adapter/create-input-adapter key-down! key-up! key-typed!))
@@ -181,6 +197,7 @@
                      (/ constants/screen-height constants/tile-size)))
       (render [delta]
         (update-view)
+        (sort-actors)
 
         (draw delta)
 
