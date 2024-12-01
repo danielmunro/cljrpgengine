@@ -62,13 +62,11 @@
   (swap! keys-typed conj key)
   false)
 
-(def mobs (atom nil))
-
-(defn- load-mobs!
+(defn- load-mobs
   [scene room]
   (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/mobs")
-        dir (io/file file-path)]
-    (swap! mobs (constantly nil))
+        dir (io/file file-path)
+        mobs (atom nil)]
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
         (doseq [mob-file mob-files]
@@ -81,12 +79,13 @@
                                direction
                                (/ (first coords) constants/tile-size)
                                (- (dec (.get (.getProperties @tilemap/tilemap) "height")) (/ (second coords) constants/tile-size))
-                               animation))))))))
+                               animation))))))
+    mobs))
 
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
-  (let [stage (atom nil)
+  (let [stage (Stage. @deps/viewport @deps/batch)
         entrance (tilemap/get-entrance entrance-name)
         {:keys [actor
                 key-down!
@@ -128,15 +127,37 @@
                     (evaluate-movement! delta)
                     (evaluate-key-pressed!))
         dispose (fn []
-                  (.dispose @stage)
-                  (.dispose renderer))]
+                  (.dispose stage)
+                  (.dispose renderer))
+        update-view (fn []
+                      (let [t (* constants/tile-size 2)]
+                        (.set (. @deps/camera position)
+                              (+ @x (/ constants/mob-width t))
+                              (+ @y (/ constants/mob-height t))
+                              0))
+                      (.apply @deps/viewport)
+                      (.update @deps/camera)
+                      (.setView renderer @deps/camera)
+                      (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
+                      (.setProjectionMatrix @deps/shape (.-combined @deps/camera)))
+        draw (fn [delta]
+               (ScreenUtils/clear Color/BLACK)
+               (.begin @deps/batch)
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_BACKGROUND))
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_MIDGROUND))
+               (.end @deps/batch)
+               (doto stage
+                 (.act delta)
+                 (.draw))
+               (.begin @deps/batch)
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
+               (.end @deps/batch))
+        mobs (load-mobs scene room)]
     (proxy [Screen] []
       (show []
-        (reset! stage (Stage. @deps/viewport @deps/batch))
-        (load-mobs! scene room)
         (doseq [mob (vals @mobs)]
-          (.addActor @stage (:actor mob)))
-        (.addActor @stage actor)
+          (.addActor stage (:actor mob)))
+        (.addActor stage actor)
         (.setInputProcessor
          Gdx/input
          (input-adapter/create-input-adapter key-down! key-up! key-typed!))
@@ -145,29 +166,9 @@
                      (/ constants/screen-width constants/tile-size)
                      (/ constants/screen-height constants/tile-size)))
       (render [delta]
-        (let [t (* constants/tile-size 2)]
-          (.set (. @deps/camera position)
-                (+ @x (/ constants/mob-width t))
-                (+ @y (/ constants/mob-height t))
-                0))
-        (.apply @deps/viewport)
-        (.update @deps/camera)
-        (.setView renderer @deps/camera)
-        (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
-        (.setProjectionMatrix @deps/shape (.-combined @deps/camera))
+        (update-view)
 
-        (ScreenUtils/clear Color/BLACK)
-
-        (.begin @deps/batch)
-        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_BACKGROUND))
-        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_MIDGROUND))
-        (.end @deps/batch)
-        (doto @stage
-          (.act delta)
-          (.draw))
-        (.begin @deps/batch)
-        (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-        (.end @deps/batch)
+        (draw delta)
 
         (evaluate! delta))
       (dispose []
