@@ -86,42 +86,32 @@
                                                                                    1
                                                                                    1))))
                                               (vals mobs)))))
-        move! (fn [x y direction add-time-delta! delta]
-                (case direction
-                  :up
-                  (when (or (not (on-tile x y))
-                            (and (not (tilemap/is-blocked? x (inc y)))
-                                 (not (is-mob-blocking? x (inc y)))))
-                    (.setY actor (util/round1 (+ y MOVE_AMOUNT)))
-                    (swap! moving (constantly true))
-                    (add-time-delta! delta))
-                  :down
-                  (when (or (not (on-tile x y))
-                            (and (not (tilemap/is-blocked? x (dec y)))
-                                 (not (is-mob-blocking? x (dec y)))))
-                    (.setY actor (util/round1 (- y MOVE_AMOUNT)))
-                    (swap! moving (constantly true))
-                    (add-time-delta! delta))
-                  :left
-                  (when (or (not (on-tile x y))
-                            (and (not (tilemap/is-blocked? (dec x) y))
-                                 (not (is-mob-blocking? (dec x) y))))
-                    (.setX actor (util/round1 (- x MOVE_AMOUNT)))
-                    (swap! moving (constantly true))
-                    (add-time-delta! delta))
-                  :right
-                  (when (or (not (on-tile x y))
-                            (and (not (tilemap/is-blocked? (inc x) y))
-                                 (not (is-mob-blocking? (inc x) y))))
-                    (.setX actor (util/round1 (+ x MOVE_AMOUNT)))
-                    (swap! moving (constantly true))
-                    (add-time-delta! delta))))
+        do-move! (fn [next-x next-y to-x to-y delta]
+                   (when (or (not (on-tile (.getX actor) (.getY actor)))
+                             (and (not (tilemap/is-blocked? next-x next-y))
+                                  (not (is-mob-blocking? next-x next-y))))
+                     (.setX actor to-x)
+                     (.setY actor to-y)
+                     (swap! moving (constantly true))
+                     (add-time-delta! delta)))
+        evaluate-direction-moving! (fn [direction delta]
+                (let [x (.getX actor)
+                      y (.getY actor)]
+                  (case direction
+                    :up
+                    (do-move! x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
+                    :down
+                    (do-move! x (dec y) x (util/round1 (- y MOVE_AMOUNT)) delta)
+                    :left
+                    (do-move! (dec x) y (util/round1 (- x MOVE_AMOUNT)) y delta)
+                    :right
+                    (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
                               (.setScreen game (screen game scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
-                                  (move! (.getX actor) (.getY actor) key add-time-delta! delta)
+                                  (evaluate-direction-moving! key delta)
                                   (swap! direction (constantly key)))
                                 (when @moving
                                   (swap! moving (constantly false))
@@ -129,7 +119,7 @@
         evaluate-movement! (fn [delta]
                              (if (on-tile (.getX actor) (.getY actor))
                                (evaluate-on-tile! delta)
-                               (move! (.getX actor) (.getY actor) @direction add-time-delta! delta)))
+                               (evaluate-direction-moving! @direction delta)))
         evaluate-key-pressed! (fn []
                                 (when-let [key (first @keys-typed)]
                                   (case key
