@@ -182,5 +182,6 @@
       (hide []
         (dispose))
       (pause [])
-      (resize [_ _])
+      (resize [width height]
+        (.update @deps/viewport width height true))
       (resume []))))
