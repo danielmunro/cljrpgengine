@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
             [cljrpgengine.input-adapter :as input-adapter]
+            [cljrpgengine.menu :as menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.menu.party :as party-menu]
             [cljrpgengine.tilemap :as tilemap]
@@ -124,25 +125,49 @@
                                 (when @moving
                                   (swap! moving (constantly false))
                                   (swap! state-time (constantly 0))))))
-        evaluate-movement! (fn [delta]
-                             (if (on-tile (.getX actor) (.getY actor))
-                               (evaluate-on-tile! delta)
-                               (evaluate-direction-moving! @direction delta)))
+        evaluate-menu-input! (fn [key menu]
+                               (case key
+                                 :up
+                                 (menu/dec-cursor-index menu)
+                                 :down
+                                 (menu/inc-cursor-index menu)
+                                 false))
+        evaluate-input! (fn [delta]
+                          (cond
+                            (not-empty @menus)
+                            nil
+                            (on-tile (.getX actor) (.getY actor))
+                            (evaluate-on-tile! delta)
+                            :else
+                            (evaluate-direction-moving! @direction delta)))
         key-pressed! (fn []
-                                (when-let [key (first @keys-typed)]
-                                  (case key
-                                    :c
-                                    (println (.getX actor) (.getY actor))
-                                    :m
-                                    (if (empty? @menus)
-                                      (let [menu (party-menu/create)]
-                                        (swap! menus conj menu)
-                                        (.addActor menu-group (:actor menu))))
-                                    :q
-                                    (when-let [menu (last @menus)]
-                                      (swap! menus drop-last)
-                                      (.removeActor menu-group (:actor menu))))
-                                  (swap! keys-typed disj key)))
+                       (when-let [key (first @keys-typed)]
+                         (case key
+                           :c
+                           (println (.getX actor) (.getY actor))
+                           :m
+                           (if (empty? @menus)
+                             (let [menu (party-menu/create)]
+                               (swap! menus conj menu)
+                               (.addActor menu-group (:actor menu))))
+                           :q
+                           (when-let [menu (last @menus)]
+                             (swap! menus drop-last)
+                             (.removeActor menu-group (:actor menu)))
+                           :up
+                           (when-not (empty? @menus)
+                             (evaluate-menu-input! :up (last @menus)))
+                           :down
+                           (when-not (empty? @menus)
+                             (evaluate-menu-input! :down (last @menus)))
+                           :left
+                           (when-not (empty? @menus)
+                             (evaluate-menu-input! :left (last @menus)))
+                           :right
+                           (when-not (empty? @menus)
+                             (evaluate-menu-input! :right (last @menus)))
+                           false)
+                         (swap! keys-typed disj key)))
         dispose (fn []
                   (.dispose stage)
                   (.dispose renderer))
@@ -179,8 +204,8 @@
         (.addActor stage mob-group)
         (.addActor menu-stage menu-group)
         (.setInputProcessor
-          Gdx/input
-          (input-adapter/dungeon-input-adapter key-down! key-up! key-typed!))
+         Gdx/input
+         (input-adapter/dungeon-input-adapter key-down! key-up! key-typed!))
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)
@@ -190,7 +215,7 @@
 
         (draw delta)
 
-        (evaluate-movement! delta)
+        (evaluate-input! delta)
 
         (key-pressed!))
       (dispose []

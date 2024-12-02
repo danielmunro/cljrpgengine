@@ -5,9 +5,9 @@
 (defn create-option
   [label on-selected]
   #_{:x x
-   :y y
-   :label label
-   :on-selected on-selected}
+     :y y
+     :label label
+     :on-selected on-selected}
   #_(.addListener label on-selected))
 
 (defn create-window
@@ -34,3 +34,17 @@
      :cursor cursor
      :options options
      :actor group}))
+
+(defn inc-cursor-index
+  [menu]
+  (let [index (-> menu :cursor :index)]
+    (if (< @index (dec (count (:options menu))))
+      (swap! index inc)
+      (swap! index (constantly 0)))))
+
+(defn dec-cursor-index
+  [menu]
+  (let [index (-> menu :cursor :index)]
+    (if (= 0 @index)
+      (swap! index (constantly (dec (count (:options menu)))))
+      (swap! index dec))))
