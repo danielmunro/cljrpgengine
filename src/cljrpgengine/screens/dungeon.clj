@@ -77,35 +77,40 @@
                               (int (:y entrance))
                               :edwyn)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
-        is-mob-blocking? (fn [x y]
-                           (let [rectangle (Rectangle. x y 1 1)]
-                             (some true? (map (fn [mob]
-                                                (let [act (:actor mob)]
-                                                  (.overlaps rectangle (Rectangle. (.getX act)
-                                                                                   (.getY act)
-                                                                                   1
-                                                                                   1))))
-                                              (vals mobs)))))
+        sort-actors (fn []
+                      (let [sorted (sort
+                                    (fn [a b]
+                                      (cond
+                                        (= (.getY a) (.getY b))
+                                        0
+                                        (> (.getY a) (.getY b))
+                                        -1
+                                        :else
+                                        1))
+                                    (.getChildren mob-group))]
+                        (doseq [i (range 0 (.count sorted))]
+                          (.setZIndex (nth sorted i) i))))
         do-move! (fn [next-x next-y to-x to-y delta]
                    (when (or (not (on-tile (.getX actor) (.getY actor)))
                              (and (not (tilemap/is-blocked? next-x next-y))
-                                  (not (is-mob-blocking? next-x next-y))))
+                                  (not (.hit mob-group next-x next-y true))))
                      (.setX actor to-x)
                      (.setY actor to-y)
                      (swap! moving (constantly true))
-                     (add-time-delta! delta)))
+                     (add-time-delta! delta)
+                     (sort-actors)))
         evaluate-direction-moving! (fn [direction delta]
-                (let [x (.getX actor)
-                      y (.getY actor)]
-                  (case direction
-                    :up
-                    (do-move! x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
-                    :down
-                    (do-move! x (dec y) x (util/round1 (- y MOVE_AMOUNT)) delta)
-                    :left
-                    (do-move! (dec x) y (util/round1 (- x MOVE_AMOUNT)) y delta)
-                    :right
-                    (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
+                                     (let [x (.getX actor)
+                                           y (.getY actor)]
+                                       (case direction
+                                         :up
+                                         (do-move! x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
+                                         :down
+                                         (do-move! x (dec y) x (util/round1 (- y MOVE_AMOUNT)) delta)
+                                         :left
+                                         (do-move! (dec x) y (util/round1 (- x MOVE_AMOUNT)) y delta)
+                                         :right
+                                         (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
                               (.setScreen game (screen game scene room to))
@@ -126,23 +131,19 @@
                                     :c
                                     (println (.getX actor) (.getY actor)))
                                   (swap! keys-typed disj key)))
-        evaluate! (fn [delta]
-                    (evaluate-movement! delta)
-                    (evaluate-key-pressed!))
         dispose (fn []
                   (.dispose stage)
                   (.dispose renderer))
-        update-view (fn []
-                      (let [t (* constants/tile-size 2)]
-                        (.set (. @deps/camera position)
-                              (+ (.getX actor) (/ constants/mob-width t))
-                              (+ (.getY actor) (/ constants/mob-height t))
-                              0))
-                      (.apply @deps/viewport)
-                      (.update @deps/camera)
-                      (.setView renderer @deps/camera)
-                      (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
-                      (.setProjectionMatrix @deps/shape (.-combined @deps/camera)))
+        update-camera (fn []
+                        (let [t (* constants/tile-size 2)]
+                          (.set (. @deps/camera position)
+                                (+ (.getX actor) (/ constants/mob-width t))
+                                (+ (.getY actor) (/ constants/mob-height t))
+                                0))
+                        (.update @deps/camera)
+                        (.setView renderer @deps/camera)
+                        (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
+                        (.setProjectionMatrix @deps/shape (.-combined @deps/camera)))
         draw (fn [delta]
                (ScreenUtils/clear Color/BLACK)
                (.begin @deps/batch)
@@ -154,19 +155,7 @@
                  (.draw))
                (.begin @deps/batch)
                (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-               (.end @deps/batch))
-        sort-actors (fn []
-                      (let [sorted (sort (fn [a b]
-                                           (cond
-                                             (= (.getY a) (.getY b))
-                                             0
-                                             (> (.getY a) (.getY b))
-                                             -1
-                                             :else
-                                             1))
-                                         (.getChildren mob-group))]
-                        (doseq [i (range 0 (.count sorted))]
-                          (.setZIndex (nth sorted i) i))))]
+               (.end @deps/batch))]
     (proxy [Screen] []
       (show []
         (doseq [mob (vals mobs)]
@@ -181,12 +170,13 @@
                      (/ constants/screen-width constants/tile-size)
                      (/ constants/screen-height constants/tile-size)))
       (render [delta]
-        (update-view)
-        (sort-actors)
+        (update-camera)
 
         (draw delta)
 
-        (evaluate! delta))
+        (evaluate-movement! delta)
+
+        (evaluate-key-pressed!))
       (dispose []
         (dispose))
       (hide []

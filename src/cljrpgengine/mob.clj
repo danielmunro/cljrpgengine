@@ -1,6 +1,5 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.animation :as animation]
-            [cljrpgengine.constants :as constants]
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
@@ -29,8 +28,8 @@
                     (act [delta]))
               (.setX x)
               (.setY y)
-              (.setWidth constants/mob-width)
-              (.setHeight constants/mob-height)
+              (.setWidth 1)
+              (.setHeight 1)
               (.setName name))
      :identifier identifier
      :name name
