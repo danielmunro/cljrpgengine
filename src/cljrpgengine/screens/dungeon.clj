@@ -4,7 +4,8 @@
             [cljrpgengine.input-adapter :as input-adapter]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.tilemap :as tilemap]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [cljrpgengine.util :as util])
   (:import (com.badlogic.gdx Gdx Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
@@ -65,8 +66,6 @@
         {:keys [actor
                 key-down!
                 key-up!
-                x
-                y
                 direction
                 keys-down
                 add-time-delta!
@@ -90,56 +89,52 @@
         move! (fn [x y direction add-time-delta! delta]
                 (case direction
                   :up
-                  (when (or (not (on-tile @x @y))
-                            (and (not (tilemap/is-blocked? @x (inc @y)))
-                                 (not (is-mob-blocking? @x (inc @y)))))
-                    (swap! y #(+ % MOVE_AMOUNT))
-                    (.setY actor @y)
+                  (when (or (not (on-tile x y))
+                            (and (not (tilemap/is-blocked? x (inc y)))
+                                 (not (is-mob-blocking? x (inc y)))))
+                    (.setY actor (util/round1 (+ y MOVE_AMOUNT)))
                     (swap! moving (constantly true))
                     (add-time-delta! delta))
                   :down
-                  (when (or (not (on-tile @x @y))
-                            (and (not (tilemap/is-blocked? @x (dec @y)))
-                                 (not (is-mob-blocking? @x (dec @y)))))
-                    (swap! y #(- % MOVE_AMOUNT))
-                    (.setY actor @y)
+                  (when (or (not (on-tile x y))
+                            (and (not (tilemap/is-blocked? x (dec y)))
+                                 (not (is-mob-blocking? x (dec y)))))
+                    (.setY actor (util/round1 (- y MOVE_AMOUNT)))
                     (swap! moving (constantly true))
                     (add-time-delta! delta))
                   :left
-                  (when (or (not (on-tile @x @y))
-                            (and (not (tilemap/is-blocked? (dec @x) @y))
-                                 (not (is-mob-blocking? (dec @x) @y))))
-                    (swap! x #(- % MOVE_AMOUNT))
-                    (.setX actor @x)
+                  (when (or (not (on-tile x y))
+                            (and (not (tilemap/is-blocked? (dec x) y))
+                                 (not (is-mob-blocking? (dec x) y))))
+                    (.setX actor (util/round1 (- x MOVE_AMOUNT)))
                     (swap! moving (constantly true))
                     (add-time-delta! delta))
                   :right
-                  (when (or (not (on-tile @x @y))
-                            (and (not (tilemap/is-blocked? (inc @x) @y))
-                                 (not (is-mob-blocking? (inc @x) @y))))
-                    (swap! x #(+ % MOVE_AMOUNT))
-                    (.setX actor @x)
+                  (when (or (not (on-tile x y))
+                            (and (not (tilemap/is-blocked? (inc x) y))
+                                 (not (is-mob-blocking? (inc x) y))))
+                    (.setX actor (util/round1 (+ x MOVE_AMOUNT)))
                     (swap! moving (constantly true))
                     (add-time-delta! delta))))
         evaluate-on-tile! (fn [delta]
-                            (if-let [{:keys [scene room to]} (tilemap/get-exit @x @y)]
+                            (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
                               (.setScreen game (screen game scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
-                                  (move! x y key add-time-delta! delta)
+                                  (move! (.getX actor) (.getY actor) key add-time-delta! delta)
                                   (swap! direction (constantly key)))
                                 (when @moving
                                   (swap! moving (constantly false))
                                   (swap! state-time (constantly 0))))))
         evaluate-movement! (fn [delta]
-                             (if (on-tile @x @y)
+                             (if (on-tile (.getX actor) (.getY actor))
                                (evaluate-on-tile! delta)
-                               (move! x y @direction add-time-delta! delta)))
+                               (move! (.getX actor) (.getY actor) @direction add-time-delta! delta)))
         evaluate-key-pressed! (fn []
                                 (when-let [key (first @keys-typed)]
                                   (case key
                                     :c
-                                    (println @x @y))
+                                    (println (.getX actor) (.getY actor)))
                                   (swap! keys-typed disj key)))
         evaluate! (fn [delta]
                     (evaluate-movement! delta)
@@ -150,8 +145,8 @@
         update-view (fn []
                       (let [t (* constants/tile-size 2)]
                         (.set (. @deps/camera position)
-                              (+ @x (/ constants/mob-width t))
-                              (+ @y (/ constants/mob-height t))
+                              (+ (.getX actor) (/ constants/mob-width t))
+                              (+ (.getY actor) (/ constants/mob-height t))
                               0))
                       (.apply @deps/viewport)
                       (.update @deps/camera)

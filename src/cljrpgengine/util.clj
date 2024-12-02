@@ -11,3 +11,7 @@
     :right
     :right
     :left))
+
+(defn round1
+  [n]
+  (/ (Math/round ^float (* n 10)) 10))
