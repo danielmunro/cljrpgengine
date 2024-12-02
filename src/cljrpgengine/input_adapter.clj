@@ -1,7 +1,7 @@
 (ns cljrpgengine.input-adapter
   (:import (com.badlogic.gdx Input$Keys InputAdapter)))
 
-(defn create-input-adapter
+(defn dungeon-input-adapter
   [key-down! key-up! key-typed!]
   (proxy [InputAdapter] []
     (keyDown [key]
@@ -30,4 +30,8 @@
       (cond
         (= (str key) "c")
         (key-typed! :c)
+        (= (str key) "m")
+        (key-typed! :m)
+        (= (str key) "q")
+        (key-typed! :q)
         :else false))))

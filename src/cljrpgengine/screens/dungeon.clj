@@ -3,13 +3,13 @@
             [cljrpgengine.deps :as deps]
             [cljrpgengine.input-adapter :as input-adapter]
             [cljrpgengine.mob :as mob]
+            [cljrpgengine.menu.party :as party-menu]
             [cljrpgengine.tilemap :as tilemap]
             [clojure.java.io :as io]
             [cljrpgengine.util :as util])
-  (:import (com.badlogic.gdx Gdx Screen)
+  (:import (com.badlogic.gdx Gdx InputMultiplexer InputProcessor Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
-           (com.badlogic.gdx.math Rectangle)
            (com.badlogic.gdx.scenes.scene2d Group Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
 
@@ -60,9 +60,12 @@
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
+        menu-stage (Stage.)
         mob-group (Group.)
+        menu-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
         mobs (load-mobs scene room)
+        menus (atom [])
         {:keys [actor
                 key-down!
                 key-up!
@@ -125,11 +128,20 @@
                              (if (on-tile (.getX actor) (.getY actor))
                                (evaluate-on-tile! delta)
                                (evaluate-direction-moving! @direction delta)))
-        evaluate-key-pressed! (fn []
+        key-pressed! (fn []
                                 (when-let [key (first @keys-typed)]
                                   (case key
                                     :c
-                                    (println (.getX actor) (.getY actor)))
+                                    (println (.getX actor) (.getY actor))
+                                    :m
+                                    (if (empty? @menus)
+                                      (let [menu (party-menu/create)]
+                                        (swap! menus conj menu)
+                                        (.addActor menu-group (:actor menu))))
+                                    :q
+                                    (when-let [menu (last @menus)]
+                                      (swap! menus drop-last)
+                                      (.removeActor menu-group (:actor menu))))
                                   (swap! keys-typed disj key)))
         dispose (fn []
                   (.dispose stage)
@@ -155,16 +167,20 @@
                  (.draw))
                (.begin @deps/batch)
                (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
-               (.end @deps/batch))]
+               (.end @deps/batch)
+               (doto menu-stage
+                 (.act delta)
+                 (.draw)))]
     (proxy [Screen] []
       (show []
         (doseq [mob (vals mobs)]
           (.addActor mob-group (:actor mob)))
         (.addActor mob-group actor)
         (.addActor stage mob-group)
+        (.addActor menu-stage menu-group)
         (.setInputProcessor
-         Gdx/input
-         (input-adapter/create-input-adapter key-down! key-up! key-typed!))
+          Gdx/input
+          (input-adapter/dungeon-input-adapter key-down! key-up! key-typed!))
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)
@@ -176,7 +192,7 @@
 
         (evaluate-movement! delta)
 
-        (evaluate-key-pressed!))
+        (key-pressed!))
       (dispose []
         (dispose))
       (hide []
