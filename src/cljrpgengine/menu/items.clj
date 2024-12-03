@@ -5,7 +5,10 @@
 
 (defn create
   []
-  (menu/create-menu
-   :items
-   (menu/create-window 0 0 constants/screen-width constants/screen-height)
-   [#_(menu/create-option (ui/create-label "test" 0 0) #())]))
+  (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)]
+    (menu/create-menu
+     :items
+     window
+     [(menu/create-option
+       (ui/create-label "test" 30 (ui/line-number window 1))
+       #(println "foo"))])))

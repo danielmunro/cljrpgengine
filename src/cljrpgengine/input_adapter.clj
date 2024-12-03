@@ -42,4 +42,6 @@
         (key-typed! :left)
         (= key \uF703)
         (key-typed! :right)
+        (= (str key) " ")
+        (key-typed! :space)
         :else false))))

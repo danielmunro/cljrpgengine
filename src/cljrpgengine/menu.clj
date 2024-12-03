@@ -20,25 +20,18 @@
   {:label label
    :on-selected on-selected})
 
-(defn create-window
-  [x y width height]
-  {:x x
-   :y y
-   :width width
-   :height height})
-
 (defn create-menu
   [identifier window options]
   (let [cursor (ui/create-cursor)
         group (proxy [Group] []
                 (act [_]
                   (let [actor (:actor cursor)
-                        selected (nth options @(:index cursor))]
+                        selected (:label (nth options @(:index cursor)))]
                     (.setX actor (- (.getX selected) (.getWidth actor) 5))
                     (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))]
     (.addActor group window)
     (doseq [o options]
-      (.addActor group o))
+      (.addActor group (:label o)))
     (.addActor group (:actor cursor))
     {:identifier identifier
      :cursor cursor
@@ -58,3 +51,8 @@
     (if (= 0 @index)
       (swap! index (constantly (dec (count (:options menu)))))
       (swap! index dec))))
+
+(defn option-selected
+  [menu]
+  (let [option (nth (:options menu) @(-> menu :cursor :index))]
+    ((:on-selected option))))
