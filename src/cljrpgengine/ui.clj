@@ -1,17 +1,14 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps])
-  (:import (com.badlogic.gdx Gdx)
-           (com.badlogic.gdx.files FileHandle)
-           (com.badlogic.gdx.graphics Color GL20 Pixmap Pixmap$Format Texture)
+  (:import (com.badlogic.gdx.graphics Color Pixmap Pixmap$Format Texture)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
 
 (defn create-label
   ([text x y]
-   (let [style (Label$LabelStyle. @deps/font Color/WHITE)
-         label (doto (Label. ^CharSequence text style))]
-     (doto label
+   (let [style (Label$LabelStyle. @deps/font Color/WHITE)]
+     (doto (Label. ^CharSequence text style)
        (.setX x)
        (.setY y))))
   ([text]
@@ -29,15 +26,20 @@
 (defn create-window
   [x y width height]
   (let [color Color/BLUE
-        tex (create-texture width height color)
-        fx (float x)
-        fy (float y)
-        fw (float width)
-        fh (float height)]
-    (proxy [Actor] []
-      (draw [batch alpha]
-        (.setColor batch (.r color) (.g color) (.b color) (* (.a color) alpha))
-        (.draw batch tex fx fy fw fh)))))
+        tex (create-texture width height color)]
+    (doto (proxy [Actor] []
+            (draw [batch alpha]
+              (.setColor batch (.r color) (.g color) (.b color) (* (.a color) alpha))
+              (.draw batch
+                     tex
+                     (proxy-super getX)
+                     (proxy-super getY)
+                     (proxy-super getWidth)
+                     (proxy-super getHeight))))
+      (.setX (float x))
+      (.setY (float y))
+      (.setWidth (float width))
+      (.setHeight (float height)))))
 
 (defn create-cursor
   []
@@ -48,5 +50,10 @@
                       (.setColor batch (float 1) (float 1) (float 1) (float 255))
                       (.draw batch cursor (proxy-super getX) (proxy-super getY))))
               (.setWidth (.getWidth cursor))
-              (.setHeight (.getHeight cursor)))
-     }))
+              (.setHeight (.getHeight cursor)))}))
+
+(defn line-number
+  [window line-number]
+  (- (+ (.getHeight window) (.getY window))
+     (/ constants/font-size 2)
+     (* line-number (* constants/font-size 1.5))))

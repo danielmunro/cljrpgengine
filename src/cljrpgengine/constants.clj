@@ -13,5 +13,8 @@
 (def resources-dir "resources/")
 (def sprites-dir (str resources-dir "sprites/"))
 (def scenes-dir (str resources-dir "scenes/"))
+(def font-file (str resources-dir "natural-mono-bold.ttf"))
 
 (def tile-size 16)
+
+(def font-size 20)

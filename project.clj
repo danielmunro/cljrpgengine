@@ -16,6 +16,9 @@
                  [com.badlogicgames.gdx/gdx-bullet-platform "1.13.0"
                   :classifier "natives-desktop"]
                  [com.badlogicgames.gdx/gdx-platform "1.13.0"
+                  :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-freetype "1.13.0"]
+                 [com.badlogicgames.gdx/gdx-freetype-platform "1.13.0"
                   :classifier "natives-desktop"]]
   :main cljrpgengine.core
   :target-path "target/%s"
