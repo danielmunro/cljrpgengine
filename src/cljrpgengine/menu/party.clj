@@ -3,7 +3,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.ui :as ui]))
 
-(def from-right 120)
+(def from-right 140)
 (def x (- constants/screen-width from-right))
 
 (defn create
@@ -12,6 +12,9 @@
     (menu/create-menu
      :party
      window
+     #_[(menu/create-option
+         (ui/create-label "Items" x (ui/line-number window 1))
+         #())]
      [(ui/create-label "Items" x (ui/line-number window 1))
       (ui/create-label "Magic" x (ui/line-number window 2))
       (ui/create-label "Equipment" x (ui/line-number window 3))

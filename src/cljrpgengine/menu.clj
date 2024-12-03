@@ -1,14 +1,24 @@
 (ns cljrpgengine.menu
   (:require [cljrpgengine.ui :as ui])
-  (:import (com.badlogic.gdx.scenes.scene2d Actor Group)))
+  (:import (com.badlogic.gdx.scenes.scene2d Group)))
+
+(def opened-menus (atom []))
+(def menu-group (Group.))
+
+(defn add-menu!
+  [menu]
+  (swap! opened-menus conj menu)
+  (.addActor menu-group (:actor menu)))
+
+(defn remove-menu!
+  [menu]
+  (swap! opened-menus drop-last)
+  (.removeActor menu-group (:actor menu)))
 
 (defn create-option
   [label on-selected]
-  #_{:x x
-     :y y
-     :label label
-     :on-selected on-selected}
-  #_(.addListener label on-selected))
+  {:label label
+   :on-selected on-selected})
 
 (defn create-window
   [x y width height]
@@ -35,14 +45,14 @@
      :options options
      :actor group}))
 
-(defn inc-cursor-index
+(defn inc-cursor-index!
   [menu]
   (let [index (-> menu :cursor :index)]
     (if (< @index (dec (count (:options menu))))
       (swap! index inc)
       (swap! index (constantly 0)))))
 
-(defn dec-cursor-index
+(defn dec-cursor-index!
   [menu]
   (let [index (-> menu :cursor :index)]
     (if (= 0 @index)

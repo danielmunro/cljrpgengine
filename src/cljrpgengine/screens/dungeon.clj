@@ -63,10 +63,8 @@
   (let [stage (Stage. @deps/viewport @deps/batch)
         menu-stage (Stage.)
         mob-group (Group.)
-        menu-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
         mobs (load-mobs scene room)
-        menus (atom [])
         {:keys [actor
                 key-down!
                 key-up!
@@ -128,13 +126,13 @@
         evaluate-menu-input! (fn [key menu]
                                (case key
                                  :up
-                                 (menu/dec-cursor-index menu)
+                                 (menu/dec-cursor-index! menu)
                                  :down
-                                 (menu/inc-cursor-index menu)
+                                 (menu/inc-cursor-index! menu)
                                  false))
         evaluate-input! (fn [delta]
                           (cond
-                            (not-empty @menus)
+                            (not-empty @menu/opened-menus)
                             nil
                             (on-tile (.getX actor) (.getY actor))
                             (evaluate-on-tile! delta)
@@ -146,26 +144,23 @@
                            :c
                            (println (.getX actor) (.getY actor))
                            :m
-                           (if (empty? @menus)
-                             (let [menu (party-menu/create)]
-                               (swap! menus conj menu)
-                               (.addActor menu-group (:actor menu))))
+                           (if (empty? @menu/opened-menus)
+                             (menu/add-menu! (party-menu/create)))
                            :q
-                           (when-let [menu (last @menus)]
-                             (swap! menus drop-last)
-                             (.removeActor menu-group (:actor menu)))
+                           (if-let [menu (last @menu/opened-menus)]
+                             (menu/remove-menu! menu))
                            :up
-                           (when-not (empty? @menus)
-                             (evaluate-menu-input! :up (last @menus)))
+                           (if-let [menu (last @menu/opened-menus)]
+                             (evaluate-menu-input! :up menu))
                            :down
-                           (when-not (empty? @menus)
-                             (evaluate-menu-input! :down (last @menus)))
+                           (if-let [menu (last @menu/opened-menus)]
+                             (evaluate-menu-input! :down menu))
                            :left
-                           (when-not (empty? @menus)
-                             (evaluate-menu-input! :left (last @menus)))
+                           (if-let [menu (last @menu/opened-menus)]
+                             (evaluate-menu-input! :left menu))
                            :right
-                           (when-not (empty? @menus)
-                             (evaluate-menu-input! :right (last @menus)))
+                           (if-let [menu (last @menu/opened-menus)]
+                             (evaluate-menu-input! :right menu))
                            false)
                          (swap! keys-typed disj key)))
         dispose (fn []
@@ -202,7 +197,7 @@
           (.addActor mob-group (:actor mob)))
         (.addActor mob-group actor)
         (.addActor stage mob-group)
-        (.addActor menu-stage menu-group)
+        (.addActor menu-stage menu/menu-group)
         (.setInputProcessor
          Gdx/input
          (input-adapter/dungeon-input-adapter key-down! key-up! key-typed!))
