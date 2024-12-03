@@ -123,46 +123,42 @@
                                 (when @moving
                                   (swap! moving (constantly false))
                                   (swap! state-time (constantly 0))))))
-        evaluate-menu-input! (fn [key menu]
-                               (case key
-                                 :up
-                                 (menu/dec-cursor-index! menu)
-                                 :down
-                                 (menu/inc-cursor-index! menu)
-                                 false))
-        evaluate-input! (fn [delta]
-                          (cond
-                            (not-empty @menu/opened-menus)
-                            nil
-                            (on-tile (.getX actor) (.getY actor))
-                            (evaluate-on-tile! delta)
-                            :else
-                            (evaluate-direction-moving! @direction delta)))
-        key-pressed! (fn []
-                       (when-let [key (first @keys-typed)]
-                         (case key
-                           :c
-                           (println (.getX actor) (.getY actor))
-                           :m
-                           (if (empty? @menu/opened-menus)
-                             (menu/add-menu! (party-menu/create)))
-                           :q
-                           (if-let [menu (last @menu/opened-menus)]
-                             (menu/remove-menu! menu))
-                           :up
-                           (if-let [menu (last @menu/opened-menus)]
-                             (evaluate-menu-input! :up menu))
-                           :down
-                           (if-let [menu (last @menu/opened-menus)]
-                             (evaluate-menu-input! :down menu))
-                           :left
-                           (if-let [menu (last @menu/opened-menus)]
-                             (evaluate-menu-input! :left menu))
-                           :right
-                           (if-let [menu (last @menu/opened-menus)]
-                             (evaluate-menu-input! :right menu))
-                           false)
-                         (swap! keys-typed disj key)))
+        evaluate-movement! (fn [delta]
+                             (cond
+                               (not-empty @menu/opened-menus)
+                               nil
+                               (on-tile (.getX actor) (.getY actor))
+                               (evaluate-on-tile! delta)
+                               :else
+                               (evaluate-direction-moving! @direction delta)))
+        evaluate-input! (fn []
+                          (when-let [key (first @keys-typed)]
+                            (case key
+                              :c
+                              (println (.getX actor) (.getY actor))
+                              :m
+                              (if (empty? @menu/opened-menus)
+                                (menu/add-menu! (party-menu/create)))
+                              :q
+                              (if-let [menu (last @menu/opened-menus)]
+                                (menu/remove-menu! menu))
+                              :up
+                              (if-let [menu (last @menu/opened-menus)]
+                                (menu/dec-cursor-index! menu))
+                              :down
+                              (if-let [menu (last @menu/opened-menus)]
+                                (menu/inc-cursor-index! menu))
+                              :left
+                              (if-let [_ (last @menu/opened-menus)]
+                                (println "menu left not implemented"))
+                              :right
+                              (if-let [_ (last @menu/opened-menus)]
+                                (println "menu right not implemented"))
+                              :space
+                              (if-let [menu (last @menu/opened-menus)]
+                                (menu/option-selected menu))
+                              false)
+                            (swap! keys-typed disj key)))
         dispose (fn []
                   (.dispose stage)
                   (.dispose renderer))
@@ -210,9 +206,9 @@
 
         (draw delta)
 
-        (evaluate-input! delta)
+        (evaluate-movement! delta)
 
-        (key-pressed!))
+        (evaluate-input!))
       (dispose []
         (dispose))
       (hide []
