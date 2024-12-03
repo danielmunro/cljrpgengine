@@ -8,7 +8,7 @@
             [cljrpgengine.tilemap :as tilemap]
             [clojure.java.io :as io]
             [cljrpgengine.util :as util])
-  (:import (com.badlogic.gdx Gdx InputMultiplexer InputProcessor Screen)
+  (:import (com.badlogic.gdx Gdx Screen)
            (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer)
            (com.badlogic.gdx.scenes.scene2d Group Stage)
