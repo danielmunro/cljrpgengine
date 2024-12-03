@@ -1,14 +1,11 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps])
-  (:import (com.badlogic.gdx.files FileHandle)
-           (com.badlogic.gdx.graphics Color Pixmap Pixmap$Format Texture)
+  (:import (com.badlogic.gdx Gdx)
+           (com.badlogic.gdx.files FileHandle)
+           (com.badlogic.gdx.graphics Color GL20 Pixmap Pixmap$Format Texture)
            (com.badlogic.gdx.scenes.scene2d Actor)
            (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
-
-;(println (str constants/sprites-dir "cursor.png"))
-;(println (FileHandle. (str constants/sprites-dir "cursor.png")))
-;(def cursor-image (Texture. (FileHandle. (str constants/sprites-dir "cursor.png"))))
 
 (defn create-label
   ([text x y]
@@ -44,8 +41,12 @@
 
 (defn create-cursor
   []
-  (let [cursor (Texture. (FileHandle. (str constants/sprites-dir "cursor.png")))]
+  (let [cursor (Texture. (str constants/sprites-dir "cursor.png"))]
     {:index (atom 0)
-     :actor (proxy [Actor] []
-              (draw [batch _]
-                (.draw batch cursor (proxy-super getX) (proxy-super getY))))}))
+     :actor (doto (proxy [Actor] []
+                    (draw [batch _]
+                      (.setColor batch (float 1) (float 1) (float 1) (float 255))
+                      (.draw batch cursor (proxy-super getX) (proxy-super getY))))
+              (.setWidth (.getWidth cursor))
+              (.setHeight (.getHeight cursor)))
+     }))

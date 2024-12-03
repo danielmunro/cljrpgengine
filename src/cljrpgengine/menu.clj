@@ -24,8 +24,8 @@
                 (act [_]
                   (let [actor (:actor cursor)
                         selected (nth options @(:index cursor))]
-                    (.setX actor (.getX selected))
-                    (.setY actor (.getY selected)))))]
+                    (.setX actor (- (.getX selected) (.getWidth actor) 5))
+                    (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))]
     (.addActor group window)
     (doseq [o options]
       (.addActor group o))
