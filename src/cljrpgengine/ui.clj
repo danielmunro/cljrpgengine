@@ -34,23 +34,23 @@
                 (.setHeight (float height)))]
     (.addActor group
                (doto (proxy [Actor] []
-                             (draw [batch _]
-                               (.draw batch
-                                      white-texture
-                                      (proxy-super getX)
-                                      (proxy-super getY)
-                                      (proxy-super getWidth)
-                                      (proxy-super getHeight))
-                               (.draw batch
-                                      blue-texture
-                                      (float (inc (proxy-super getX)))
-                                      (float (inc (proxy-super getY)))
-                                      (float (- (proxy-super getWidth) 2))
-                                      (float (- (proxy-super getHeight) 2)))))
-                      (.setX 0)
-                      (.setY 0)
-                      (.setWidth (float width))
-                      (.setHeight (float height))))
+                       (draw [batch _]
+                         (.draw batch
+                                white-texture
+                                (proxy-super getX)
+                                (proxy-super getY)
+                                (proxy-super getWidth)
+                                (proxy-super getHeight))
+                         (.draw batch
+                                blue-texture
+                                (float (inc (proxy-super getX)))
+                                (float (inc (proxy-super getY)))
+                                (float (- (proxy-super getWidth) 2))
+                                (float (- (proxy-super getHeight) 2)))))
+                 (.setX 0)
+                 (.setY 0)
+                 (.setWidth (float width))
+                 (.setHeight (float height))))
     group))
 
 (defn create-cursor
