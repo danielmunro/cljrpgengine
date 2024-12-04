@@ -58,7 +58,7 @@
     @mobs))
 
 (defn screen
-  [game scene room entrance-name]
+  [game mob scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
         menu-stage (Stage.)
@@ -71,13 +71,7 @@
                 direction
                 keys-down
                 add-time-delta!
-                state-time]} (mob/create-mob
-                              :edwyn
-                              "Edwyn"
-                              (:direction entrance)
-                              (int (:x entrance))
-                              (int (:y entrance))
-                              :edwyn)
+                state-time]} mob
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         sort-actors (fn []
                       (let [sorted (sort
@@ -115,7 +109,7 @@
                                          (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
-                              (.setScreen game (screen game scene room to))
+                              (.setScreen game (screen game mob scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
                                   (evaluate-direction-moving! key delta)
@@ -188,6 +182,9 @@
                  (.draw)))]
     (proxy [Screen] []
       (show []
+        (swap! (:direction mob) (constantly (:direction entrance)))
+        (.setX actor (:x entrance))
+        (.setY actor (:y entrance))
         (doseq [mob (vals mobs)]
           (.addActor mob-group (:actor mob)))
         (.addActor mob-group actor)

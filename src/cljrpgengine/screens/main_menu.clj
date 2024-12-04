@@ -1,6 +1,7 @@
 (ns cljrpgengine.screens.main-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.screens.dungeon :as dungeon])
   (:import (com.badlogic.gdx Gdx Screen)
@@ -38,7 +39,18 @@
           (.act delta)
           (.draw))
         (if (.isTouched Gdx/input)
-          (.setScreen game (dungeon/screen game :tinytown :main :start))))
+          (.setScreen game (dungeon/screen
+                            game
+                            (mob/create-mob
+                             :edwyn
+                             "Edwyn"
+                             :down
+                             0
+                             0
+                             :edwyn)
+                            :tinytown
+                            :main
+                            :start))))
 
       (dispose []
         (dispose))
