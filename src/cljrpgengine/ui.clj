@@ -23,6 +23,11 @@
       (.dispose pixmap)
       tex)))
 
+(defn center-in-window
+  [window actor]
+  (doto actor
+    (.setX (/ (- (.getWidth window) (.getWidth actor)) 2))))
+
 (defn create-window
   [x y width height]
   (let [blue-texture (create-texture Color/BLUE)

@@ -9,17 +9,21 @@
                 (* constants/screen-height 1/10)
                 (* constants/screen-width 1/10)
                 (* constants/screen-width 4/5)
-                (* constants/screen-height 4/5))]
+                (* constants/screen-height 4/5))
+        label (ui/create-label "Are you sure you want to quit?"
+                               0
+                               (ui/line-number window 1))
+        options [(menu/create-option
+                  (ui/create-label "Yes" 10 (ui/line-number window 3))
+                  #(System/exit 0))
+                 (menu/create-option
+                  (ui/create-label "No" 10 (ui/line-number window 4))
+                  #(menu/remove-menu!))]]
+    (ui/center-in-window window label)
     (.addActor window
-               (ui/create-label "Are you sure you want to quit?"
-                                10
-                                (ui/line-number window 1)))
+               label)
     (menu/create-menu
      :quit
      window
-     [(menu/create-option
-       (ui/create-label "Yes" 10 (ui/line-number window 3))
-       #(System/exit 0))
-      (menu/create-option
-       (ui/create-label "No" 10 (ui/line-number window 4))
-       #(menu/remove-menu!))])))
+     (map #(assoc % :label (ui/center-in-window window (:label %)))
+          options))))
