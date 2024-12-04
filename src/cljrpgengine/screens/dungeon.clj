@@ -140,8 +140,8 @@
                               (if (empty? @menu/opened-menus)
                                 (menu/add-menu! (party-menu/create)))
                               :q
-                              (if-let [menu (last @menu/opened-menus)]
-                                (menu/remove-menu! menu))
+                              (if-not (empty? @menu/opened-menus)
+                                (menu/remove-menu!))
                               :up
                               (if-let [menu (last @menu/opened-menus)]
                                 (menu/dec-cursor-index! menu))
@@ -170,8 +170,7 @@
                                 0))
                         (.update @deps/camera)
                         (.setView renderer @deps/camera)
-                        (.setProjectionMatrix @deps/batch (.-combined @deps/camera))
-                        (.setProjectionMatrix @deps/shape (.-combined @deps/camera)))
+                        (.setProjectionMatrix @deps/batch (.-combined @deps/camera)))
         draw (fn [delta]
                (ScreenUtils/clear Color/BLACK)
                (.begin @deps/batch)

@@ -30,16 +30,8 @@
   (let [blocked? (atom false)]
     (if-let [cell (.getCell layer x y)]
       (let [objects (-> cell (.getTile) (.getObjects))]
-        ;(.begin @deps/shape ShapeRenderer$ShapeType/Filled)
-        ;(.setColor @deps/shape Color/BLUE)
-        ;(.rect @deps/shape (first coordinates) (second coordinates) 1 1)
-        ;(.end @deps/shape)
         (if (= 1 (.getCount objects))
-          (swap! blocked? (constantly true))))
-      #_(do (.begin @deps/shape ShapeRenderer$ShapeType/Line)
-            (.setColor @deps/shape Color/BLUE)
-            (.rect @deps/shape (first coordinates) (second coordinates) 1 1)
-            (.end @deps/shape)))
+          (swap! blocked? (constantly true)))))
     @blocked?))
 
 (defn is-blocked?

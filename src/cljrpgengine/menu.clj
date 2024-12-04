@@ -3,7 +3,7 @@
   (:import (com.badlogic.gdx.scenes.scene2d Group)))
 
 (def opened-menus (atom []))
-(def menu-group (Group.))
+(def menu-group (doto (Group.)))
 
 (defn add-menu!
   [menu]
@@ -11,9 +11,10 @@
   (.addActor menu-group (:actor menu)))
 
 (defn remove-menu!
-  [menu]
-  (swap! opened-menus drop-last)
-  (.removeActor menu-group (:actor menu)))
+  []
+  (let [menu (last @opened-menus)]
+    (swap! opened-menus pop)
+    (.removeActor menu-group (:actor menu))))
 
 (defn create-option
   [label on-selected]
@@ -23,16 +24,20 @@
 (defn create-menu
   [identifier window options]
   (let [cursor (ui/create-cursor)
-        group (proxy [Group] []
-                (act [_]
-                  (let [actor (:actor cursor)
-                        selected (:label (nth options @(:index cursor)))]
-                    (.setX actor (- (.getX selected) (.getWidth actor) 5))
-                    (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))]
+        group (doto (proxy [Group] []
+                      (act [_]
+                        (let [actor (:actor cursor)
+                              selected (:label (nth options @(:index cursor)))]
+                          (.setX actor (- (.getX selected) (.getWidth actor) 5))
+                          (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))
+                (.setX 0)
+                (.setY 0)
+                (.setWidth (.getWidth window))
+                (.setHeight (.getHeight window)))]
     (.addActor group window)
     (doseq [o options]
-      (.addActor group (:label o)))
-    (.addActor group (:actor cursor))
+      (.addActor window (:label o)))
+    (.addActor window (:actor cursor))
     {:identifier identifier
      :cursor cursor
      :options options

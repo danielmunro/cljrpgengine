@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menu.items :as item-menu]
+            [cljrpgengine.menu.quit :as quit-menu]
             [cljrpgengine.ui :as ui]))
 
 (def from-right 140)
@@ -35,4 +36,4 @@
 
       (menu/create-option
        (ui/create-label "Quit" x (ui/line-number window 6))
-       #(println "quit menu not implemented"))])))
+       #(menu/add-menu! (quit-menu/create)))])))
