@@ -5,6 +5,7 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.menu.party :as party-menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.tilemap :as tilemap]
             [clojure.java.io :as io]
             [cljrpgengine.util :as util])
@@ -58,7 +59,7 @@
     @mobs))
 
 (defn screen
-  [game mob scene room entrance-name]
+  [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
         menu-stage (Stage.)
@@ -71,7 +72,7 @@
                 direction
                 keys-down
                 add-time-delta!
-                state-time]} mob
+                state-time]} (first @player/party)
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         sort-actors (fn []
                       (let [sorted (sort
@@ -109,7 +110,7 @@
                                          (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
-                              (.setScreen game (screen game mob scene room to))
+                              (.setScreen game (screen game scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
                                   (evaluate-direction-moving! key delta)
@@ -132,7 +133,7 @@
                               (println (.getX actor) (.getY actor))
                               :m
                               (if (empty? @menu/opened-menus)
-                                (menu/add-menu! (party-menu/create mob)))
+                                (menu/add-menu! (party-menu/create)))
                               :q
                               (if-not (empty? @menu/opened-menus)
                                 (menu/remove-menu!))
@@ -182,7 +183,7 @@
                  (.draw)))]
     (proxy [Screen] []
       (show []
-        (swap! (:direction mob) (constantly (:direction entrance)))
+        (swap! (:direction (first @player/party)) (constantly (:direction entrance)))
         (.setX actor (:x entrance))
         (.setY actor (:y entrance))
         (doseq [mob (vals mobs)]

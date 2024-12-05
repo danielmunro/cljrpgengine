@@ -9,14 +9,14 @@
 (def x (- constants/screen-width from-right))
 
 (defn create
-  [mob]
+  []
   (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)]
     (menu/create-menu
      :party
      window
      [(menu/create-option
        (ui/create-label "Items" x (ui/line-number window 1))
-       #(menu/add-menu! (item-menu/create mob)))
+       #(menu/add-menu! (item-menu/create)))
 
       (menu/create-option
        (ui/create-label "Magic" x (ui/line-number window 2))

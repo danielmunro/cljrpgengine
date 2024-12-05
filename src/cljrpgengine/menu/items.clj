@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
 (def item-name-width 30)
@@ -16,10 +17,10 @@
     (:description v)))
 
 (defn create
-  [mob]
+  []
   (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)
         i (atom 1)
-        description (ui/create-label (get-item-description @(:items mob) (dec @i))
+        description (ui/create-label (get-item-description @player/items (dec @i))
                                      padding-left
                                      (ui/line-number window 13))]
     (.addActor window (ui/create-label
@@ -43,7 +44,7 @@
                                    (:default constants/font-colors)
                                    (:disabled constants/font-colors)))
                 #(println "foo"))))
-           @(:items mob))
+           @player/items)
      (fn [cursor]
        (.setText description
-                 (get-item-description @(:items mob) cursor))))))
+                 (get-item-description @player/items cursor))))))

@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
             [cljrpgengine.mob :as mob]
+            [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.screens.dungeon :as dungeon])
   (:import (com.badlogic.gdx Gdx Screen)
@@ -30,7 +31,26 @@
 
           (.addActor group window)
           (.addActor group label-title)
-          (.addActor @stage group)))
+          (.addActor @stage group))
+
+        (swap! player/party
+               (constantly [(mob/create-mob
+                             :edwyn
+                             "Edwyn"
+                             :down
+                             0
+                             0
+                             :edwyn)
+                            (mob/create-mob
+                             :dudelgor
+                             "Dudelgor"
+                             :down
+                             0
+                             0
+                             :cyrus)]))
+        (player/add-item! :light-health-potion)
+        (player/add-item! :light-health-potion)
+        (player/add-item! :practice-sword))
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)
@@ -41,16 +61,6 @@
         (if (.isTouched Gdx/input)
           (.setScreen game (dungeon/screen
                             game
-                            (doto (mob/create-mob
-                                   :edwyn
-                                   "Edwyn"
-                                   :down
-                                   0
-                                   0
-                                   :edwyn)
-                              (mob/add-item! :light-health-potion)
-                              (mob/add-item! :light-health-potion)
-                              (mob/add-item! :practice-sword))
                             :tinytown
                             :main
                             :start))))

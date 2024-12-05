@@ -3,12 +3,6 @@
             [flatland.ordered.set :as oset])
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
-(defn add-item!
-  [mob item]
-  (if-let [quantity (get @(:items mob) item)]
-    (swap! (:items mob) assoc item (inc quantity))
-    (swap! (:items mob) assoc item 1)))
-
 (defn create-mob
   [identifier name starting-direction x y mob-type]
   (let [animations (animation/create-from-type mob-type)
@@ -44,4 +38,12 @@
      :keys-down keys-down
      :add-time-delta! add-time-delta!
      :state-time state-time
-     :items (atom {})}))
+     :items (atom {})
+     :equipment (atom {:head nil
+                       :torso nil
+                       :hands nil
+                       :legs nil
+                       :feet nil
+                       :accessory nil
+                       :weapon nil
+                       :shield nil})}))
