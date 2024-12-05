@@ -27,14 +27,13 @@
    (doseq [i (range 0 (count @player/party))]
      (let [identifier (nth (keys @player/party) i)
            portrait-x 60
-           portrait-y (-> (* 10 i)
+           portrait-y (-> (* constants/padding i)
                           (- (* portrait-height i))
                           (- (* constants/padding i)))
            {:keys [affect amount]} item
            {{:keys [hp max-hp mana max-mana portrait name xp level]} identifier} @player/party
            amount-hp (if (= :restore-hp affect) (restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (restore-amount amount mana max-mana))]
-       ;(.drawImage @window/graphics (:image portrait) constants/padding (+ 20 portrait-y) nil)
        (.addActor window
                   (doto (proxy [Actor] []
                           (draw [batch _]
@@ -42,8 +41,8 @@
                             (.draw batch portrait (proxy-super getX) (proxy-super getY))))
                     (.setWidth (.getWidth portrait))
                     (.setHeight (.getHeight portrait))
-                    (.setX 10)
-                    (.setY (- (+ portrait-y (ui/line-number window 1)) 20))))
+                    (.setX constants/padding)
+                    (.setY (- (+ portrait-y (ui/line-number window 1)) (* constants/padding 2)))))
        (.addActor window
                   (ui/create-label name portrait-x (+ portrait-y (ui/line-number window 1))))
        (.addActor window

@@ -24,4 +24,4 @@
 
 (def font-size 20)
 
-(def padding 30)
+(def padding 10)

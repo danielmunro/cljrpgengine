@@ -6,6 +6,7 @@
             [cljrpgengine.ui :as ui]))
 
 (def item-name-width 30)
+(def padding (* constants/padding 3))
 
 (defn get-item-description
   [mob-items index]
@@ -20,11 +21,11 @@
   (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)
         i (atom 1)
         description (ui/create-label (get-item-description @player/items (dec @i))
-                                     constants/padding
+                                     padding
                                      (ui/line-number window 13))]
     (.addActor window (ui/create-label
                        (str (ui/text-fixed-width "Item" item-name-width) "Quantity")
-                       constants/padding
+                       padding
                        (ui/line-number window 1)))
     (.addActor window description)
     (menu/create-menu
@@ -37,7 +38,7 @@
                                        name
                                        item-name-width)
                                       quantity)
-                                 constants/padding
+                                 padding
                                  (ui/line-number window (swap! i inc))
                                  (if (= :consumable type)
                                    (:default constants/font-colors)
