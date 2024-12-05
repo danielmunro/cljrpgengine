@@ -66,13 +66,14 @@
         mob-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
         mobs (load-mobs scene room)
+        party-leader (first (vals @player/party))
         {:keys [actor
                 key-down!
                 key-up!
                 direction
                 keys-down
                 add-time-delta!
-                state-time]} (first @player/party)
+                state-time]} party-leader
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         sort-actors (fn []
                       (let [sorted (sort
@@ -183,7 +184,7 @@
                  (.draw)))]
     (proxy [Screen] []
       (show []
-        (swap! (:direction (first @player/party)) (constantly (:direction entrance)))
+        (swap! (:direction party-leader) (constantly (:direction entrance)))
         (.setX actor (:x entrance))
         (.setY actor (:y entrance))
         (doseq [mob (vals mobs)]

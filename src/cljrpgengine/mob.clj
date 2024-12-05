@@ -46,4 +46,10 @@
                        :feet nil
                        :accessory nil
                        :weapon nil
-                       :shield nil})}))
+                       :shield nil})
+     :hp (atom 1)
+     :max-hp (atom 1)
+     :mana (atom 1)
+     :max-mana (atom 1)
+     :xp 0
+     :level 1}))

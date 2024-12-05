@@ -1,6 +1,6 @@
 (ns cljrpgengine.player)
 
-(def party (atom []))
+(def party (atom {}))
 
 (def items (atom {}))
 

@@ -14,10 +14,10 @@
                                0
                                (ui/line-number window 1))
         options [(menu/create-option
-                  (ui/create-label "Yes" 10 (ui/line-number window 3))
+                  (ui/create-label "Yes" 0 (ui/line-number window 3))
                   #(System/exit 0))
                  (menu/create-option
-                  (ui/create-label "No" 10 (ui/line-number window 4))
+                  (ui/create-label "No" 0 (ui/line-number window 4))
                   #(menu/remove-menu!))]]
     (ui/center-in-window window label)
     (.addActor window

@@ -34,20 +34,20 @@
           (.addActor @stage group))
 
         (swap! player/party
-               (constantly [(mob/create-mob
-                             :edwyn
-                             "Edwyn"
-                             :down
-                             0
-                             0
-                             :edwyn)
-                            (mob/create-mob
-                             :dudelgor
-                             "Dudelgor"
-                             :down
-                             0
-                             0
-                             :cyrus)]))
+               (constantly {:edwin (mob/create-mob
+                                    :edwyn
+                                    "Edwyn"
+                                    :down
+                                    0
+                                    0
+                                    :edwyn)
+                            :dudelgor (mob/create-mob
+                                       :dudelgor
+                                       "Dudelgor"
+                                       :down
+                                       0
+                                       0
+                                       :cyrus)}))
         (player/add-item! :light-health-potion)
         (player/add-item! :light-health-potion)
         (player/add-item! :practice-sword))

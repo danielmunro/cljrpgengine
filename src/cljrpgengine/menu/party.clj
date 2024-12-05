@@ -1,5 +1,6 @@
 (ns cljrpgengine.menu.party
-  (:require [cljrpgengine.constants :as constants]
+  (:require [cljrpgengine.menu.common :as common]
+            [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
             [cljrpgengine.menu.items :as item-menu]
             [cljrpgengine.menu.quit :as quit-menu]
@@ -11,6 +12,7 @@
 (defn create
   []
   (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)]
+    (common/draw-portraits window)
     (menu/create-menu
      :party
      window
