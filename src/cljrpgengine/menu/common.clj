@@ -2,7 +2,8 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
-            [clojure.math :as math]))
+            [clojure.math :as math])
+  (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
 (def portrait-width 40)
 (def portrait-height 80)
@@ -25,7 +26,7 @@
   ([window item selected-mob]
    (doseq [i (range 0 (count @player/party))]
      (let [identifier (nth (keys @player/party) i)
-           portrait-x 50
+           portrait-x 60
            portrait-y (-> (* 10 i)
                           (- (* portrait-height i))
                           (- (* constants/padding i)))
@@ -34,6 +35,15 @@
            amount-hp (if (= :restore-hp affect) (restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (restore-amount amount mana max-mana))]
        ;(.drawImage @window/graphics (:image portrait) constants/padding (+ 20 portrait-y) nil)
+       (.addActor window
+                  (doto (proxy [Actor] []
+                          (draw [batch _]
+                            (.setColor batch (float 1) (float 1) (float 1) (float 255))
+                            (.draw batch portrait (proxy-super getX) (proxy-super getY))))
+                    (.setWidth (.getWidth portrait))
+                    (.setHeight (.getHeight portrait))
+                    (.setX 10)
+                    (.setY (- (+ portrait-y (ui/line-number window 1)) 20))))
        (.addActor window
                   (ui/create-label name portrait-x (+ portrait-y (ui/line-number window 1))))
        (.addActor window

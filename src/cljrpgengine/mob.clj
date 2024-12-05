@@ -1,7 +1,16 @@
 (ns cljrpgengine.mob
   (:require [cljrpgengine.animation :as animation]
+            [cljrpgengine.constants :as constants]
             [flatland.ordered.set :as oset])
-  (:import (com.badlogic.gdx.scenes.scene2d Actor)))
+  (:import (com.badlogic.gdx.graphics Texture)
+           (com.badlogic.gdx.scenes.scene2d Actor)))
+
+(def portraits-dir (str constants/resources-dir "portraits/"))
+
+(defn- get-portrait-from-mob-type
+  [type]
+  ; todo make more portraits, case on type
+  "edwyn.png")
 
 (defn create-mob
   [identifier name starting-direction x y mob-type]
@@ -52,4 +61,5 @@
      :mana (atom 1)
      :max-mana (atom 1)
      :xp 0
-     :level 1}))
+     :level 1
+     :portrait (Texture. (str portraits-dir (get-portrait-from-mob-type mob-type)))}))
