@@ -182,7 +182,6 @@
                  (.draw)))]
     (proxy [Screen] []
       (show []
-        (println @(:items mob))
         (swap! (:direction mob) (constantly (:direction entrance)))
         (.setX actor (:x entrance))
         (.setY actor (:y entrance))
