@@ -19,12 +19,16 @@
      :items
      window
      (mapv (fn [[item-key quantity]]
-             (menu/create-option
-              (ui/create-label (str (ui/text-fixed-width
-                                     (-> @item/items item-key :name)
-                                     item-name-width)
-                                    quantity)
-                               padding-left
-                               (ui/line-number window (swap! i inc)))
-              #(println "foo")))
+             (let [{:keys [name type]} (-> @item/items item-key)]
+               (menu/create-option
+                (ui/create-label (str (ui/text-fixed-width
+                                       name
+                                       item-name-width)
+                                      quantity)
+                                 padding-left
+                                 (ui/line-number window (swap! i inc))
+                                 (if (= :consumable type)
+                                   (:default constants/font-colors)
+                                   (:disabled constants/font-colors)))
+                #(println "foo"))))
            @(:items mob)))))

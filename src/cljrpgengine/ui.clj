@@ -6,11 +6,13 @@
            (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
 
 (defn create-label
-  ([text x y]
-   (let [style (Label$LabelStyle. @deps/font Color/WHITE)]
+  ([text x y font-color]
+   (let [style (Label$LabelStyle. @deps/font font-color)]
      (doto (Label. ^CharSequence text style)
        (.setX x)
        (.setY y))))
+  ([text x y]
+   (create-label text x y (:default constants/font-colors)))
   ([text]
    (create-label text 0 0)))
 

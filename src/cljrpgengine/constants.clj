@@ -1,4 +1,9 @@
-(ns cljrpgengine.constants)
+(ns cljrpgengine.constants
+  (:import (com.badlogic.gdx.graphics Color)))
+
+(def font-colors {:default Color/WHITE
+                  :disabled Color/GRAY
+                  :highlight Color/YELLOW})
 
 (def screen-width 640)
 (def screen-height 400)
