@@ -73,3 +73,13 @@
   [window line-number]
   (- (.getHeight window)
      (* line-number (* constants/font-size 1.5))))
+
+(defn text-fixed-width
+  [text spaces]
+  (let [text-str (str text)]
+    (if (> (count text-str) spaces)
+      (str (subs text-str 0 (- spaces 4)) "... ")
+      (loop [t text-str]
+        (if (> spaces (count t))
+          (recur (str t " "))
+          t)))))

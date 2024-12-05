@@ -1,6 +1,7 @@
 (ns cljrpgengine.game
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
+            [cljrpgengine.item :as item]
             [cljrpgengine.screens.main-menu :as main-menu])
   (:import [com.badlogic.gdx Game]
            (com.badlogic.gdx.files FileHandle)
@@ -26,6 +27,9 @@
     (set! (. parameters -size) constants/font-size)
     (set! (. parameters -color) Color/WHITE)
     (swap! deps/font (constantly (.generateFont generator parameters))))
+
+  (item/load-items!)
+
   (.setScreen this (main-menu/screen this)))
 
 (defn -dispose [^Game _]

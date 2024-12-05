@@ -132,7 +132,7 @@
                               (println (.getX actor) (.getY actor))
                               :m
                               (if (empty? @menu/opened-menus)
-                                (menu/add-menu! (party-menu/create)))
+                                (menu/add-menu! (party-menu/create mob)))
                               :q
                               (if-not (empty? @menu/opened-menus)
                                 (menu/remove-menu!))
@@ -182,6 +182,7 @@
                  (.draw)))]
     (proxy [Screen] []
       (show []
+        (println @(:items mob))
         (swap! (:direction mob) (constantly (:direction entrance)))
         (.setX actor (:x entrance))
         (.setY actor (:y entrance))

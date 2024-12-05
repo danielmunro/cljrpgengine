@@ -41,13 +41,16 @@
         (if (.isTouched Gdx/input)
           (.setScreen game (dungeon/screen
                             game
-                            (mob/create-mob
-                             :edwyn
-                             "Edwyn"
-                             :down
-                             0
-                             0
-                             :edwyn)
+                            (doto (mob/create-mob
+                                   :edwyn
+                                   "Edwyn"
+                                   :down
+                                   0
+                                   0
+                                   :edwyn)
+                              (mob/add-item! :light-health-potion)
+                              (mob/add-item! :light-health-potion)
+                              (mob/add-item! :practice-sword))
                             :tinytown
                             :main
                             :start))))
