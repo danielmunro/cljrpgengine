@@ -1,6 +1,7 @@
 (ns cljrpgengine.ui
   (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps])
+            [cljrpgengine.deps :as deps]
+            [cljrpgengine.util :as util])
   (:import (com.badlogic.gdx.graphics Color Pixmap Pixmap$Format Texture)
            (com.badlogic.gdx.scenes.scene2d Actor Group)
            (com.badlogic.gdx.scenes.scene2d.ui Label Label$LabelStyle)))
@@ -64,12 +65,7 @@
   []
   (let [cursor (Texture. (str constants/sprites-dir "cursor.png"))]
     {:index (atom 0)
-     :actor (doto (proxy [Actor] []
-                    (draw [batch _]
-                      (.setColor batch (float 1) (float 1) (float 1) (float 255))
-                      (.draw batch cursor (proxy-super getX) (proxy-super getY))))
-              (.setWidth (.getWidth cursor))
-              (.setHeight (.getHeight cursor)))}))
+     :actor (util/create-image cursor 0 0)}))
 
 (defn line-number
   [window line-number]

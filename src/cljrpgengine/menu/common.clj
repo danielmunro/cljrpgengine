@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
+            [cljrpgengine.util :as util]
             [clojure.math :as math])
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
@@ -35,14 +36,10 @@
            amount-hp (if (= :restore-hp affect) (restore-amount amount hp max-hp))
            amount-mana (if (= :restore-mana affect) (restore-amount amount mana max-mana))]
        (.addActor window
-                  (doto (proxy [Actor] []
-                          (draw [batch _]
-                            (.setColor batch (float 1) (float 1) (float 1) (float 255))
-                            (.draw batch portrait (proxy-super getX) (proxy-super getY))))
-                    (.setWidth (.getWidth portrait))
-                    (.setHeight (.getHeight portrait))
-                    (.setX constants/padding)
-                    (.setY (- (+ portrait-y (ui/line-number window 1)) (* constants/padding 2)))))
+                  (util/create-image
+                   portrait
+                   constants/padding
+                   (- (+ portrait-y (ui/line-number window 1)) (* constants/padding 2))))
        (.addActor window
                   (ui/create-label name portrait-x (+ portrait-y (ui/line-number window 1))))
        (.addActor window
