@@ -22,7 +22,9 @@
      :left (Animation. (float constants/walk-animation-speed)
                        ^Array (sprite-array txr [[1 0] [1 1] [1 0] [1 2]]))
      :right (Animation. (float constants/walk-animation-speed)
-                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))}))
+                        ^Array (sprite-array txr [[2 0] [2 1] [2 0] [2 2]]))
+     :dance (Animation. (float constants/walk-animation-speed)
+                        ^Array (sprite-array txr [[1 0] [3 0] [2 0] [0 0]]))}))
 
 (defn create-from-type
   [name]

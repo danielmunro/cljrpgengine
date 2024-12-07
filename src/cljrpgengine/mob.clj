@@ -26,16 +26,24 @@
                   (swap! keys-down disj key)
                   true)
         state-time (atom 0)
+        animation (atom nil)
         add-time-delta! (fn [delta] (swap! state-time (fn [t] (+ t delta))))]
     {:actor (doto (proxy [Actor] []
                     (draw [batch _]
-                      (let [frame (.getKeyFrame (get animations @direction) @state-time true)]
+                      (let [animation-to-use (or @animation @direction)
+                            frame (.getKeyFrame (get animations animation-to-use) @state-time true)]
                         (.draw batch
                                frame
                                (proxy-super getX)
                                (proxy-super getY)
                                (float 1)
-                               (float 1.5)))))
+                               (float 1.5))))
+                    (act [delta]
+                      (if (not (nil? @animation))
+                        (if (.isAnimationFinished (get animations @animation) (+ @state-time delta))
+                          (do (swap! state-time (constantly 0))
+                              (swap! animation (constantly nil)))
+                          (add-time-delta! delta)))))
               (.setX x)
               (.setY y)
               (.setWidth 1)
@@ -64,4 +72,6 @@
      :max-mana (atom 1)
      :xp (atom 0)
      :level (atom 1)
+     :play-animation! (fn [animation-key]
+                        (swap! animation (constantly animation-key)))
      :portrait (Texture. (str portraits-dir (get-portrait-from-mob-type mob-type)))}))
