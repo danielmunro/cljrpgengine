@@ -99,7 +99,6 @@
       ;(mob/set-destination! (:mob outcome) (:coords outcome))
       (= :mob-animation (:type outcome))
       ((:play-animation! ((:mob outcome) @mob/mobs)) (:animation outcome))
-      ;(mob/play-animation! ((:mob outcome) @player/party) (:animation outcome))
       ;(= :player-animation (:type outcome))
       ;(mob/play-animation! player/party (:identifier (first (vals @player/party))) (:animation outcome))
       ;(= :set-mob-coords (:type outcome))
