@@ -1,9 +1,6 @@
 (ns cljrpgengine.tilemap
-  (:require [cljrpgengine.constants :as constants]
-            [cljrpgengine.deps :as deps])
-  (:import (com.badlogic.gdx.graphics Color)
-           (com.badlogic.gdx.graphics.glutils ShapeRenderer$ShapeType)
-           (com.badlogic.gdx.maps.tiled TmxMapLoader)
+  (:require [cljrpgengine.constants :as constants])
+  (:import (com.badlogic.gdx.maps.tiled TmxMapLoader)
            (com.badlogic.gdx.math Intersector Rectangle)))
 
 (def LAYER_BACKGROUND "background")
