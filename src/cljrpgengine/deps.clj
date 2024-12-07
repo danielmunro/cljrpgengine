@@ -19,10 +19,10 @@
   (swap! camera (constantly (OrthographicCamera.)))
   (swap! viewport (constantly (FitViewport. (/ constants/screen-width constants/tile-size)
                                             (/ constants/screen-height constants/tile-size)
-                                            camera)))
+                                            @camera)))
   (swap! shape (constantly (ShapeRenderer.)))
   (let [generator (FreeTypeFontGenerator. (FileHandle. ^String constants/font-file))
         parameters (FreeTypeFontGenerator$FreeTypeFontParameter.)]
     (set! (. parameters -size) constants/font-size)
     (set! (. parameters -color) Color/WHITE)
-    (swap! font (constantly (.generateFont generator parameters))))
+    (swap! font (constantly (.generateFont generator parameters)))))
