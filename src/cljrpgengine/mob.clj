@@ -62,6 +62,6 @@
      :max-hp (atom 1)
      :mana (atom 1)
      :max-mana (atom 1)
-     :xp 0
-     :level 1
+     :xp (atom 0)
+     :level (atom 1)
      :portrait (Texture. (str portraits-dir (get-portrait-from-mob-type mob-type)))}))

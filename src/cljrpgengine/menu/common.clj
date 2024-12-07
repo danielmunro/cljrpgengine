@@ -3,8 +3,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
-            [clojure.math :as math])
-  (:import (com.badlogic.gdx.scenes.scene2d Actor)))
+            [clojure.math :as math]))
 
 (def portrait-width 40)
 (def portrait-height 80)
@@ -27,7 +26,7 @@
   ([window item selected-mob]
    (doseq [i (range 0 (count @player/party))]
      (let [identifier (nth (keys @player/party) i)
-           portrait-x 60
+           portrait-x (+ portrait-width (* 2 constants/padding))
            portrait-y (-> (* constants/padding i)
                           (- (* portrait-height i))
                           (- (* constants/padding i)))
@@ -58,12 +57,12 @@
                    portrait-x (+ portrait-y (ui/line-number window 3))))
        (.addActor window
                   (ui/create-label
-                   (format "level %d" level)
+                   (format "level %d" @level)
                    (+ portrait-x 200)
                    (+ portrait-y (ui/line-number window 2))))
        (.addActor window
                   (ui/create-label
-                   (format "%d xp to level" (get-xp-to-level xp))
+                   (format "%d xp to level" (get-xp-to-level @xp))
                    (+ portrait-x 200)
                    (+ portrait-y (ui/line-number window 3)))))))
   ([window]
