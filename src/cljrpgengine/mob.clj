@@ -7,6 +7,8 @@
 
 (def portraits-dir (str constants/resources-dir "portraits/"))
 
+(def mobs (atom nil))
+
 (defn- get-portrait-from-mob-type
   [type]
   ; todo make more portraits, case on type

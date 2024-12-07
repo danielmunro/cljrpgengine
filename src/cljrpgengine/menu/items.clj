@@ -22,7 +22,7 @@
         i (atom 1)
         description (ui/create-label (get-item-description @player/items (dec @i))
                                      padding
-                                     (ui/line-number window 13))]
+                                     (ui/line-number window 16))]
     (.addActor window (ui/create-label
                        (str (ui/text-fixed-width "Item" item-name-width) "Quantity")
                        padding

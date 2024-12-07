@@ -22,6 +22,6 @@
 
 (def tile-size 16)
 
-(def font-size 20)
+(def font-size 16)
 
 (def padding 10)

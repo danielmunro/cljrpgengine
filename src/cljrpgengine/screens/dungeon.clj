@@ -1,5 +1,6 @@
 (ns cljrpgengine.screens.dungeon
-  (:require [cljrpgengine.constants :as constants]
+  (:require [cljrpgengine.event :as event]
+            [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
             [cljrpgengine.input-adapter :as input-adapter]
             [cljrpgengine.menu :as menu]
@@ -7,6 +8,7 @@
             [cljrpgengine.menu.party :as party-menu]
             [cljrpgengine.player :as player]
             [cljrpgengine.tilemap :as tilemap]
+            [cljrpgengine.ui :as ui]
             [clojure.java.io :as io]
             [cljrpgengine.util :as util])
   (:import (com.badlogic.gdx Gdx Screen)
@@ -41,32 +43,31 @@
 (defn- load-mobs
   [scene room]
   (let [file-path (str constants/scenes-dir (name scene) "/" (name room) "/mobs")
-        dir (io/file file-path)
-        mobs (atom nil)]
+        dir (io/file file-path)]
+    (swap! mob/mobs (constantly nil))
     (if (.exists dir)
       (let [mob-files (.listFiles dir)]
         (doseq [mob-file mob-files]
           (let [{:keys [identifier name direction coords animation]}
                 (read-string (slurp (str file-path "/" (.getName mob-file))))]
-            (swap! mobs assoc
+            (swap! mob/mobs assoc
                    identifier (mob/create-mob
                                identifier
                                name
                                direction
                                (/ (first coords) constants/tile-size)
                                (- (dec (.get (.getProperties @tilemap/tilemap) "height")) (/ (second coords) constants/tile-size))
-                               animation))))))
-    @mobs))
+                               animation))))))))
 
 (defn screen
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
+  (event/load-room-events! scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
         menu-stage (Stage.)
         mob-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
-        mobs (load-mobs scene room)
-        party-leader (first (vals @player/party))
+        party-leader (player/party-leader)
         {:keys [actor
                 key-down!
                 key-up!
@@ -121,12 +122,44 @@
                                   (swap! state-time (constantly 0))))))
         evaluate-movement! (fn [delta]
                              (cond
-                               (not-empty @menu/opened-menus)
+                               (or (not-empty @menu/opened-menus)
+                                   @event/engagement)
                                nil
                                (on-tile (.getX actor) (.getY actor))
                                (evaluate-on-tile! delta)
                                :else
                                (evaluate-direction-moving! @direction delta)))
+        clear-engagement (fn [window mob-identifier mob-direction]
+                           (.removeActor (.getRoot menu-stage) window)
+                           (swap! (:direction (get @mob/mobs mob-identifier)) (constantly mob-direction))
+                           (event/clear-engagement!))
+        proceed-engagement (fn []
+                             (event/inc-engagement!)
+                             (let [{:keys [done? window mob mob-direction label]} @event/engagement]
+                               (if done?
+                                 (clear-engagement window mob mob-direction)
+                                 (.setText label (event/get-dialog)))))
+        check-area-of-interest (fn []
+                                 (let [x (case @direction
+                                           :left
+                                           (dec (.getX actor))
+                                           :right
+                                           (inc (.getX actor))
+                                           (.getX actor))
+                                       y (case @direction
+                                           :up
+                                           (inc (.getY actor))
+                                           :down
+                                           (dec (.getY actor))
+                                           (.getY actor))
+                                       mob (first (filter #(and (= (.getX (:actor %)) x)
+                                                                (= (.getY (:actor %)) y))
+                                                          (vals @mob/mobs)))]
+                                   (when mob
+                                     (.addActor menu-stage (:window (event/create-engagement! mob)))
+                                     (swap! (:direction mob)
+                                            (constantly (util/opposite-direction
+                                                         @direction))))))
         evaluate-input! (fn []
                           (when-let [key (first @keys-typed)]
                             (case key
@@ -151,8 +184,13 @@
                               (if-let [_ (last @menu/opened-menus)]
                                 (println "menu right not implemented"))
                               :space
-                              (if-let [menu (last @menu/opened-menus)]
-                                (menu/option-selected menu))
+                              (cond
+                                (not-empty @menu/opened-menus)
+                                (menu/option-selected (last @menu/opened-menus))
+                                (some? @event/engagement)
+                                (proceed-engagement)
+                                :else
+                                (check-area-of-interest))
                               false)
                             (swap! keys-typed disj key)))
         dispose (fn []
@@ -187,7 +225,8 @@
         (swap! (:direction party-leader) (constantly (:direction entrance)))
         (.setX actor (:x entrance))
         (.setY actor (:y entrance))
-        (doseq [mob (vals mobs)]
+        (load-mobs scene room)
+        (doseq [mob (vals @mob/mobs)]
           (.addActor mob-group (:actor mob)))
         (.addActor mob-group actor)
         (.addActor stage mob-group)

@@ -70,7 +70,7 @@
 (defn line-number
   [window line-number]
   (- (.getHeight window)
-     (* line-number (* constants/font-size 1.5))))
+     (* line-number (.getLineHeight @deps/font))))
 
 (defn text-fixed-width
   [text spaces]
