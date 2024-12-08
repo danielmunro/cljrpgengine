@@ -7,7 +7,6 @@
             [cljrpgengine.ui :as ui]))
 
 (def window-padding 40)
-(def x-padding 30)
 
 (defn create
   [item-key]
@@ -34,12 +33,12 @@
      window
      [(menu/create-option
        (ui/create-label "Sell now"
-                        x-padding
+                        constants/left-cursor-padding
                         (ui/line-number window 7))
        #(menu/add-menu! (finish-sale-menu/create item-key @quantity)))
       (menu/create-option
        (ui/create-label "Never mind"
-                        x-padding
+                        constants/left-cursor-padding
                         (ui/line-number window 8))
        #(menu/remove-menu!))]
      (fn [changed]

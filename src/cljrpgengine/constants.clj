@@ -25,3 +25,4 @@
 (def font-size 16)
 
 (def padding 10)
+(def left-cursor-padding 30)

@@ -6,7 +6,6 @@
             [cljrpgengine.ui :as ui]))
 
 (def window-padding 40)
-(def x-padding 30)
 
 (defn create
   [shop]
@@ -20,13 +19,13 @@
      :shop
      window
      [(menu/create-option
-       (ui/create-label "Buy" x-padding (ui/line-number window 3))
+       (ui/create-label "Buy" constants/left-cursor-padding (ui/line-number window 3))
        #(menu/add-menu! (buy-menu/create shop)))
 
       (menu/create-option
-       (ui/create-label "Sell" x-padding (ui/line-number window 4))
+       (ui/create-label "Sell" constants/left-cursor-padding (ui/line-number window 4))
        #(menu/add-menu! (sell-menu/create)))
 
       (menu/create-option
-       (ui/create-label "Goodbye" x-padding (ui/line-number window 5))
+       (ui/create-label "Goodbye" constants/left-cursor-padding (ui/line-number window 5))
        #(menu/remove-menu!))])))

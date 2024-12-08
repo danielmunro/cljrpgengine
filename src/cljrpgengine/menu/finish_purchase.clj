@@ -5,7 +5,6 @@
             [cljrpgengine.ui :as ui]))
 
 (def window-padding 40)
-(def x-padding 30)
 
 (defn create
   [item quantity]
@@ -27,6 +26,6 @@
     (menu/create-menu
      :finish-purchase
      window
-     [(menu/create-option (ui/create-label "Ok" x-padding (ui/line-number window 5))
+     [(menu/create-option (ui/create-label "Ok" constants/left-cursor-padding (ui/line-number window 5))
                           (fn []
                             (menu/remove-menu! 3)))])))

@@ -7,7 +7,6 @@
             [cljrpgengine.ui :as ui]))
 
 (def window-padding 40)
-(def x-padding 30)
 (def item-name-width 30)
 
 (defn create
@@ -34,7 +33,7 @@
                                        name
                                        item-name-width)
                                       worth)
-                                 x-padding
+                                 constants/left-cursor-padding
                                  (ui/line-number window (swap! i inc)))
                 #(menu/add-menu! (select-quantity-to-sell-menu/create item-key)))))
            (keys @player/items)))))

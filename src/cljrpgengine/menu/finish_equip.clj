@@ -5,7 +5,6 @@
             [cljrpgengine.ui :as ui]))
 
 (def window-padding 60)
-(def x-padding 30)
 
 (defn create
   [mob-key equipment-position equipment]
@@ -25,5 +24,5 @@
      :finish-equip
      window
      [(menu/create-option
-       (ui/create-label "Ok" x-padding (ui/line-number window 3))
+       (ui/create-label "Ok" constants/left-cursor-padding (ui/line-number window 3))
        #(menu/remove-menu!))])))

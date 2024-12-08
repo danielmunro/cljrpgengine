@@ -6,8 +6,6 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
-(def x-padding 30)
-
 (defn create
   [mob-key]
   (let [mob (get @player/party mob-key)
@@ -18,7 +16,7 @@
                 constants/screen-height)
         i (atom 2)]
     (.addActor window (ui/create-label (str "Equipment for " (:name mob) ": ")
-                                       x-padding
+                                       constants/left-cursor-padding
                                        (ui/line-number window 1)))
     (menu/create-menu
      :equipment
@@ -29,7 +27,7 @@
                                     (if-let [equipment (get @(:equipment mob) equipment-position)]
                                       (:name (get @item/items equipment))
                                       "none"))
-                               x-padding
+                               constants/left-cursor-padding
                                (ui/line-number window (swap! i inc)))
               #(menu/add-menu! (equip-menu/create mob-key equipment-position))))
            (keys @(:equipment mob))))))
