@@ -28,5 +28,5 @@
        #(menu/add-menu! (sell-menu/create)))
 
       (menu/create-option
-       (ui/create-label "Nevermind" x-padding (ui/line-number window 5))
+       (ui/create-label "Goodbye" x-padding (ui/line-number window 5))
        #(menu/remove-menu!))])))
