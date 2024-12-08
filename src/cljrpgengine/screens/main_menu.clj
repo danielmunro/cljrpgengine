@@ -22,7 +22,7 @@
         (reset! stage (Stage.))
         (let [group (Group.)
               window (ui/create-window 0 0 constants/screen-width constants/screen-height)
-              label-title (ui/create-label "Chronicles of Telam")]
+              label-title (ui/create-label "Chronicles of Telaria")]
 
           (doto label-title
             (.setFontScale 2.0)
