@@ -16,7 +16,7 @@
                 0
                 constants/screen-width
                 constants/screen-height)
-        i (atom 1)]
+        i (atom 2)]
     (.addActor window (ui/create-label (str "Equipment for " (:name mob) ": ")
                                        x-padding
                                        (ui/line-number window 1)))

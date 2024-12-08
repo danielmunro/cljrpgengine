@@ -16,7 +16,7 @@
                                  window-padding
                                  (- constants/screen-width (* 2 window-padding))
                                  (- constants/screen-height (* 2 window-padding)))
-        items (map #(merge (get @item/items %) {:identifier %}) shop)
+        items (map #(get @item/items %) shop)
         i (atom 4)]
     (.addActor window (ui/create-label "Here's what I have for sale:"
                                        constants/padding

@@ -16,7 +16,7 @@
                                         (and (some #{:right-hand :left-hand} [equipment-position])
                                              (some #{:weapon :shield} [(:position item)]))))
                                   (map (fn [item-key]
-                                         (merge (get @item/items item-key) {:identifier item-key}))
+                                         (get @item/items item-key))
                                        (keys @player/items)))
         i (atom 2)]
     (menu/create-menu
