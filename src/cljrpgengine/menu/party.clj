@@ -2,8 +2,10 @@
   (:require [cljrpgengine.menu.common :as common]
             [cljrpgengine.constants :as constants]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.menu.equipment :as equipment-menu]
             [cljrpgengine.menu.items :as item-menu]
             [cljrpgengine.menu.quit :as quit-menu]
+            [cljrpgengine.menu.select-party :as select-party-menu]
             [cljrpgengine.ui :as ui]))
 
 (def from-right 140)
@@ -26,7 +28,7 @@
 
       (menu/create-option
        (ui/create-label "Equipment" x (ui/line-number window 3))
-       #(println "equipment menu not implemented"))
+       #(menu/add-menu! (select-party-menu/create (partial equipment-menu/create))))
 
       (menu/create-option
        (ui/create-label "Storylines" x (ui/line-number window 4))

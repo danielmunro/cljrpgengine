@@ -59,13 +59,14 @@
      :state-time state-time
      :items (atom {})
      :equipment (atom {:head nil
+                       :cloak nil
                        :torso nil
-                       :hands nil
+                       :wrists nil
                        :legs nil
                        :feet nil
                        :accessory nil
-                       :weapon nil
-                       :shield nil})
+                       :left-hand nil
+                       :right-hand nil})
      :hp (atom 1)
      :max-hp (atom 1)
      :mana (atom 1)
