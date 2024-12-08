@@ -3,10 +3,11 @@
   (:import (com.badlogic.gdx.maps.tiled TmxMapLoader)
            (com.badlogic.gdx.math Intersector Rectangle)))
 
-(def LAYER_BACKGROUND "background")
-(def LAYER_MIDGROUND "midground")
-(def LAYER_FOREGROUND "foreground")
-(def LAYER_WARPS "warps")
+(def background-layer "background")
+(def midground-layer "midground")
+(def foreground-layer "foreground")
+(def warp-layer "warps")
+(def shop-layer "shops")
 
 (def tilemap (atom nil))
 
@@ -33,12 +34,27 @@
 
 (defn is-blocked?
   [x y]
-  (or (is-layer-blocking? (get-layer LAYER_BACKGROUND) x y)
-      (is-layer-blocking? (get-layer LAYER_MIDGROUND) x y)))
+  (or (is-layer-blocking? (get-layer background-layer) x y)
+      (is-layer-blocking? (get-layer midground-layer) x y)))
+
+(defn get-shop
+  [x y]
+  (if-let [shop-layer (get-layer shop-layer)]
+    (let [objects (.getObjects shop-layer)
+          shop-area (Rectangle. (* x constants/tile-size)
+                                (* y constants/tile-size)
+                                constants/tile-size
+                                constants/tile-size)]
+      (if-let [shop (first (filter (fn [o]
+                                     (let [p (.getProperties o)]
+                                       (and (= "shop" (.get p "type"))
+                                            (Intersector/overlaps shop-area (.getRectangle o)))))
+                                   objects))]
+        (keyword (.getName shop))))))
 
 (defn get-entrance
   [entrance-name]
-  (let [objects (.getObjects (get-layer LAYER_WARPS))
+  (let [objects (.getObjects (get-layer warp-layer))
         entrance (first (filter (fn [o]
                                   (let [p (.getProperties o)]
                                     (and (= "entrance" (.get p "type"))
@@ -51,7 +67,7 @@
 
 (defn get-exit
   [x y]
-  (let [objects (.getObjects (get-layer LAYER_WARPS))
+  (let [objects (.getObjects (get-layer warp-layer))
         player (Rectangle. (* x constants/tile-size)
                            (* y constants/tile-size)
                            constants/tile-size

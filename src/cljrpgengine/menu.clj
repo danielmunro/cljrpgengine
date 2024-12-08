@@ -11,10 +11,13 @@
   (.addActor menu-group (:actor menu)))
 
 (defn remove-menu!
-  []
-  (let [menu (last @opened-menus)]
-    (swap! opened-menus pop)
-    (.removeActor menu-group (:actor menu))))
+  ([]
+   (let [menu (last @opened-menus)]
+     (swap! opened-menus pop)
+     (.removeActor menu-group (:actor menu))))
+  ([count]
+   (doseq [_ (range 0 count)]
+     (remove-menu!))))
 
 (defn create-option
   [label on-selected]

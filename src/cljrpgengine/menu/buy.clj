@@ -1,0 +1,34 @@
+(ns cljrpgengine.menu.buy
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.item :as item]
+            [cljrpgengine.menu :as menu]
+            [cljrpgengine.menu.select-quantity-to-buy :as select-quantity-to-buy-menu]
+            [cljrpgengine.ui :as ui]))
+
+(def window-padding 40)
+(def x-padding 30)
+
+(defn create
+  [shop]
+  (let [window (ui/create-window window-padding
+                                 window-padding
+                                 (- constants/screen-width (* 2 window-padding))
+                                 (- constants/screen-height (* 2 window-padding)))
+        items (map #(merge (get @item/items %) {:identifier %}) shop)
+        i (atom 4)]
+    (.addActor window (ui/create-label "Here's what I have for sale:"
+                                       constants/padding
+                                       (ui/line-number window 1)))
+    (.addActor window (ui/create-label (str (ui/text-fixed-width "Item" 30) "Price")
+                                       x-padding
+                                       (ui/line-number window 3)))
+    (menu/create-menu
+     :buy
+     window
+     (mapv (fn [item]
+             (menu/create-option
+              (ui/create-label (str (ui/text-fixed-width (:name item) 30) (:worth item))
+                               x-padding
+                               (ui/line-number window (swap! i inc)))
+              #(menu/add-menu! (select-quantity-to-buy-menu/create item))))
+           items))))

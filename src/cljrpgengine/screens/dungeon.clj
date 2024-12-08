@@ -6,9 +6,10 @@
             [cljrpgengine.menu :as menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.menu.party :as party-menu]
+            [cljrpgengine.menu.shop :as shop-menu]
             [cljrpgengine.player :as player]
+            [cljrpgengine.shop :as shop]
             [cljrpgengine.tilemap :as tilemap]
-            [cljrpgengine.ui :as ui]
             [clojure.java.io :as io]
             [cljrpgengine.util :as util])
   (:import (com.badlogic.gdx Gdx Screen)
@@ -63,6 +64,7 @@
   [game scene room entrance-name]
   (tilemap/load-tilemap scene room)
   (event/load-room-events! scene room)
+  (shop/load-shops! scene room)
   (let [stage (Stage. @deps/viewport @deps/batch)
         menu-stage (Stage.)
         mob-group (Group.)
@@ -151,15 +153,16 @@
                                            (inc (.getY actor))
                                            :down
                                            (dec (.getY actor))
-                                           (.getY actor))
-                                       mob (first (filter #(and (= (.getX (:actor %)) x)
-                                                                (= (.getY (:actor %)) y))
-                                                          (vals @mob/mobs)))]
-                                   (when mob
+                                           (.getY actor))]
+                                   (when-let [mob (first (filter #(and (= (.getX (:actor %)) x)
+                                                                       (= (.getY (:actor %)) y))
+                                                                 (vals @mob/mobs)))]
                                      (.addActor menu-stage (:window (event/create-engagement! mob)))
                                      (swap! (:direction mob)
                                             (constantly (util/opposite-direction
-                                                         @direction))))))
+                                                         @direction))))
+                                   (when-let [shop-found (tilemap/get-shop (.getX actor) (.getY actor))]
+                                     (menu/add-menu! (shop-menu/create (get @shop/shops shop-found))))))
         evaluate-input! (fn []
                           (when-let [key (first @keys-typed)]
                             (case key
@@ -178,11 +181,11 @@
                               (if-let [menu (last @menu/opened-menus)]
                                 (menu/inc-cursor-index! menu))
                               :left
-                              (if-let [_ (last @menu/opened-menus)]
-                                (println "menu left not implemented"))
+                              (if-let [menu (last @menu/opened-menus)]
+                                ((:on-change menu) :left))
                               :right
-                              (if-let [_ (last @menu/opened-menus)]
-                                (println "menu right not implemented"))
+                              (if-let [menu (last @menu/opened-menus)]
+                                ((:on-change menu) :right))
                               :space
                               (cond
                                 (not-empty @menu/opened-menus)
@@ -208,14 +211,14 @@
         draw (fn [delta]
                (ScreenUtils/clear Color/BLACK)
                (.begin @deps/batch)
-               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_BACKGROUND))
-               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_MIDGROUND))
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/background-layer))
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/midground-layer))
                (.end @deps/batch)
                (doto stage
                  (.act delta)
                  (.draw))
                (.begin @deps/batch)
-               (.renderTileLayer renderer (tilemap/get-layer tilemap/LAYER_FOREGROUND))
+               (.renderTileLayer renderer (tilemap/get-layer tilemap/foreground-layer))
                (.end @deps/batch)
                (doto menu-stage
                  (.act delta)

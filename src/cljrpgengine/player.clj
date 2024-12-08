@@ -3,6 +3,7 @@
 (def party (atom {}))
 (def items (atom {}))
 (def grants (atom #{}))
+(def gold (atom 100))
 
 (defn party-leader
   []
