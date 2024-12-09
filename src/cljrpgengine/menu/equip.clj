@@ -6,7 +6,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
-(def x (/ 2 constants/screen-width))
+(def x (/ constants/screen-width 2))
 
 (defn create
   [mob-key equipment-position]
