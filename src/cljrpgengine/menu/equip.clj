@@ -6,9 +6,11 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
+(def x (/ 2 constants/screen-width))
+
 (defn create
   [mob-key equipment-position]
-  (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)
+  (let [window (ui/create-window x 0 (- constants/screen-width x) constants/screen-height)
         equipment-choices (filter (fn [item]
                                     (or (= (:position item) equipment-position)
                                         (and (some #{:right-hand :left-hand} [equipment-position])
