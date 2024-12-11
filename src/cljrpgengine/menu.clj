@@ -45,9 +45,15 @@
       :cursor cursor
       :options options
       :actor group
-      :on-change on-change}))
+      :on-change on-change
+      :window window}))
   ([identifier window options]
    (create-menu identifier window options (fn [_]))))
+
+(defn create-event
+  [event-type changed]
+  {:event-type event-type
+   :changed changed})
 
 (defn inc-cursor-index!
   [menu]
@@ -55,7 +61,7 @@
     (if (< @index (dec (count (:options menu))))
       (swap! index inc)
       (swap! index (constantly 0)))
-    ((:on-change menu) @index)))
+    ((:on-change menu) (create-event :cursor @index))))
 
 (defn dec-cursor-index!
   [menu]
@@ -63,7 +69,7 @@
     (if (= 0 @index)
       (swap! index (constantly (dec (count (:options menu)))))
       (swap! index dec))
-    ((:on-change menu) @index)))
+    ((:on-change menu) (create-event :cursor @index))))
 
 (defn option-selected
   [menu]

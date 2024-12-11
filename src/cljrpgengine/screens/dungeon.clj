@@ -182,10 +182,10 @@
                                 (menu/inc-cursor-index! menu))
                               :left
                               (if-let [menu (last @menu/opened-menus)]
-                                ((:on-change menu) :left))
+                                ((:on-change menu) (menu/create-event :quantity-change :dec)))
                               :right
                               (if-let [menu (last @menu/opened-menus)]
-                                ((:on-change menu) :right))
+                                ((:on-change menu) (menu/create-event :quantity-change :inc)))
                               :space
                               (cond
                                 (not-empty @menu/opened-menus)

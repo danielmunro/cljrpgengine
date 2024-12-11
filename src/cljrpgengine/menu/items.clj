@@ -45,6 +45,6 @@
                                    (:disabled constants/font-colors)))
                 #(println "foo"))))
            @player/items)
-     (fn [cursor]
+     (fn [event]
        (.setText description
-                 (get-item-description @player/items cursor))))))
+                 (get-item-description @player/items (:changed event)))))))

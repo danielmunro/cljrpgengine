@@ -25,4 +25,9 @@
      window
      [(menu/create-option
        (ui/create-label "Ok" constants/left-cursor-padding (ui/line-number window 3))
-       #(menu/remove-menu!))])))
+       (fn []
+         (menu/remove-menu! 2)
+         ((:on-change (last @menu/opened-menus))
+          (menu/create-event :updated
+                             {:equipment-position equipment-position
+                              :equipment equipment}))))])))

@@ -1,4 +1,4 @@
-(ns cljrpgengine.menu.equip
+(ns cljrpgengine.menu.select_equipment
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]

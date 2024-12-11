@@ -41,16 +41,17 @@
                         constants/left-cursor-padding
                         (ui/line-number window 8))
        #(menu/remove-menu!))]
-     (fn [changed]
-       (case changed
-         :left
-         (if (< 1 @quantity)
-           (do (swap! quantity dec)
-               (.setText quantity-label (str @quantity " of " owned))
-               (.setText sale-gold-label (str "Gold to gain: " (* @quantity worth)))))
-         :right
-         (if (<= (inc @quantity) owned)
-           (do (swap! quantity inc)
-               (.setText quantity-label (str @quantity " of " owned))
-               (.setText sale-gold-label (str "Gold to gain: " (* @quantity worth)))))
-         false)))))
+     (fn [event]
+       (if (= :quantity-change (:event-type event))
+         (case (:changed event)
+           :dec
+           (if (< 1 @quantity)
+             (do (swap! quantity dec)
+                 (.setText quantity-label (str @quantity " of " owned))
+                 (.setText sale-gold-label (str "Gold to gain: " (* @quantity worth)))))
+           :inc
+           (if (<= (inc @quantity) owned)
+             (do (swap! quantity inc)
+                 (.setText quantity-label (str @quantity " of " owned))
+                 (.setText sale-gold-label (str "Gold to gain: " (* @quantity worth)))))
+           false))))))

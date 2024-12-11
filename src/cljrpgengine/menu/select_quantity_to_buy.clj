@@ -41,18 +41,19 @@
       (menu/create-option
        (ui/create-label "Never mind" constants/left-cursor-padding (ui/line-number window 9))
        #(menu/remove-menu!))]
-     (fn [changed]
-       (case changed
-         :left
-         (if (< 1 @quantity)
-           (do (swap! quantity dec)
-               (.setText quantity-label (str "Quantity: " @quantity))
-               (.setText price-label (str "Price: " (* @quantity (:worth item))))
-               (.setText gold-remaining-label (str "Gold remaining: " (- @player/gold (* @quantity (:worth item)))))))
-         :right
-         (if (<= (* (inc @quantity) (:worth item)) @player/gold)
-           (do (swap! quantity inc)
-               (.setText quantity-label (str "Quantity: " @quantity))
-               (.setText price-label (str "Price: " (* @quantity (:worth item))))
-               (.setText gold-remaining-label (str "Gold remaining: " (- @player/gold (* @quantity (:worth item)))))))
-         false)))))
+     (fn [event]
+       (if (= :quantity-change (:event-type event))
+         (case (:changed event)
+           :dec
+           (if (< 1 @quantity)
+             (do (swap! quantity dec)
+                 (.setText quantity-label (str "Quantity: " @quantity))
+                 (.setText price-label (str "Price: " (* @quantity (:worth item))))
+                 (.setText gold-remaining-label (str "Gold remaining: " (- @player/gold (* @quantity (:worth item)))))))
+           :inc
+           (if (<= (* (inc @quantity) (:worth item)) @player/gold)
+             (do (swap! quantity inc)
+                 (.setText quantity-label (str "Quantity: " @quantity))
+                 (.setText price-label (str "Price: " (* @quantity (:worth item))))
+                 (.setText gold-remaining-label (str "Gold remaining: " (- @player/gold (* @quantity (:worth item)))))))
+           false))))))
