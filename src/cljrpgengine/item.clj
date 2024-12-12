@@ -1,5 +1,6 @@
 (ns cljrpgengine.item
-  (:require [cljrpgengine.constants :as constants]))
+  (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.util :as util]))
 
 (def items (atom {}))
 
@@ -17,3 +18,11 @@
    {item-key quantity})
   ([item-key]
    (create-inventory-item item-key 1)))
+
+(defn compare-equipment
+  [to-remove to-equip]
+  (into {}
+        (map (fn [attribute]
+               {attribute (- (get (:attributes to-equip) attribute 0)
+                             (get (:attributes to-remove) attribute 0))})
+             util/attribute-order)))

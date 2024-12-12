@@ -36,7 +36,6 @@
                      (.setX (* constants/screen-width 2/3)))
         mob (get @player/party mob-key)
         options (mapv (fn [equipment-position]
-                        (prn equipment-position)
                         (assoc (menu/create-option
                                 (ui/create-label (str (ui/text-fixed-width (name equipment-position) 15)
                                                       (get-equipment-name (:name (get @item/items (get @(:equipment mob) equipment-position)))))
@@ -47,7 +46,7 @@
                       (keys @(:equipment mob)))
         draw-attributes (fn []
                           (let [i (atom 2)]
-                            (doseq [attr mob/attribute-order]
+                            (doseq [attr util/attribute-order]
                               (.addActor right-pane (ui/create-label (str (ui/text-fixed-width (name attr) 5) (mob/calc-attr mob attr))
                                                                      constants/padding
                                                                      (ui/line-number window (swap! i inc)))))))]

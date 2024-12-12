@@ -19,7 +19,15 @@
   :position :weapon
   :material :wood
   :worth 10
-  :attributes {:hit 1 :dam 1}}
+  :attributes {:hit 1 :dam 2}}
+ :rusty-iron-sword
+ {:name "a rusty iron sword"
+  :description "An old iron sword, speckled with rust."
+  :type :equipment
+  :position :weapon
+  :material :iron
+  :worth 25
+  :attributes {:hit 2 :dam 3}}
  :cotton-tunic
  {:name "a cotton tunic"
   :description "A warm cotton tunic."

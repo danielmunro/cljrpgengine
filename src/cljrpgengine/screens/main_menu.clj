@@ -51,7 +51,7 @@
         (player/add-item! :light-health-potion)
         (player/add-item! :light-health-potion)
         (player/add-item! :practice-sword)
-        (player/add-item! :practice-sword))
+        (player/add-item! :rusty-iron-sword))
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)

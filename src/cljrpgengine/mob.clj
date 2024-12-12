@@ -8,8 +8,6 @@
 
 (def portraits-dir (str constants/resources-dir "portraits/"))
 
-(def attribute-order [:str :int :wis :dex :con :cha :hp :mana :hit :dam])
-
 (def mobs (atom nil))
 
 (defn- get-portrait-from-mob-type
