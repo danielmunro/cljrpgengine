@@ -44,7 +44,13 @@
                                                  (ui/line-number window (swap! i inc)))
                                 #(menu/add-menu! (select-equipment-menu/create mob-key equipment-position)))
                                :equipment-position equipment-position))
-                      (keys @(:equipment mob)))]
+                      (keys @(:equipment mob)))
+        draw-attributes (fn []
+                          (let [i (atom 2)]
+                            (doseq [attr mob/attribute-order]
+                              (.addActor right-pane (ui/create-label (str (ui/text-fixed-width (name attr) 5) (mob/calc-attr mob attr))
+                                                                     constants/padding
+                                                                     (ui/line-number window (swap! i inc)))))))]
     (.addActor window (util/create-image portrait
                                          constants/padding
                                          (- constants/screen-height
@@ -56,11 +62,7 @@
     (.addActor right-pane (ui/create-label "Attributes:"
                                            constants/padding
                                            (ui/line-number window 1)))
-    (swap! i (constantly 2))
-    (doseq [attr mob/attribute-order]
-      (.addActor right-pane (ui/create-label (str (ui/text-fixed-width (name attr) 5) (mob/calc-attr mob attr))
-                                             constants/padding
-                                             (ui/line-number window (swap! i inc)))))
+    (draw-attributes)
     (doseq [o options]
       (.addActor left-pane (:label o)))
     (.addActor window left-pane)
@@ -72,6 +74,9 @@
       :options options}
      (fn [event]
        (when (= (:event-type event) :updated)
+         (doseq [label (.getChildren right-pane)]
+           (.removeActor right-pane label))
+         (draw-attributes)
          (let [equipment-position (-> event :changed :equipment-position)
                option (first (filter #(= equipment-position (:equipment-position %))
                                      (-> @menu/opened-menus
