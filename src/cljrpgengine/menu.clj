@@ -26,11 +26,13 @@
 
 (defn create-menu
   ([identifier window options on-change]
-   (let [cursor (ui/create-cursor)
+   (let [options-values (if (vector? options) options (:options options))
+         add-to-window (if (vector? options) true (:add-to-window options))
+         cursor (ui/create-cursor)
          group (doto (proxy [Group] []
                        (act [_]
                          (let [actor (:actor cursor)
-                               selected (:label (nth options @(:index cursor)))]
+                               selected (:label (nth options-values @(:index cursor)))]
                            (.setX actor (- (.getX selected) (.getWidth actor) 5))
                            (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))
                  (.setX 0)
@@ -38,12 +40,13 @@
                  (.setWidth (.getWidth window))
                  (.setHeight (.getHeight window)))]
      (.addActor group window)
-     (doseq [o options]
-       (.addActor window (:label o)))
+     (if add-to-window
+       (doseq [o options-values]
+         (.addActor window (:label o))))
      (.addActor window (:actor cursor))
      {:identifier identifier
       :cursor cursor
-      :options options
+      :options options-values
       :actor group
       :on-change on-change
       :window window}))

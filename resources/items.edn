@@ -19,7 +19,7 @@
   :position :weapon
   :material :wood
   :worth 10
-  :attributes {:slash 1}}
+  :attributes {:hit 1 :dam 1}}
  :cotton-tunic
  {:name "a cotton tunic"
   :description "A warm cotton tunic."
@@ -27,9 +27,9 @@
   :position :torso
   :material :cotton
   :worth 12
-  :attributes {:pierce 1
-               :slash 1
-               :bash 1}}
+  :attributes {:ac-pierce 1
+               :ac-slash 1
+               :ac-bash 1}}
  :blemished-amulet
  {:name "a blemished amulet"
   :description "An amulet which has seen better days."

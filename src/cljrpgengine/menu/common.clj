@@ -1,5 +1,6 @@
 (ns cljrpgengine.menu.common
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.util :as util]
@@ -33,7 +34,10 @@
                               (- (* portrait-height @i))
                               (- (* constants/padding @i)))
                {:keys [affect amount]} item
-               {{:keys [hp max-hp mana max-mana portrait name xp level]} identifier} @player/party
+               mob (get @player/party identifier)
+               {:keys [hp mana portrait name xp level]} mob
+               max-hp (mob/calc-attr mob :hp)
+               max-mana (mob/calc-attr mob :mana)
                amount-hp (if (= :restore-hp affect) (restore-amount amount hp max-hp))
                amount-mana (if (= :restore-mana affect) (restore-amount amount mana max-mana))
                image (util/create-image
@@ -45,14 +49,14 @@
                       (ui/create-label name portrait-x (+ portrait-y (ui/line-number window 1))))
            (.addActor window
                       (ui/create-label
-                       (str (format "%d/%d HP" @hp @max-hp)
+                       (str (format "%d/%d HP" @hp max-hp)
                             (if (and (= i selected-mob)
                                      (= :restore-hp affect))
                               (format " +%d" amount-hp)))
                        portrait-x (+ portrait-y (ui/line-number window 2))))
            (.addActor window
                       (ui/create-label
-                       (str (format "%d/%d Mana" @mana @max-mana)
+                       (str (format "%d/%d Mana" @mana max-mana)
                             (if (and (= i selected-mob)
                                      (= :restore-mana affect))
                               (format " +%d" amount-mana)))
