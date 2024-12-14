@@ -18,26 +18,27 @@
                                   (map (fn [item-key]
                                          (get @item/items item-key))
                                        (keys @player/items)))
-        i (atom 3)]
+        i (atom 0)
+        equipped (get @(:equipment (get @player/party mob-key)) equipment-position)
+        options (if equipped
+                  [(menu/create-option
+                    (ui/create-label (str "remove " (:name (get @item/items equipped))) constants/left-cursor-padding (ui/line-number window (swap! i inc)))
+                    (fn []
+                      (let [equipment (:equipment (get @player/party mob-key))]
+                        (swap! equipment
+                               (fn [equipment]
+                                 (player/add-item! (get equipment equipment-position))
+                                 (assoc equipment equipment-position nil)))
+                        (menu/remove-menu!)
+                        ((:on-change (last @menu/opened-menus))
+                         (menu/create-event :updated
+                                            {:equipment-position equipment-position
+                                             :equipment equipment})))))]
+                  [])]
     (menu/create-menu
      :equip
      window
-     (into [(menu/create-option
-             (ui/create-label "Go back" constants/left-cursor-padding (ui/line-number window 1))
-             #(menu/remove-menu!))
-            (menu/create-option
-             (ui/create-label "Remove" constants/left-cursor-padding (ui/line-number window 2))
-             (fn []
-               (let [equipment (:equipment (get @player/party mob-key))]
-                 (swap! equipment
-                        (fn [equipment]
-                          (player/add-item! (get equipment equipment-position))
-                          (assoc equipment equipment-position nil)))
-                 (menu/remove-menu!)
-                 ((:on-change (last @menu/opened-menus))
-                  (menu/create-event :updated
-                                     {:equipment-position equipment-position
-                                      :equipment equipment})))))]
+     (into options
            (mapv (fn [equipment]
                    (menu/create-option
                     (ui/create-label (:name equipment) constants/left-cursor-padding (ui/line-number window (swap! i inc)))
