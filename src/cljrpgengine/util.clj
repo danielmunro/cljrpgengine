@@ -1,7 +1,7 @@
 (ns cljrpgengine.util
   (:import (com.badlogic.gdx.scenes.scene2d Actor)))
 
-(def attribute-order [:str :int :wis :dex :con :cha :hp :mana :hit :dam])
+(def attribute-order [:str :int :wis :dex :con :cha :hp :mana :hit :dam :ac-slash :ac-bash :ac-pierce :ac-magic])
 
 (defn opposite-direction
   [direction]

@@ -38,7 +38,11 @@
                           :hp 1
                           :mana 1
                           :hit 1
-                          :dam 1})
+                          :dam 1
+                          :ac-slash 0
+                          :ac-bash 0
+                          :ac-pierce 0
+                          :ac-magic 0})
         equipment (atom {:head nil
                          :cloak nil
                          :torso nil

@@ -2,6 +2,7 @@
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.menu.common :as common]
             [cljrpgengine.menu.select_equipment :as select-equipment-menu]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
@@ -43,13 +44,7 @@
                                                  (ui/line-number window (swap! i inc)))
                                 #(menu/add-menu! (select-equipment-menu/create mob-key equipment-position)))
                                :equipment-position equipment-position))
-                      (keys @(:equipment mob)))
-        draw-attributes (fn []
-                          (let [i (atom 2)]
-                            (doseq [attr util/attribute-order]
-                              (.addActor right-pane (ui/create-label (str (ui/text-fixed-width (name attr) 5) (mob/calc-attr mob attr))
-                                                                     constants/padding
-                                                                     (ui/line-number window (swap! i inc)))))))]
+                      (keys @(:equipment mob)))]
     (.addActor window (util/create-image portrait
                                          constants/padding
                                          (- constants/screen-height
@@ -58,10 +53,7 @@
     (.addActor left-pane (ui/create-label (str "Equipment for " mob-name ": ")
                                           column-1-padding
                                           (ui/line-number window 1)))
-    (.addActor right-pane (ui/create-label "Attributes:"
-                                           constants/padding
-                                           (ui/line-number window 1)))
-    (draw-attributes)
+    (common/draw-attributes window right-pane mob)
     (doseq [o options]
       (.addActor left-pane (:label o)))
     (.addActor window left-pane)
@@ -73,9 +65,7 @@
       :options options}
      (fn [event]
        (when (= (:event-type event) :updated)
-         (doseq [label (.getChildren right-pane)]
-           (.removeActor right-pane label))
-         (draw-attributes)
+         (common/draw-attributes window right-pane mob)
          (let [equipment-position (-> event :changed :equipment-position)
                option (first (filter #(= equipment-position (:equipment-position %))
                                      (-> @menu/opened-menus

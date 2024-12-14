@@ -76,3 +76,32 @@
        (keys @player/party)))))
   ([window]
    (draw-portraits window nil -1)))
+
+(defn draw-attributes
+  ([window pane mob attr-diff]
+   (doseq [label (.getChildren pane)]
+     (.removeActor pane label))
+   (.addActor pane (ui/create-label "Attributes:"
+                                    constants/padding
+                                    (ui/line-number window 1)))
+   (let [i (atom 2)]
+     (doseq [attr util/attribute-order]
+       (.addActor pane (ui/create-label (str (ui/text-fixed-width (name attr) 10) (mob/calc-attr mob attr))
+                                        constants/padding
+                                        (ui/line-number window (swap! i inc))))
+       (when-let [diff (get attr-diff attr)]
+         (if (not= 0 diff)
+           (.addActor pane (ui/create-label (str (cond
+                                                   (< 0 diff)
+                                                   (str "+" diff)
+                                                   (< diff 0)
+                                                   (str diff)))
+                                            (+ constants/padding 120)
+                                            (ui/line-number window @i)
+                                            (cond
+                                              (< 0 diff)
+                                              (:success constants/font-colors)
+                                              (< diff 0)
+                                              (:danger constants/font-colors)))))))))
+  ([window pane mob]
+   (draw-attributes window pane mob nil)))

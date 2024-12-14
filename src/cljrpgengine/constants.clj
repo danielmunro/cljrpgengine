@@ -3,7 +3,10 @@
 
 (def font-colors {:default Color/WHITE
                   :disabled Color/GRAY
-                  :highlight Color/YELLOW})
+                  :highlight Color/YELLOW
+                  :danger Color/RED
+                  :success Color/GREEN
+                  :meh Color/GRAY})
 
 (def screen-width 640)
 (def screen-height 400)
