@@ -54,15 +54,14 @@
                                           column-1-padding
                                           (ui/line-number window 1)))
     (common/draw-attributes window right-pane mob)
-    (doseq [o options]
-      (.addActor left-pane (:label o)))
+    ;(doseq [o options]
+    ;  (.addActor left-pane (:label o)))
     (.addActor window left-pane)
     (.addActor window right-pane)
     (menu/create-menu
      :equipment
      window
-     {:add-to-window false
-      :options options}
+     options
      (fn [event]
        (when (= (:event-type event) :updated)
          (common/draw-attributes window right-pane mob)

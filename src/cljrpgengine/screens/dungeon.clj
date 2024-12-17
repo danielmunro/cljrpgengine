@@ -70,7 +70,7 @@
         mob-group (Group.)
         entrance (tilemap/get-entrance entrance-name)
         party-leader (player/party-leader)
-        {:keys [actor
+        {:keys [window
                 key-down!
                 key-up!
                 direction
@@ -92,17 +92,17 @@
                         (doseq [i (range 0 (.count sorted))]
                           (.setZIndex (nth sorted i) i))))
         do-move! (fn [next-x next-y to-x to-y delta]
-                   (when (or (not (on-tile (.getX actor) (.getY actor)))
+                   (when (or (not (on-tile (.getX window) (.getY window)))
                              (and (not (tilemap/is-blocked? next-x next-y))
                                   (not (.hit mob-group next-x next-y true))))
-                     (.setX actor to-x)
-                     (.setY actor to-y)
+                     (.setX window to-x)
+                     (.setY window to-y)
                      (swap! moving (constantly true))
                      (add-time-delta! delta)
                      (sort-actors)))
         evaluate-direction-moving! (fn [direction delta]
-                                     (let [x (.getX actor)
-                                           y (.getY actor)]
+                                     (let [x (.getX window)
+                                           y (.getY window)]
                                        (case direction
                                          :up
                                          (do-move! x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
@@ -113,7 +113,7 @@
                                          :right
                                          (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
-                            (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX actor) (.getY actor))]
+                            (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX window) (.getY window))]
                               (.setScreen game (screen game scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
@@ -127,7 +127,7 @@
                                (or (not-empty @menu/opened-menus)
                                    @event/engagement)
                                nil
-                               (on-tile (.getX actor) (.getY actor))
+                               (on-tile (.getX window) (.getY window))
                                (evaluate-on-tile! delta)
                                :else
                                (evaluate-direction-moving! @direction delta)))
@@ -144,30 +144,30 @@
         check-area-of-interest (fn []
                                  (let [x (case @direction
                                            :left
-                                           (dec (.getX actor))
+                                           (dec (.getX window))
                                            :right
-                                           (inc (.getX actor))
-                                           (.getX actor))
+                                           (inc (.getX window))
+                                           (.getX window))
                                        y (case @direction
                                            :up
-                                           (inc (.getY actor))
+                                           (inc (.getY window))
                                            :down
-                                           (dec (.getY actor))
-                                           (.getY actor))]
-                                   (when-let [mob (first (filter #(and (= (.getX (:actor %)) x)
-                                                                       (= (.getY (:actor %)) y))
+                                           (dec (.getY window))
+                                           (.getY window))]
+                                   (when-let [mob (first (filter #(and (= (.getX (:window %)) x)
+                                                                       (= (.getY (:window %)) y))
                                                                  (vals @mob/mobs)))]
                                      (.addActor menu-stage (:window (event/create-engagement! mob)))
                                      (swap! (:direction mob)
                                             (constantly (util/opposite-direction
                                                          @direction))))
-                                   (when-let [shop-found (tilemap/get-shop (.getX actor) (.getY actor))]
+                                   (when-let [shop-found (tilemap/get-shop (.getX window) (.getY window))]
                                      (menu/add-menu! (shop-menu/create (get @shop/shops shop-found))))))
         evaluate-input! (fn []
                           (when-let [key (first @keys-typed)]
                             (case key
                               :c
-                              (println (.getX actor) (.getY actor))
+                              (println (.getX window) (.getY window))
                               :m
                               (if (empty? @menu/opened-menus)
                                 (menu/add-menu! (party-menu/create)))
@@ -202,8 +202,8 @@
         update-camera (fn []
                         (let [t (* constants/tile-size 2)]
                           (.set (. @deps/camera position)
-                                (+ (.getX actor) (/ constants/mob-width t))
-                                (+ (.getY actor) (/ constants/mob-height t))
+                                (+ (.getX window) (/ constants/mob-width t))
+                                (+ (.getY window) (/ constants/mob-height t))
                                 0))
                         (.update @deps/camera)
                         (.setView renderer @deps/camera)
@@ -226,12 +226,12 @@
     (proxy [Screen] []
       (show []
         (swap! (:direction party-leader) (constantly (:direction entrance)))
-        (.setX actor (:x entrance))
-        (.setY actor (:y entrance))
+        (.setX window (:x entrance))
+        (.setY window (:y entrance))
         (load-mobs scene room)
         (doseq [mob (vals @mob/mobs)]
-          (.addActor mob-group (:actor mob)))
-        (.addActor mob-group actor)
+          (.addActor mob-group (:window mob)))
+        (.addActor mob-group window)
         (.addActor stage mob-group)
         (.addActor menu-stage menu/menu-group)
         (.setInputProcessor

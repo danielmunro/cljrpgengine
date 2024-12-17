@@ -5,7 +5,7 @@
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.screens.dungeon :as dungeon])
-  (:import (com.badlogic.gdx Gdx Screen)
+  (:import (com.badlogic.gdx Gdx Input$Keys Screen)
            [com.badlogic.gdx.graphics Color]
            (com.badlogic.gdx.scenes.scene2d Group Stage)
            (com.badlogic.gdx.utils ScreenUtils)))
@@ -59,7 +59,7 @@
         (doto @stage
           (.act delta)
           (.draw))
-        (if (.isTouched Gdx/input)
+        (if (.isKeyPressed Gdx/input Input$Keys/SPACE)
           (.setScreen game (dungeon/screen
                             game
                             :tinytown

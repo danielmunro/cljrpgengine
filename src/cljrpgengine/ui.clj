@@ -64,8 +64,8 @@
 (defn create-cursor
   []
   (let [cursor (Texture. (str constants/sprites-dir "cursor.png"))]
-    {:index (atom 0)
-     :actor (util/create-image cursor 0 0)}))
+    {:index  (atom 0)
+     :window (util/create-image cursor 0 0)}))
 
 (defn line-number
   [window line-number]
