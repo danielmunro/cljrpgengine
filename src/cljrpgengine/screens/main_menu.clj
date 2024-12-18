@@ -49,9 +49,8 @@
                                        0
                                        :cyrus)}))
         (player/add-item! :light-health-potion)
-        (player/add-item! :light-health-potion)
-        (player/add-item! :practice-sword)
-        (player/add-item! :rusty-iron-sword))
+        (player/add-item! :light-mana-potion)
+        (player/add-item! :practice-sword))
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)

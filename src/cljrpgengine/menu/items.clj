@@ -3,6 +3,7 @@
             [cljrpgengine.deps :as deps]
             [cljrpgengine.item :as item]
             [cljrpgengine.menu :as menu]
+            [cljrpgengine.menu.use-item :as use-item-menu]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]))
 
@@ -43,7 +44,9 @@
                                             (if (= :consumable type)
                                               (:default constants/font-colors)
                                               (:disabled constants/font-colors)))
-                           #(println "foo"))))
+                           (fn []
+                             (if (= :consumable type)
+                               (menu/add-menu! (use-item-menu/create item-key)))))))
                       @player/items)
         {:keys [cursor option-group]} (menu/create-option-group options (.getWidth window))
         scroll-pane (menu/scrollable option-group

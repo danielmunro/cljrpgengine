@@ -19,12 +19,8 @@
         (- xp-for-level remaining-xp)
         (recur (inc i) xp-minus-level)))))
 
-(defn restore-amount
-  [modifier amount max-amount]
-  (min modifier (- max-amount amount)))
-
 (defn draw-portraits
-  ([window item selected-mob]
+  [window]
    (let [i (atom 0)]
      (doall
       (map
@@ -33,13 +29,10 @@
                portrait-y (-> (* constants/padding @i)
                               (- (* portrait-height @i))
                               (- (* constants/padding @i)))
-               {:keys [affect amount]} item
                mob (get @player/party identifier)
                {:keys [hp mana portrait name xp level]} mob
                max-hp (mob/calc-attr mob :hp)
                max-mana (mob/calc-attr mob :mana)
-               amount-hp (if (= :restore-hp affect) (restore-amount amount hp max-hp))
-               amount-mana (if (= :restore-mana affect) (restore-amount amount mana max-mana))
                image (util/create-image
                       portrait
                       (+ constants/padding 20)
@@ -49,18 +42,12 @@
                       (ui/create-label name portrait-x (+ portrait-y (ui/line-number window 1))))
            (.addActor window
                       (ui/create-label
-                       (str (format "%d/%d HP" @hp max-hp)
-                            (if (and (= i selected-mob)
-                                     (= :restore-hp affect))
-                              (format " +%d" amount-hp)))
-                       portrait-x (+ portrait-y (ui/line-number window 2))))
+                        (format "%d/%d HP" @hp max-hp)
+                        portrait-x (+ portrait-y (ui/line-number window 2))))
            (.addActor window
                       (ui/create-label
-                       (str (format "%d/%d Mana" @mana max-mana)
-                            (if (and (= i selected-mob)
-                                     (= :restore-mana affect))
-                              (format " +%d" amount-mana)))
-                       portrait-x (+ portrait-y (ui/line-number window 3))))
+                        (format "%d/%d Mana" @mana max-mana)
+                        portrait-x (+ portrait-y (ui/line-number window 3))))
            (.addActor window
                       (ui/create-label
                        (format "level %d" @level)
@@ -74,8 +61,6 @@
            (swap! i inc)
            image))
        (keys @player/party)))))
-  ([window]
-   (draw-portraits window nil -1)))
 
 (defn draw-attributes
   ([window pane mob attr-diff]
