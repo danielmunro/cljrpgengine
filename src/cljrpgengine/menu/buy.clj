@@ -16,25 +16,39 @@
                                  (- constants/screen-width (* 2 window-padding))
                                  (- constants/screen-height (* 2 window-padding)))
         items (map #(get @item/items %) shop)
-        i (atom 4)]
+        i (atom 4)
+        options (mapv (fn [item]
+                        (menu/create-option
+                         (ui/create-label (str (ui/text-fixed-width (:name item) item-name-width) (:worth item))
+                                          constants/left-cursor-padding
+                                          (ui/line-number window (swap! i inc))
+                                          (if (<= (:worth item) @player/gold)
+                                            (:default constants/font-colors)
+                                            (:disabled constants/font-colors)))
+                         (fn []
+                           (if (<= (:worth item) @player/gold)
+                             (menu/add-menu! (select-quantity-to-buy-menu/create item))))))
+                      items)
+        {:keys [option-group cursor]} (menu/create-option-group
+                                       options
+                                       (.getWidth window))
+        scroll-pane (menu/scrollable option-group
+                                     0
+                                     0
+                                     (.getWidth window)
+                                     (.getHeight window))]
     (.addActor window (ui/create-label "Here's what I have for sale:"
                                        constants/padding
                                        (ui/line-number window 1)))
     (.addActor window (ui/create-label (str (ui/text-fixed-width "Item" item-name-width) "Price")
                                        constants/left-cursor-padding
                                        (ui/line-number window 3)))
-    (menu/create-menu
+    (.addActor window (:image cursor))
+    (.addActor window scroll-pane)
+    (menu/create-menu-2
      :buy
      window
-     (mapv (fn [item]
-             (menu/create-option
-              (ui/create-label (str (ui/text-fixed-width (:name item) item-name-width) (:worth item))
-                               constants/left-cursor-padding
-                               (ui/line-number window (swap! i inc))
-                               (if (<= (:worth item) @player/gold)
-                                 (:default constants/font-colors)
-                                 (:disabled constants/font-colors)))
-              (fn []
-                (if (<= (:worth item) @player/gold)
-                  (menu/add-menu! (select-quantity-to-buy-menu/create item))))))
-           items))))
+     scroll-pane
+     options
+     cursor
+     (fn [_]))))

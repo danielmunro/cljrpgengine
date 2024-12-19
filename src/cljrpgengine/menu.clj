@@ -8,6 +8,11 @@
 (def opened-menus (atom []))
 (def menu-group (doto (Group.)))
 
+(defn create-event
+  [event-type changed]
+  {:event-type event-type
+   :changed changed})
+
 (defn add-menu!
   [menu]
   (swap! opened-menus conj menu)
@@ -17,7 +22,9 @@
   ([]
    (let [menu (last @opened-menus)]
      (swap! opened-menus pop)
-     (.removeActor menu-group (:window menu))))
+     (.removeActor menu-group (:window menu))
+     (if-let [m (last @opened-menus)]
+       ((:on-change m) (create-event :focus nil)))))
   ([count]
    (doseq [_ (range 0 count)]
      (remove-menu!))))
@@ -32,7 +39,7 @@
    (let [cursor (ui/create-cursor)
          group (doto (proxy [Group] []
                        (act [_]
-                         (let [actor (:window cursor)
+                         (let [actor (:image cursor)
                                selected (:label (nth options @(:index cursor)))]
                            (.setX actor (- (.getX selected) (.getWidth actor) 5))
                            (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))
@@ -47,14 +54,14 @@
                        (.setWidth (.getWidth group)))]
      (doseq [o options]
        (.addActor group (:label o)))
-     (.addActor group (:window cursor))
+     (.addActor group (:image cursor))
      (.addActor window scroll-pane)
      {:identifier identifier
-      :cursor     cursor
-      :options    options
-      :window     window
-      :group      group
-      :on-change  on-change
+      :cursor cursor
+      :options options
+      :window window
+      :group group
+      :on-change on-change
       :scroll-pane scroll-pane}))
   ([identifier window options]
    (create-menu identifier window options (fn [_]))))
@@ -64,7 +71,7 @@
   (let [cursor (ui/create-cursor)
         option-group (doto (proxy [Group] []
                              (act [_]
-                               (let [actor (:window cursor)
+                               (let [actor (:image cursor)
                                      selected (:label (nth options @(:index cursor)))]
                                  (.setX actor (- (.getX selected) (.getWidth actor) 5))
                                  (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))
@@ -72,7 +79,7 @@
                        (.setY 0)
                        (.setWidth width)
                        (.setHeight (reduce (fn [a b] (+ a (.getHeight (:label b)))) 0 options))
-                       (.addActor (:window cursor)))]
+                       (.addActor (:image cursor)))]
     (doseq [option options]
       (.addActor option-group (:label option)))
     {:option-group option-group
@@ -94,11 +101,6 @@
    :options options
    :on-change on-change
    :cursor cursor})
-
-(defn create-event
-  [event-type changed]
-  {:event-type event-type
-   :changed changed})
 
 (defn update-scroll
   [scroll-pane index]

@@ -13,8 +13,10 @@
 
 (defn create
   []
-  (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)]
-    (common/draw-portraits window)
+  (let [window (ui/create-window 0 0 constants/screen-width constants/screen-height)
+        {:keys [group]} (common/draw-portraits)
+        party-group (atom group)]
+    (.addActor window @party-group)
     (menu/create-menu
      :party
      window
@@ -40,4 +42,10 @@
 
       (menu/create-option
        (ui/create-label "Quit" x (ui/line-number window 6))
-       #(menu/add-menu! (quit-menu/create)))])))
+       #(menu/add-menu! (quit-menu/create)))]
+     (fn [{:keys [event-type]}]
+       (when (= :focus event-type)
+         (.removeActor window @party-group)
+         (let [{:keys [group]} (common/draw-portraits)]
+           (swap! party-group (constantly group))
+           (.addActor window @party-group)))))))

@@ -8,10 +8,11 @@
 (defn create
   [next-menu]
   (let [window (ui/create-window 0 0
-                                 (- constants/screen-width 150)
+                                 common/menu-width
                                  constants/screen-height)
-        images (common/draw-portraits window)
+        {:keys [images group]} (common/draw-portraits)
         i (atom -1)]
+    (.addActor window group)
     (menu/create-menu
      :select-party
      window
