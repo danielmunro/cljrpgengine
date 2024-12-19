@@ -76,6 +76,13 @@
      options
      cursor
      (fn [{:keys [event-type changed]}]
-       (when (= :cursor event-type)
+       (case event-type
+         :cursor
          (.setText description
-                   (get-item-description @player/items changed)))))))
+                   (get-item-description @player/items changed))
+         :focus
+         (let [index @(:index cursor)
+               new-menu (create)]
+           (swap! (-> new-menu :cursor :index) (constantly (max (dec index) 0)))
+           (menu/remove-menu!)
+           (menu/add-menu! new-menu)))))))
