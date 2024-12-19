@@ -94,13 +94,25 @@
     (.setHeight height)))
 
 (defn create-menu-2
-  [identifier window scroll-pane options cursor on-change]
-  {:identifier identifier
-   :window window
-   :scroll-pane scroll-pane
-   :options options
-   :on-change on-change
-   :cursor cursor})
+  ([identifier window scroll-pane options cursor on-change]
+   {:identifier identifier
+    :window window
+    :scroll-pane scroll-pane
+    :options options
+    :on-change on-change
+    :cursor cursor})
+  ([identifier window options]
+   (let [{:keys [option-group cursor]} (create-option-group
+                                        options
+                                        (.getWidth window))
+         scroll-pane (scrollable option-group
+                                 0
+                                 0
+                                 (.getWidth window)
+                                 (.getHeight window))]
+     (.addActor window scroll-pane)
+     (.addActor window (:image cursor))
+     (create-menu-2 identifier window scroll-pane options cursor (fn [_])))))
 
 (defn update-scroll
   [scroll-pane index]
