@@ -20,7 +20,7 @@
     (.addActor window (ui/create-label (str "You equip " (:name equipment))
                                        constants/padding
                                        (ui/line-number window 1)))
-    (menu/create-menu
+    (menu/create-menu-2
      :finish-equip
      window
      [(menu/create-option

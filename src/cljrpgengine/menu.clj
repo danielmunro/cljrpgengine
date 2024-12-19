@@ -34,38 +34,6 @@
   {:label label
    :on-selected on-selected})
 
-(defn create-menu
-  ([identifier window options on-change]
-   (let [cursor (ui/create-cursor)
-         group (doto (proxy [Group] []
-                       (act [_]
-                         (let [actor (:image cursor)
-                               selected (:label (nth options @(:index cursor)))]
-                           (.setX actor (- (.getX selected) (.getWidth actor) 5))
-                           (.setY actor (- (.getY selected) (/ (- (.getHeight actor) (.getHeight selected)) 2))))))
-                 (.setX 0)
-                 (.setY 0)
-                 (.setWidth (.getWidth window))
-                 (.setHeight (.getHeight window)))
-         scroll-pane (doto (ScrollPane. group)
-                       (.setX (.getX group))
-                       (.setY (.getY group))
-                       (.setHeight (.getHeight group))
-                       (.setWidth (.getWidth group)))]
-     (doseq [o options]
-       (.addActor group (:label o)))
-     (.addActor group (:image cursor))
-     (.addActor window scroll-pane)
-     {:identifier identifier
-      :cursor cursor
-      :options options
-      :window window
-      :group group
-      :on-change on-change
-      :scroll-pane scroll-pane}))
-  ([identifier window options]
-   (create-menu identifier window options (fn [_]))))
-
 (defn create-option-group
   [options width]
   (let [cursor (ui/create-cursor)
@@ -101,7 +69,7 @@
     :options options
     :on-change on-change
     :cursor cursor})
-  ([identifier window options]
+  ([identifier window options on-change]
    (let [{:keys [option-group cursor]} (create-option-group
                                         options
                                         (.getWidth window))
@@ -112,7 +80,9 @@
                                  (.getHeight window))]
      (.addActor window scroll-pane)
      (.addActor window (:image cursor))
-     (create-menu-2 identifier window scroll-pane options cursor (fn [_])))))
+     (create-menu-2 identifier window scroll-pane options cursor on-change)))
+  ([identifier window options]
+   (create-menu-2 identifier window options (fn [_]))))
 
 (defn update-scroll
   [scroll-pane index]

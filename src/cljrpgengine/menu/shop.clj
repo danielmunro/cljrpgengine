@@ -15,7 +15,7 @@
                                  (- constants/screen-height (* 2 window-padding)))]
     (.addActor window (ui/create-label "Hello! What would you like to do today?"
                                        constants/padding (ui/line-number window 1)))
-    (menu/create-menu
+    (menu/create-menu-2
      :shop
      window
      [(menu/create-option

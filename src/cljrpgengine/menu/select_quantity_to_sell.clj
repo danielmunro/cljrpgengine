@@ -28,7 +28,7 @@
                                        (ui/line-number window 2)))
     (.addActor window quantity-label)
     (.addActor window sale-gold-label)
-    (menu/create-menu
+    (menu/create-menu-2
      :quantity-to-sell
      window
      [(menu/create-option

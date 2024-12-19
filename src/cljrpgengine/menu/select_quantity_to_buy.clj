@@ -32,7 +32,7 @@
     (.addActor window quantity-label)
     (.addActor window price-label)
     (.addActor window gold-remaining-label)
-    (menu/create-menu
+    (menu/create-menu-2
      :quantity-to-buy
      window
      [(menu/create-option

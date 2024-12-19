@@ -23,7 +23,7 @@
                                             "Price")
                                        constants/padding
                                        (ui/line-number window 2)))
-    (menu/create-menu
+    (menu/create-menu-2
      :sell
      window
      (mapv (fn [item-key]
