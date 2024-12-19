@@ -16,19 +16,7 @@
                                  (- constants/screen-width (* 2 window-padding))
                                  (- constants/screen-height (* 2 window-padding)))
         items (map #(get @item/items %) shop)
-        i (atom 4)
-        options (mapv (fn [item]
-                        (menu/create-option
-                         (ui/create-label (str (ui/text-fixed-width (:name item) item-name-width) (:worth item))
-                                          constants/left-cursor-padding
-                                          (ui/line-number window (swap! i inc))
-                                          (if (<= (:worth item) @player/gold)
-                                            (:default constants/font-colors)
-                                            (:disabled constants/font-colors)))
-                         (fn []
-                           (if (<= (:worth item) @player/gold)
-                             (menu/add-menu! (select-quantity-to-buy-menu/create item))))))
-                      items)]
+        i (atom 3)]
     (.addActor window (ui/create-label "Here's what I have for sale:"
                                        constants/padding
                                        (ui/line-number window 1)))
@@ -38,4 +26,15 @@
     (menu/create-menu-2
      :buy
      window
-     options)))
+     (mapv (fn [item]
+             (menu/create-option
+              (ui/create-label (str (ui/text-fixed-width (:name item) item-name-width) (:worth item))
+                               constants/left-cursor-padding
+                               (ui/line-number window (swap! i inc))
+                               (if (<= (:worth item) @player/gold)
+                                 (:default constants/font-colors)
+                                 (:disabled constants/font-colors)))
+              (fn []
+                (if (<= (:worth item) @player/gold)
+                  (menu/add-menu! (select-quantity-to-buy-menu/create item))))))
+           items))))
