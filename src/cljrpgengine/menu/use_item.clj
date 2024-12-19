@@ -45,7 +45,7 @@
     (doseq [option options]
       (.addActor window (:label option)))
     (.addActor window (:image cursor))
-    (menu/create-menu-2
+    (menu/create-menu
      :apply-item
      window
      nil

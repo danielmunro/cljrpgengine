@@ -61,7 +61,7 @@
     (.setWidth width)
     (.setHeight height)))
 
-(defn create-menu-2
+(defn create-menu
   ([identifier window scroll-pane options cursor on-change]
    {:identifier identifier
     :window window
@@ -80,9 +80,9 @@
                                  (.getHeight window))]
      (.addActor window scroll-pane)
      (.addActor window (:image cursor))
-     (create-menu-2 identifier window scroll-pane options cursor on-change)))
+     (create-menu identifier window scroll-pane options cursor on-change)))
   ([identifier window options]
-   (create-menu-2 identifier window options (fn [_]))))
+   (create-menu identifier window options (fn [_]))))
 
 (defn update-scroll
   [scroll-pane index]

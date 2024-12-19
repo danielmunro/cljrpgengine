@@ -17,7 +17,7 @@
         {:keys [group]} (common/draw-portraits)
         party-group (atom group)]
     (.addActor window @party-group)
-    (menu/create-menu-2
+    (menu/create-menu
      :party
      window
      [(menu/create-option

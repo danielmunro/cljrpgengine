@@ -54,7 +54,7 @@
                     (item/compare-equipment equipped-item compare-item)))]
     (.addActor window attributes-pane)
     (common/draw-attributes window attributes-pane mob (compare (if equipped nil 0)))
-    (menu/create-menu-2
+    (menu/create-menu
      :equip
      window
      (if (not-empty options)

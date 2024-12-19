@@ -13,7 +13,7 @@
         {:keys [images group]} (common/draw-portraits)
         i (atom -1)]
     (.addActor window group)
-    (menu/create-menu-2
+    (menu/create-menu
      :select-party
      window
      (mapv (fn [image]

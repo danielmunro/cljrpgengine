@@ -56,7 +56,7 @@
     (common/draw-attributes window right-pane mob)
     (.addActor window left-pane)
     (.addActor window right-pane)
-    (menu/create-menu-2
+    (menu/create-menu
      :equipment
      window
      options

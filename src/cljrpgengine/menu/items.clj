@@ -69,7 +69,7 @@
                        (ui/line-number window 1)))
     (.addActor window description)
     (.addActor window scroll-pane)
-    (menu/create-menu-2
+    (menu/create-menu
      :items
      window
      scroll-pane

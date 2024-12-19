@@ -23,7 +23,7 @@
     (.addActor window (ui/create-label (str (ui/text-fixed-width "Item" item-name-width) "Price")
                                        constants/left-cursor-padding
                                        (ui/line-number window 3)))
-    (menu/create-menu-2
+    (menu/create-menu
      :buy
      window
      (mapv (fn [item]

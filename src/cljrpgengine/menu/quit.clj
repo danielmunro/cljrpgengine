@@ -16,7 +16,7 @@
     (ui/center-in-window window label)
     (.addActor window
                label)
-    (menu/create-menu-2
+    (menu/create-menu
      :quit
      window
      (map #(assoc % :label (ui/center-in-window window (:label %)))

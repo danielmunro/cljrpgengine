@@ -23,7 +23,7 @@
                                             "\nTotal gold: " @player/gold)
                                        constants/padding
                                        (ui/line-number window 3)))
-    (menu/create-menu-2
+    (menu/create-menu
      :finish-purchase
      window
      [(menu/create-option (ui/create-label "Ok" constants/left-cursor-padding (ui/line-number window 5))
