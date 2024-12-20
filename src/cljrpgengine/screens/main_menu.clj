@@ -40,17 +40,22 @@
                                     :down
                                     0
                                     0
-                                    :edwyn)
-                            :dudelgor (mob/create-mob
-                                       :dudelgor
-                                       "Dudelgor"
-                                       :down
-                                       0
-                                       0
-                                       :cyrus)}))
-        (player/add-item! :light-health-potion)
-        (player/add-item! :light-mana-potion)
-        (player/add-item! :practice-sword))
+                                    :edwyn
+                                    :warrior)
+                            ;:dudelgor (mob/create-mob
+                            ;           :dudelgor
+                            ;           "Dudelgor"
+                            ;           :down
+                            ;           0
+                            ;           0
+                            ;           :cyrus
+                            ;           :cleric)
+                            }))
+        ;(player/add-item! :light-health-potion)
+        ;(player/add-item! :greater-health-potion)
+        ;(player/add-item! :light-mana-potion)
+        ;(player/add-item! :practice-sword)
+        )
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)

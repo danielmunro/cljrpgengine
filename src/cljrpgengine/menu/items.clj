@@ -26,22 +26,27 @@
                        (* (.getLineHeight @deps/font) 2))
                     (* item-count (.getLineHeight @deps/font)))
         i (atom 0)
-        options (mapv (fn [[item-key quantity]]
-                        (let [{:keys [name type]} (-> @item/items item-key)]
-                          (menu/create-option
-                           (ui/create-label (str (ui/text-fixed-width
-                                                  name
-                                                  item-name-width)
-                                                 quantity)
-                                            padding
-                                            (- height (* (swap! i inc) (.getLineHeight @deps/font)))
-                                            (if (= :consumable type)
-                                              (:default constants/font-colors)
-                                              (:disabled constants/font-colors)))
-                           (fn []
-                             (if (= :consumable type)
-                               (menu/add-menu! (use-item-menu/create item-key)))))))
-                      @player/items)
+        options (or (seq (map (fn [[item-key quantity]]
+                                (let [{:keys [name type]} (-> @item/items item-key)]
+                                  (menu/create-option
+                                   (ui/create-label (str (ui/text-fixed-width
+                                                          name
+                                                          item-name-width)
+                                                         quantity)
+                                                    padding
+                                                    (- height (* (swap! i inc) (.getLineHeight @deps/font)))
+                                                    (if (= :consumable type)
+                                                      (:default constants/font-colors)
+                                                      (:disabled constants/font-colors)))
+                                   (fn []
+                                     (if (= :consumable type)
+                                       (menu/add-menu! (use-item-menu/create item-key)))))))
+                              @player/items))
+                    [(menu/create-option
+                      (ui/create-label "(no items)"
+                                       padding
+                                       (- height (* (swap! i inc) (.getLineHeight @deps/font))))
+                      #())])
         {:keys [cursor option-group]} (menu/create-option-group options (.getWidth window))
         scroll-pane (menu/scrollable option-group
                                      0

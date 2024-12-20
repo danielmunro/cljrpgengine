@@ -75,7 +75,7 @@
 
   (testing "can set a destination"
     (event/reset-events!)
-    (swap! mob/mobs (constantly {:test-mob (mob/create-mob :test-mob "test-mob" :down 0 0 nil)}))
+    (swap! mob/mobs (constantly {:test-mob (mob/create-mob :test-mob "test-mob" :down 0 0 nil nil)}))
     (event/create-dialog-event!
      []
      :test-mob
