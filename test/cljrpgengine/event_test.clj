@@ -69,24 +69,24 @@
       (event/apply-outcomes! (:outcomes event))
       (is (contains? @player/items :blemished-amulet))))
 
-  #_(testing "can set a destination"
-      (event/reset-events!)
-      (swap! mob/mobs (constantly {:test-mob (mob/create-mob
-                                              :test-mob
-                                              "test-mob"
-                                              :down
-                                              0
-                                              0
-                                              nil
-                                              :unspecified)}))
-      (event/create-dialog-event!
-       []
-       :test-mob
-       ["this is a test"]
-       [(event/move-mob :test-mob [1 1])])
-      (let [event (first @event/events)]
-        (event/apply-outcomes! (:outcomes event))
-        (is (= [1 1] (get-in @mob/mobs [:test-mob :destination])))))
+  (testing "can set a destination"
+    (event/reset-events!)
+    (swap! mob/mobs (constantly {:test-mob (mob/create-mob
+                                            :test-mob
+                                            "test-mob"
+                                            :down
+                                            0
+                                            0
+                                            nil
+                                            :unspecified)}))
+    (event/create-dialog-event!
+     []
+     :test-mob
+     ["this is a test"]
+     [(event/move-mob :test-mob [1 1])])
+    (let [event (first @event/events)]
+      (event/apply-outcomes! (:outcomes event))
+      (is (= [1 1] @(:destination (get @mob/mobs :test-mob))))))
 
   (testing "can get an event"
     (event/reset-events!)

@@ -29,6 +29,7 @@
                    true)
          state-time (atom 0)
          animation (atom nil)
+         destination (atom nil)
          add-time-delta! (fn [delta] (swap! state-time (fn [t] (+ t delta))))
          attributes (atom {:str 10
                            :int 10
@@ -97,7 +98,10 @@
                                  (get @attributes attr)
                                  (map (fn [[_ equipment]]
                                         (get (:attributes (get @item/items equipment)) attr 0))
-                                      @equipment)))}))
+                                      @equipment)))
+      :set-destination (fn [coordinates]
+                         (swap! destination (constantly coordinates)))
+      :destination destination}))
   ([identifier name starting-direction x y mob-type]
    (create-mob identifier name starting-direction x y mob-type :unspecified)))
 
