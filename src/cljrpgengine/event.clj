@@ -1,5 +1,6 @@
 (ns cljrpgengine.event
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
@@ -99,11 +100,12 @@
       ((:set-destination (get @mob/mobs (:mob outcome))) (:coords outcome))
       (= :mob-animation (:type outcome))
       ((:play-animation! ((:mob outcome) @mob/mobs)) (:animation outcome))
-      ;(= :player-animation (:type outcome))
-      ;(mob/play-animation! player/party (:identifier (first (vals @player/party))) (:animation outcome))
+      (= :player-animation (:type outcome))
+      ((:play-animation! (first (vals @player/party))) (:animation outcome))
       ;(= :set-mob-coords (:type outcome))
       ;(mob/set-position! (:mob outcome) (:coords outcome))
-      )))
+      :else
+      (log/info (str "unknown outcome :: " (:type outcome))))))
 
 (defn get-room-loaded-events
   [room]
