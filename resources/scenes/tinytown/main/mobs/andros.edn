@@ -2,4 +2,4 @@
  :name "Andros"
  :direction :down
  :coords [352 224]
- :sprite :cyrus}
+ :animation :cyrus}

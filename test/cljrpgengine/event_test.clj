@@ -2,15 +2,17 @@
   (:require [cljrpgengine.event :as event]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [cljrpgengine.sprite :as sprite]
             [clojure.test :refer :all]))
 
-(deftest event
+(defn reset-state!
+  []
+  (event/reset-events!)
+  (swap! player/grants (constantly #{}))
+  (swap! player/items (constantly {})))
 
+(deftest event
   (testing "can give a grant"
-    (event/reset-events!)
-    (sprite/load-sprites)
-    (player/create-new-player)
+    (reset-state!)
     (event/create-dialog-event!
      [(event/not-granted :test-outcome)]
      :test-mob
@@ -19,25 +21,21 @@
     (let [event (first @event/events)]
       (is (event/conditions-met? (:conditions event) :test-mob))
       (event/apply-outcomes! (:outcomes event))
-      (is (contains? (:grants @player/player) :test-outcome))))
+      (is (contains? @player/grants :test-outcome))))
 
   (testing "has grant"
-    (event/reset-events!)
-    (sprite/load-sprites)
-    (player/create-new-player)
+    (reset-state!)
     (event/create-dialog-event!
      [(event/granted :test-outcome)]
      :test-mob
      ["this is a test"])
     (let [event (first @event/events)]
-      (is (false? (contains? (:grants @player/player) :test-outcome)))
+      (is (false? (contains? @player/grants :test-outcome)))
       (player/add-grant! :test-outcome)
       (is (event/conditions-met? (:conditions event) :test-mob))))
 
   (testing "can give an item"
-    (event/reset-events!)
-    (sprite/load-sprites)
-    (player/create-new-player)
+    (reset-state!)
     (event/create-dialog-event!
      [(event/not-has-item :blemished-amulet)]
      :test-mob
@@ -46,12 +44,10 @@
     (let [event (first @event/events)]
       (is (event/conditions-met? (:conditions event) :test-mob))
       (event/apply-outcomes! (:outcomes event))
-      (is (contains? (:items @player/player) :blemished-amulet))))
+      (is (contains? @player/items :blemished-amulet))))
 
   (testing "has item"
-    (event/reset-events!)
-    (sprite/load-sprites)
-    (player/create-new-player)
+    (reset-state!)
     (event/create-dialog-event!
      [(event/has-item :blemished-amulet)]
      :test-mob
@@ -71,11 +67,18 @@
      [(event/lose-item :blemished-amulet)])
     (let [event (first @event/events)]
       (event/apply-outcomes! (:outcomes event))
-      (is (contains? (:items @player/player) :blemished-amulet))))
+      (is (contains? @player/items :blemished-amulet))))
 
   (testing "can set a destination"
     (event/reset-events!)
-    (swap! mob/mobs (constantly {:test-mob (mob/create-mob :test-mob "test-mob" :down 0 0 nil)}))
+    (swap! mob/mobs (constantly {:test-mob (mob/create-mob
+                                            :test-mob
+                                            "test-mob"
+                                            :down
+                                            0
+                                            0
+                                            nil
+                                            :unspecified)}))
     (event/create-dialog-event!
      []
      :test-mob
@@ -83,7 +86,7 @@
      [(event/move-mob :test-mob [1 1])])
     (let [event (first @event/events)]
       (event/apply-outcomes! (:outcomes event))
-      (is (= [1 1] (get-in @mob/mobs [:test-mob :destination])))))
+      (is (= [1 1] @(:destination (get @mob/mobs :test-mob))))))
 
   (testing "can get an event"
     (event/reset-events!)

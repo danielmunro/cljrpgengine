@@ -1,27 +1,23 @@
 (ns cljrpgengine.player-test
-  (:require [cljrpgengine.input :as input]
-            [cljrpgengine.tilemap :as map]
-            [cljrpgengine.player :as player]
-            [cljrpgengine.sprite :as sprite]
-            [cljrpgengine.test-util :as test-util]
+  (:require [cljrpgengine.player :as player]
             [clojure.test :refer :all]))
 
-(deftest test-start-moving
-  (testing "can start moving left"
-    (sprite/load-sprites)
-    (test-util/create-new-game)
-    (let [{:keys [x y identifier]} (player/party-leader)]
-      (player/start-moving!
-       :left
-       (+ x (get-in @map/tilemap [:tileset :tilewidth]))
-       y)
-      (is (= (get-in @player/party [identifier :sprite :current-animation]) :left))))
-  (testing "can reset moving"
-    (sprite/load-sprites)
-    (test-util/create-new-game)
-    (let [{:keys [x y identifier]} (player/party-leader)]
-      (player/start-moving!
-       :right
-       (- x (get-in @map/tilemap [:tileset :tilewidth]))
-       y)
-      (is (= (get-in @player/party [identifier :sprite :current-animation]) :right)))))
+(defn- reset-state!
+  []
+  (swap! player/items (constantly {})))
+
+(deftest item
+  (testing "can add item"
+    (reset-state!)
+    (let [item-count (count @player/items)]
+      (player/add-item! :cotton-tunic)
+      (is (= (inc item-count) (count @player/items))))
+    (is (contains? @player/items :cotton-tunic))
+    (is (= 1 (:cotton-tunic @player/items))))
+  (testing "can remove item"
+    (reset-state!)
+    (let [item-count (count @player/items)]
+      (player/add-item! :blemished-amulet)
+      (is (= (inc item-count) (count @player/items)))
+      (player/remove-item! :blemished-amulet)
+      (is (= item-count (count @player/items))))))

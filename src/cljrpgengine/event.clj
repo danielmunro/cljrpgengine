@@ -1,9 +1,11 @@
 (ns cljrpgengine.event
-  (:require [cljrpgengine.util :as util])
   (:require [cljrpgengine.constants :as constants]
+            [cljrpgengine.log :as log]
             [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
-            [clojure.java.io :as io]))
+            [cljrpgengine.ui :as ui]
+            [clojure.java.io :as io])
+  (:import (com.badlogic.gdx.utils Align)))
 
 (def events (atom []))
 
@@ -71,38 +73,44 @@
               (= (:type %) :speak-to)
               (= (:mob %) compare)
               (= (:type %) :has-grant)
-              (contains? (:grants @player/player) (:grant %))
+              (player/has-grant? (:grant %))
               (= (:type %) :not-has-grant)
-              (not (contains? (:grants @player/player) (:grant %)))
+              (not (contains? @player/grants (:grant %)))
               (= (:type %) :has-item)
-              (contains? (:items @player/player) (:item %))
+              (contains? @player/items (:item %))
               (= (:type %) :not-has-item)
-              (not (contains? (:items @player/player) (:item %)))
+              (not (contains? @player/items (:item %)))
               (= (:type %) :room-loaded)
               (= (:room %) compare))
            conditions))
   ([conditions]
    (conditions-met? conditions nil)))
 
+(defn- set-mob-coordinates
+  [mob coordinates]
+  (.setX (:window mob) (first coordinates))
+  (.setY (:window mob) (second coordinates)))
+
 (defn apply-outcomes!
   [outcomes]
-  (dorun
-   (for [outcome outcomes]
-     (cond
-       (= :grant (:type outcome))
-       (player/add-grant! (:grant outcome))
-       (= :lose-item (:type outcome))
-       (player/remove-item! (:item outcome))
-       (= :gain-item (:type outcome))
-       (player/add-item! (:item outcome))
-       (= :move-mob (:type outcome))
-       (mob/set-destination! (:mob outcome) (:coords outcome))
-       (= :mob-animation (:type outcome))
-       (mob/play-animation! mob/mobs (:mob outcome) (:animation outcome))
-       (= :player-animation (:type outcome))
-       (mob/play-animation! player/party (:identifier (player/party-leader)) (:animation outcome))
-       (= :set-mob-coords (:type outcome))
-       (mob/set-position! (:mob outcome) (:coords outcome))))))
+  (doseq [outcome outcomes]
+    (cond
+      (= :grant (:type outcome))
+      (player/add-grant! (:grant outcome))
+      (= :lose-item (:type outcome))
+      (player/remove-item! (:item outcome))
+      (= :gain-item (:type outcome))
+      (player/add-item! (:item outcome))
+      (= :move-mob (:type outcome))
+      ((:set-destination (get @mob/mobs (:mob outcome))) (:coords outcome))
+      (= :mob-animation (:type outcome))
+      ((:play-animation! ((:mob outcome) @mob/mobs)) (:animation outcome))
+      (= :player-animation (:type outcome))
+      ((:play-animation! (first (vals @player/party))) (:animation outcome))
+      (= :set-mob-coords (:type outcome))
+      (set-mob-coordinates (get @mob/mobs (:mob outcome)) (:coords outcome))
+      :else
+      (log/info (str "unknown outcome :: " (:type outcome))))))
 
 (defn get-room-loaded-events
   [room]
@@ -112,11 +120,11 @@
 
 (defn get-dialog-event
   [target-mob]
-  (util/filter-first
-   #(and
-     (= (:type %) :dialog)
-     (conditions-met? (:conditions %) target-mob))
-   @events))
+  (first (filter
+          #(and
+            (= (:type %) :dialog)
+            (conditions-met? (:conditions %) target-mob))
+          @events)))
 
 (defn reset-events!
   []
@@ -139,18 +147,46 @@
             (doseq [event events-data]
               (swap! events conj event))))))))
 
+(defn get-dialog
+  ([dialog dialog-index message-index]
+   (let [monolog (get dialog dialog-index)
+         mob-identifier (:mob monolog)
+         mob (if (= :player mob-identifier)
+               (player/party-leader)
+               (get @mob/mobs mob-identifier))
+         text (str (:name mob) ": " ((:messages monolog) message-index))]
+     (if monolog
+       text)))
+  ([]
+   (let [{:keys [dialog dialog-index message-index]} @engagement]
+     (get-dialog dialog dialog-index message-index))))
+
+(defn create-dialog-window
+  [text]
+  (let [height (* constants/screen-height 1/3)
+        window (ui/create-window 0 0 constants/screen-width height)
+        label (doto (ui/create-label text
+                                     constants/padding
+                                     0)
+                (.setHeight (- height constants/padding))
+                (.setWidth (- constants/screen-width (* 2 constants/padding)))
+                (.setWrap true)
+                (.setAlignment Align/topLeft))]
+    (.addActor window label)
+    {:window window
+     :label label}))
+
 (defn create-engagement!
   [mob]
   (let [identifier (:identifier mob)
         event (get-dialog-event identifier)]
-    (swap! engagement (constantly {:dialog (:dialog event)
-                                   :dialog-index 0
-                                   :message-index 0
-                                   :mob identifier
-                                   :event event
-                                   :mob-direction (get-in mob [:sprite :current-animation])}))
-    (swap! mob/mobs assoc-in [identifier :sprite :current-animation]
-           (util/opposite-direction (:direction (player/party-leader))))))
+    (swap! engagement (constantly (merge {:dialog (:dialog event)
+                                          :dialog-index 0
+                                          :message-index 0
+                                          :mob identifier
+                                          :event event
+                                          :done? false
+                                          :mob-direction @(:direction mob)} (create-dialog-window (get-dialog (:dialog event) 0 0)))))))
 
 (defn engagement-done?
   []
@@ -158,13 +194,9 @@
 
 (defn clear-engagement!
   []
-  (let [{:keys [mob mob-direction] {:keys [outcomes]} :event} @engagement
-        current-animation-path [mob :sprite :current-animation]]
-    (let [current-animation (get-in @mob/mobs current-animation-path)]
-      (apply-outcomes! outcomes)
-      (if (= current-animation (get-in @mob/mobs current-animation-path))
-        (swap! mob/mobs assoc-in current-animation-path mob-direction))
-      (swap! engagement (constantly nil)))))
+  (let [{{:keys [outcomes]} :event} @engagement]
+    (apply-outcomes! outcomes)
+    (swap! engagement (constantly nil))))
 
 (defn inc-engagement!
   []
@@ -176,4 +208,4 @@
         (swap! engagement assoc :message-index 0)
         (swap! engagement update :dialog-index inc)
         (if (engagement-done?)
-          (clear-engagement!))))))
+          (swap! engagement assoc :done? true))))))

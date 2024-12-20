@@ -5,6 +5,13 @@
   :affect :restore-hp
   :amount 10
   :worth 5}
+ :greater-health-potion
+ {:name "a potion of greater health"
+  :description "Heals 20 hit points."
+  :type :consumable
+  :affect :restore-hp
+  :amount 20
+  :worth 10}
  :light-mana-potion
  {:name "a potion of light mana"
   :description "Heals 20 mana."
@@ -19,7 +26,15 @@
   :position :weapon
   :material :wood
   :worth 10
-  :attributes {:slash 1}}
+  :attributes {:hit 1 :dam 2}}
+ :rusty-iron-sword
+ {:name "a rusty iron sword"
+  :description "An old iron sword, speckled with rust."
+  :type :equipment
+  :position :weapon
+  :material :iron
+  :worth 25
+  :attributes {:hit 2 :dam 3}}
  :cotton-tunic
  {:name "a cotton tunic"
   :description "A warm cotton tunic."
@@ -27,9 +42,9 @@
   :position :torso
   :material :cotton
   :worth 12
-  :attributes {:pierce 1
-               :slash 1
-               :bash 1}}
+  :attributes {:ac-pierce 1
+               :ac-slash 1
+               :ac-bash 1}}
  :blemished-amulet
  {:name "a blemished amulet"
   :description "An amulet which has seen better days."

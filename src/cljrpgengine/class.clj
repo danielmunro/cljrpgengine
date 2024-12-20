@@ -2,28 +2,34 @@
 
 (def classes (assoc {}
                     :warrior
-                    {:hp-gains [15 8]
-                     :mana-gains [5 3]}
+                    {:hp-gains [4 4]
+                     :mana-gains [2 2]}
 
                     :mage
-                    {:hp-gains [5 4]
-                     :mana-gains [15 12]}
+                    {:hp-gains [2 3]
+                     :mana-gains [4 4]}
 
                     :rogue
-                    {:hp-gains [9 6]
-                     :mana-gains [7 6]}
+                    {:hp-gains [3 4]
+                     :mana-gains [2 3]}
 
                     :cleric
-                    {:hp-gains [8 5]
-                     :mana-gains [12 10]}))
+                    {:hp-gains [3 3]
+                     :mana-gains [3 4]}
+
+                    :unspecified
+                    {:hp-gains [1 1]
+                     :mana-gains [1 1]}))
 
 (defn gain-for-level
   "Gains are represented as a vector of 2 numbers representing dice notation.
   The first number is the base, the second number is the modifier.  For
   example, [1 4] means 1d4, which means (+ 1 (rand-int 4))."
   [gains]
-  (-> (first gains)
-      (+ (rand-int (second gains)))))
+  (reduce (fn [a _]
+            (+ a (inc (rand-int (second gains)))))
+          0
+          (range 0 (first gains))))
 
 (defn hp-for-level
   [class]
