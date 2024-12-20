@@ -7,21 +7,6 @@
 
 (def save-file (atom nil))
 
-#_(defn setup
-    "Setup function for the game."
-    []
-    (ui/init!)
-    (sprite/load-sprites)
-    #_(window/create
-       constants/screen-width
-       constants/screen-height
-       #(input/key-pressed! %)
-       #(input/key-released! %))
-    (beast/load-beastiary!)
-    (item/load-items!)
-    (ui/open-menu! (main-menu/create-menu))
-    (effect/add-fade-in))
-
 (defn- parse-args
   [args]
   (if (seq args)
@@ -31,14 +16,6 @@
         (swap! save-file (constantly (first (next args))))
         (= "-l" arg)
         (swap! log/log-level (constantly (keyword (first (next args)))))))))
-
-#_(defn -main
-    "Start the game."
-    [& args]
-    (parse-args args)
-    (log/info "starting game...")
-    (setup)
-    (game-loop/run-game!))
 
 (defn- get-configuration
   []
