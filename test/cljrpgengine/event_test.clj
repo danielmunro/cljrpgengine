@@ -80,10 +80,10 @@
                                             nil
                                             :unspecified)}))
     (event/create-dialog-event!
-      []
-      :test-mob
-      ["this is a test"]
-      [(event/move-mob :test-mob [1 1])])
+     []
+     :test-mob
+     ["this is a test"]
+     [(event/move-mob :test-mob [1 1])])
     (let [event (first @event/events)]
       (event/apply-outcomes! (:outcomes event))
       (is (= [1 1] @(:destination (get @mob/mobs :test-mob))))))

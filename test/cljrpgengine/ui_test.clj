@@ -1,4 +1,4 @@
-(ns cljrpgengine.menu-test
+(ns cljrpgengine.ui-test
   (:require [cljrpgengine.ui :as ui]
             [clojure.test :refer :all]))
 
