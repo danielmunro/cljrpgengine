@@ -20,8 +20,6 @@
 
 (def MOVE_AMOUNT 1/7)
 
-(def moving (atom false))
-
 (defn- is-direction?
   [key]
   (or (= :up key)
@@ -75,8 +73,8 @@
                 key-up!
                 direction
                 keys-down
-                add-time-delta!
-                state-time]} party-leader
+                state-time
+                moving]} party-leader
         renderer (OrthogonalTiledMapRenderer. @tilemap/tilemap (float (/ 1 constants/tile-size)) @deps/batch)
         sort-actors (fn []
                       (let [sorted (sort
@@ -91,34 +89,35 @@
                                     (.getChildren mob-group))]
                         (doseq [i (range 0 (.count sorted))]
                           (.setZIndex (nth sorted i) i))))
-        do-move! (fn [next-x next-y to-x to-y delta]
-                   (when (or (not (on-tile (.getX window) (.getY window)))
-                             (and (not (tilemap/is-blocked? next-x next-y))
-                                  (not (.hit mob-group next-x next-y true))))
-                     (.setX window to-x)
-                     (.setY window to-y)
-                     (swap! moving (constantly true))
-                     (add-time-delta! delta)
-                     (sort-actors)))
-        evaluate-direction-moving! (fn [direction delta]
-                                     (let [x (.getX window)
-                                           y (.getY window)]
-                                       (case direction
+        do-move! (fn [mob next-x next-y to-x to-y delta]
+                   (let [window (:window mob)]
+                     (when (or (not (on-tile (.getX window) (.getY window)))
+                               (and (not (tilemap/is-blocked? next-x next-y))
+                                    (not (.hit mob-group next-x next-y true))))
+                       (.setX window to-x)
+                       (.setY window to-y)
+                       (swap! (:moving mob) (constantly true))
+                       ((:add-time-delta! mob) delta)
+                       (sort-actors))))
+        evaluate-direction-moving! (fn [mob delta]
+                                     (let [x (.getX (:window mob))
+                                           y (.getY (:window mob))]
+                                       (case @(:direction mob)
                                          :up
-                                         (do-move! x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
+                                         (do-move! mob x (inc y) x (util/round1 (+ y MOVE_AMOUNT)) delta)
                                          :down
-                                         (do-move! x (dec y) x (util/round1 (- y MOVE_AMOUNT)) delta)
+                                         (do-move! mob x (dec y) x (util/round1 (- y MOVE_AMOUNT)) delta)
                                          :left
-                                         (do-move! (dec x) y (util/round1 (- x MOVE_AMOUNT)) y delta)
+                                         (do-move! mob (dec x) y (util/round1 (- x MOVE_AMOUNT)) y delta)
                                          :right
-                                         (do-move! (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
+                                         (do-move! mob (inc x) y (util/round1 (+ x MOVE_AMOUNT)) y delta))))
         evaluate-on-tile! (fn [delta]
                             (if-let [{:keys [scene room to]} (tilemap/get-exit (.getX window) (.getY window))]
                               (.setScreen game (screen game scene room to))
                               (if-let [key (first @keys-down)]
                                 (when (is-direction? key)
-                                  (evaluate-direction-moving! key delta)
-                                  (swap! direction (constantly key)))
+                                  (swap! direction (constantly key))
+                                  (evaluate-direction-moving! party-leader delta))
                                 (when @moving
                                   (swap! moving (constantly false))
                                   (swap! state-time (constantly 0))))))
@@ -130,7 +129,12 @@
                                (on-tile (.getX window) (.getY window))
                                (evaluate-on-tile! delta)
                                :else
-                               (evaluate-direction-moving! @direction delta)))
+                               (evaluate-direction-moving! party-leader delta))
+                             (doseq [mob (vals @mob/mobs)]
+                               (when @(:moving mob)
+                                 (evaluate-direction-moving! mob delta)
+                                 (if (on-tile (.getX (:window mob)) (.getY (:window mob)))
+                                   (swap! (:moving mob) (constantly false))))))
         clear-engagement (fn [window mob-identifier mob-direction]
                            (.removeActor (.getRoot menu-stage) window)
                            (swap! (:direction (get @mob/mobs mob-identifier)) (constantly mob-direction))
@@ -222,7 +226,37 @@
                (.end @deps/batch)
                (doto menu-stage
                  (.act delta)
-                 (.draw)))]
+                 (.draw)))
+        evaluate-environment! (fn [delta]
+                                (doseq [mob (vals @mob/mobs)]
+                                  (let [x (.getX (:window mob))
+                                        y (.getY (:window mob))
+                                        to-x (first @(:destination mob))
+                                        to-y (second @(:destination mob))]
+                                    (when (and (false? @(:moving mob))
+                                               to-x
+                                               to-y)
+                                      (cond
+                                        (< x to-x)
+                                        (do (swap! (:direction mob) (constantly :right))
+                                            (evaluate-direction-moving!
+                                             mob
+                                             delta))
+                                        (< to-x x)
+                                        (do (swap! (:direction mob) (constantly :left))
+                                            (evaluate-direction-moving!
+                                             mob
+                                             delta))
+                                        (< y to-y)
+                                        (do (swap! (:direction mob) (constantly :up))
+                                            (evaluate-direction-moving!
+                                             mob
+                                             delta))
+                                        (< to-y y)
+                                        (do (swap! (:direction mob) (constantly :down))
+                                            (evaluate-direction-moving!
+                                             mob
+                                             delta)))))))]
     (proxy [Screen] []
       (show []
         (swap! (:direction party-leader) (constantly (:direction entrance)))
@@ -240,7 +274,8 @@
         (.setToOrtho @deps/camera
                      false
                      (/ constants/screen-width constants/tile-size)
-                     (/ constants/screen-height constants/tile-size)))
+                     (/ constants/screen-height constants/tile-size))
+        (event/fire-room-loaded-event room))
       (render [delta]
         (update-camera)
 
@@ -248,7 +283,9 @@
 
         (evaluate-movement! delta)
 
-        (evaluate-input!))
+        (evaluate-input!)
+
+        (evaluate-environment! delta))
       (dispose []
         (dispose))
       (hide []

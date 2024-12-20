@@ -86,6 +86,11 @@
   ([conditions]
    (conditions-met? conditions nil)))
 
+(defn- move-mob
+  [mob coordinates]
+  (.setX (:window mob) (first coordinates))
+  (.setY (:window mob) (second coordinates)))
+
 (defn apply-outcomes!
   [outcomes]
   (doseq [outcome outcomes]
@@ -102,8 +107,8 @@
       ((:play-animation! ((:mob outcome) @mob/mobs)) (:animation outcome))
       (= :player-animation (:type outcome))
       ((:play-animation! (first (vals @player/party))) (:animation outcome))
-      ;(= :set-mob-coords (:type outcome))
-      ;(mob/set-position! (:mob outcome) (:coords outcome))
+      (= :set-mob-coords (:type outcome))
+      (move-mob (get @mob/mobs (:mob outcome)) (:coords outcome))
       :else
       (log/info (str "unknown outcome :: " (:type outcome))))))
 

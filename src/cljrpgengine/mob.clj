@@ -101,7 +101,8 @@
                                       @equipment)))
       :set-destination (fn [coordinates]
                          (swap! destination (constantly coordinates)))
-      :destination destination}))
+      :destination destination
+      :moving (atom false)}))
   ([identifier name starting-direction x y mob-type]
    (create-mob identifier name starting-direction x y mob-type :unspecified)))
 
