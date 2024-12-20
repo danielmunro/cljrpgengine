@@ -91,7 +91,7 @@
       :level           (atom 1)
       :play-animation! (fn [animation-key]
                          (swap! animation (constantly animation-key)))
-      :portrait        (Texture. (str portraits-dir (get-portrait-from-mob-type mob-type)))
+      :portrait        (if mob-type (Texture. (str portraits-dir (get-portrait-from-mob-type mob-type))))
       :calc-attr       (fn [attr]
                          (reduce +
                                  (get @attributes attr)

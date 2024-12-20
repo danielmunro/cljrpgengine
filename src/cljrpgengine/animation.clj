@@ -30,4 +30,5 @@
   [name]
   (case name
     :edwyn (create-animation "edwyn.png")
-    :cyrus (create-animation "cyrus.png")))
+    :cyrus (create-animation "cyrus.png")
+    false))

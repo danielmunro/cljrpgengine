@@ -1,7 +1,6 @@
 (ns cljrpgengine.screens.main-menu
   (:require [cljrpgengine.constants :as constants]
             [cljrpgengine.deps :as deps]
-            [cljrpgengine.mob :as mob]
             [cljrpgengine.player :as player]
             [cljrpgengine.ui :as ui]
             [cljrpgengine.screens.dungeon :as dungeon])
@@ -34,28 +33,7 @@
           (.addActor @stage group))
 
         (swap! player/party
-               (constantly {:edwin (mob/create-mob
-                                    :edwyn
-                                    "Edwyn"
-                                    :down
-                                    0
-                                    0
-                                    :edwyn
-                                    :warrior)
-                            ;:dudelgor (mob/create-mob
-                            ;           :dudelgor
-                            ;           "Dudelgor"
-                            ;           :down
-                            ;           0
-                            ;           0
-                            ;           :cyrus
-                            ;           :cleric)
-                            }))
-        ;(player/add-item! :light-health-potion)
-        ;(player/add-item! :greater-health-potion)
-        ;(player/add-item! :light-mana-potion)
-        ;(player/add-item! :practice-sword)
-        )
+               (constantly (player/create-new-player))))
 
       (render [delta]
         (ScreenUtils/clear Color/BLACK)

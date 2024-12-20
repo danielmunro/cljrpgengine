@@ -1,4 +1,5 @@
-(ns cljrpgengine.player)
+(ns cljrpgengine.player
+  (:require [cljrpgengine.mob :as mob]))
 
 (def party (atom {}))
 (def items (atom {}))
@@ -30,3 +31,23 @@
 (defn has-grant?
   [grant]
   (contains? @grants grant))
+
+(defn create-new-player
+  []
+  {:edwin (mob/create-mob
+           :edwyn
+           "Edwyn"
+           :down
+           0
+           0
+           :edwyn
+           :warrior)
+   ;:dudelgor (mob/create-mob
+   ;           :dudelgor
+   ;           "Dudelgor"
+   ;           :down
+   ;           0
+   ;           0
+   ;           :cyrus
+   ;           :cleric)
+   })
